@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "scripts": {
+    "generate": "node scripts/generate.js"
+  },
+  "devDependencies": {
+    "js-yaml": "^4.1.0"
+  }
+}

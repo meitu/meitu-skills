@@ -45,15 +45,21 @@ npm install -g meitu-ai@latest --force
 
 ## Tool Capability Map
 
+<!-- BEGIN CAPABILITY_CATALOG -->
 - Motion transfer -> `video-motion-transfer`
-- Image edit -> `image-edit`
-- Image generate -> `image-generate`
-- Image upscale -> `image-upscale`
-- Virtual try-on -> `image-virtual-tryon`
 - Image to video -> `image-to-video`
-- Face swap -> `image-face-swap`
-- Image cutout -> `image-cutout`
+- Text to video -> `text-to-video`
+- Video to GIF -> `video-to-gif`
+- Image generate -> `image-generate`
+- Poster generate -> `image-poster-generate`
+- Image edit -> `image-edit`
+- Image upscale -> `image-upscale`
 - Beauty enhancement -> `image-beauty-enhance`
+- Face swap -> `image-face-swap`
+- Virtual try-on -> `image-virtual-tryon`
+- Image cutout -> `image-cutout`
+- Grid split -> `image-grid-split`
+<!-- END CAPABILITY_CATALOG -->
 
 ## Fallback
 

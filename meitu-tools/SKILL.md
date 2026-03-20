@@ -16,14 +16,18 @@ Use one runner script for all supported commands:
 This skill is aligned with the Node.js `openapi-cli` command set.
 Current built-in command coverage:
 - `video-motion-transfer`
-- `image-edit`
-- `image-generate`
-- `image-upscale`
-- `image-virtual-tryon`
 - `image-to-video`
-- `image-face-swap`
-- `image-cutout`
+- `text-to-video`
+- `video-to-gif`
+- `image-generate`
+- `image-poster-generate`
+- `image-edit`
+- `image-upscale`
 - `image-beauty-enhance`
+- `image-face-swap`
+- `image-virtual-tryon`
+- `image-cutout`
+- `image-grid-split`
 
 Notes:
 - No effect IDs are exposed in skill prompts.
@@ -139,41 +143,59 @@ Mandatory behavior:
 
 ## Capability Catalog
 
+<!-- BEGIN CAPABILITY_CATALOG -->
 1. `video-motion-transfer`
 - required: `image_url`, `video_url`, `prompt`
 - optional: none
 
-2. `image-edit`
-- required: `image`, `prompt`
-- optional: `size`, `output_format`, `ratio`
-
-3. `image-generate`
-- required: `prompt`
-- optional: `image`, `size`
-
-4. `image-upscale`
-- required: `image`
-- optional: `model_type`
-
-5. `image-virtual-tryon`
-- required: `clothes_image_url`, `person_image_url`
-- optional: `replace`, `need_sd`
-
-6. `image-to-video`
+2. `image-to-video`
 - required: `image`, `prompt`
 - optional: `video_duration`, `ratio`
 
-7. `image-face-swap`
-- required: `head_image_url`, `sence_image_url`, `prompt`
-- optional: none
+3. `text-to-video`
+- required: `prompt`
+- optional: `video_duration`, `sound`
 
-8. `image-cutout`
+4. `video-to-gif`
+- required: `video_url`
+- optional: `wechat_gif`
+
+5. `image-generate`
+- required: `prompt`
+- optional: `image`, `size`, `ratio`
+
+6. `image-poster-generate`
+- required: `prompt`
+- optional: `image_list`, `model`, `size`, `ratio`, `output_format`, `enhance_prompt`, `enhance_template`
+
+7. `image-edit`
+- required: `image`, `prompt`
+- optional: `model`, `size`, `output_format`, `ratio`
+
+8. `image-upscale`
 - required: `image`
 - optional: `model_type`
 
 9. `image-beauty-enhance`
 - required: `image`
 - optional: `beatify_type`
+
+10. `image-face-swap`
+- required: `head_image_url`, `sence_image_url`, `prompt`
+- optional: none
+
+11. `image-virtual-tryon`
+- required: `clothes_image_url`, `person_image_url`
+- optional: `replace`, `need_sd`
+
+12. `image-cutout`
+- required: `image`
+- optional: `model_type`
+
+13. `image-grid-split`
+- required: `image_url`
+- optional: none
+<!-- END CAPABILITY_CATALOG -->
 
 ## Natural Language Mapping
 

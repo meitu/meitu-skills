@@ -3,12 +3,17 @@
   "aggregated_skill": "meitu-tools",
   "capabilities": [
     "video-motion-transfer",
-    "image-edit",
-    "image-generate",
-    "image-upscale",
-    "image-virtual-tryon",
     "image-to-video",
+    "text-to-video",
+    "video-to-gif",
+    "image-generate",
+    "image-poster-generate",
+    "image-edit",
+    "image-upscale",
+    "image-beauty-enhance",
     "image-face-swap",
-    "image-cutout"
+    "image-virtual-tryon",
+    "image-cutout",
+    "image-grid-split"
   ]
 }

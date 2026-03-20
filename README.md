@@ -57,15 +57,31 @@ rg -n --hidden -S \
 
 ```text
 meitu-skills/
+  package.json                 # devDeps: js-yaml; scripts: generate
   SKILL.md
   README.md
   docs/
+  tools-ssot/
+    tools.yaml                 # SSOT — sole human-maintained data file
+    agent-descriptions.yaml    # auto-generated
+    tools-overview.csv         # auto-generated
+    disambiguation-matrix.md   # auto-generated
+    README.md
   scripts/
-    build_aggregate_skill.py
+    generate.js                # unified generator (reads tools.yaml, writes 7 artifacts)
   meitu-tools/
     SKILL.md
-    scripts/run_command.js
-    generated/manifest.json
+    scripts/
+      run_command.js           # entry point
+      lib/
+        commands.js            # reads commands-data.json, builds registry
+        commands-data.json     # auto-generated from tools.yaml
+        errors.js              # error classification and hint generation
+        input.js               # input alias resolution, validation, credentials
+        executor.js            # CLI invocation and result extraction
+        updater.js             # lazy runtime update and version management
+    generated/
+      manifest.json            # auto-generated
   article-to-cover/
     SKILL.md
     references/

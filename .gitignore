@@ -12,3 +12,4 @@ case.txt
 /*.ironconf
 /qodana.yaml
 .gitnexus
+node_modules/
