@@ -1,0 +1,14 @@
+.glide/
+
+.idea/*
+.iml
+.vscode/*
+.scannerwrok/*
+*.tar.gz
+main_go
+application/console/.vscode/
+.DS_Store
+case.txt
+/*.ironconf
+/qodana.yaml
+.gitnexus
