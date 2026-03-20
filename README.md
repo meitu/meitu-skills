@@ -13,7 +13,7 @@ Skill pack for OpenClaw, powered by `meitu-ai` CLI.
 1. Install all skills
 
 ```bash
-npx -y skills add https://github.com/meitu/meitu-skills --yes
+npx -y skills add https://github.com/meitu/meitu-skills
 ```
 
 2. Install runtime CLI
