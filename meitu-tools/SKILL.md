@@ -42,6 +42,29 @@ If an existing `meitu` binary conflicts:
 npm install -g meitu-ai@latest --force
 ```
 
+## Agent Bootstrap Policy (Must Follow)
+
+Agent behavior should optimize for zero-setup user experience:
+- Always try execution via `scripts/run_command.js` first.
+- Do not require user to install CLI before first attempt.
+- Keep `MEITU_AUTO_UPDATE=1` unless the user explicitly disables it.
+- Let the runner handle lazy install/update checks automatically.
+
+If runtime bootstrap fails, return concrete repair actions:
+- Standard repair:
+
+```bash
+npm install -g meitu-ai
+meitu --version
+```
+
+- If conflict error (`EEXIST`) appears:
+
+```bash
+npm install -g meitu-ai@latest --force
+meitu --version
+```
+
 ## Credentials
 
 Use one of the following:

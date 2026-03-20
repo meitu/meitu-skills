@@ -22,6 +22,27 @@ This is the top-level routing skill:
 - The user wants direct generation/editing execution.
 - The user already provides command-like parameters.
 
+## Runtime Bootstrap (Required)
+
+When the route is `meitu-tools`, follow this policy:
+- Do not block on manual install questions before first execution.
+- Execute through `meitu-tools/scripts/run_command.js` first.
+- Let the runner auto-bootstrap runtime (`meitu-ai`) with lazy update enabled by default.
+- Only ask the user for manual install/repair steps if runner bootstrap fails.
+
+Manual fallback commands (when bootstrap fails):
+
+```bash
+npm install -g meitu-ai
+meitu --version
+```
+
+If binary conflict (`EEXIST`) is reported:
+
+```bash
+npm install -g meitu-ai@latest --force
+```
+
 ## Tool Capability Map
 
 - Motion transfer -> `video-motion-transfer`

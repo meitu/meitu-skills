@@ -42,6 +42,17 @@ node meitu-tools/scripts/run_command.js \
 - `MEITU_UPDATE_CHECK_TTL_HOURS=24` (default)
 - `MEITU_UPDATE_CHANNEL=latest` (default)
 
+6. Sensitive data self-check (before commit/push/package)
+
+```bash
+rg -n --hidden -S \
+  -g '!.git' -g '!node_modules' \
+  '(OPENAPI_ACCESS_KEY|OPENAPI_SECRET_KEY|accessKey|secretKey|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9_-]{20,}|BEGIN (RSA|EC|OPENSSH) PRIVATE KEY)' .
+```
+
+- Run this before `git commit`, `git push`, and any zip/tar delivery.
+- No output means no obvious plaintext secret was found by this rule set.
+
 ## Directory
 
 ```text

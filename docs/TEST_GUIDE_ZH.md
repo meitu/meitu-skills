@@ -40,6 +40,20 @@ export OPENAPI_SECRET_KEY="你的SK"
 
 兼容旧文件（可选）：`~/.openapi/credentials.json`
 
+## 3.1 敏感信息自检（建议）
+
+在 `git commit`、`git push`、打包 zip/tar 给他人前，执行：
+
+```bash
+rg -n --hidden -S \
+  -g '!.git' -g '!node_modules' \
+  '(OPENAPI_ACCESS_KEY|OPENAPI_SECRET_KEY|accessKey|secretKey|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9_-]{20,}|BEGIN (RSA|EC|OPENSSH) PRIVATE KEY)' .
+```
+
+判定：
+- 无输出：未发现明显明文敏感信息。
+- 有输出：逐条确认是否为占位符；若是真实凭证，需立即删除并轮换。
+
 ## 4. 运行时懒更新（默认开启）
 
 可选环境变量：
@@ -95,6 +109,10 @@ MEITU_TASK_WAIT_TIMEOUT_MS=600000 node "$RUNNER" --command video-motion-transfer
 说明：
 - `image-to-video`、`video-motion-transfer` 会明显更慢，建议预留 3-10 分钟。
 - 若提示命令不存在，先执行第 2 节强制升级命令后重试。
+- `video-motion-transfer` 参数语义：
+  - `image_url`：目标人物来源图（最终视频里的人物）
+  - `video_url`：动作参考视频（动作与镜头参考）
+  - `prompt`：生成约束（风格/一致性要求）
 
 ## 6. 在龙虾里测试（可复制）
 
