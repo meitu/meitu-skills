@@ -159,8 +159,6 @@
     ],
     "optionalKeys": [
       "model",
-      "size",
-      "output_format",
       "ratio"
     ],
     "arrayKeys": [
@@ -179,10 +177,6 @@
       "提示词": "prompt",
       "描述": "prompt",
       "模型": "model",
-      "尺寸": "size",
-      "分辨率": "size",
-      "格式": "output_format",
-      "输出格式": "output_format",
       "比例": "ratio",
       "画幅": "ratio"
     }

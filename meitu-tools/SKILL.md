@@ -170,7 +170,7 @@ Mandatory behavior:
 
 7. `image-edit`
 - required: `image`, `prompt`
-- optional: `model`, `size`, `output_format`, `ratio`
+- optional: `model`, `ratio`
 
 8. `image-upscale`
 - required: `image`

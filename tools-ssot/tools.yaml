@@ -323,7 +323,7 @@ tools:
       - 仅美容 → image-beauty-enhance
     cli:
       requiredKeys: [image, prompt]
-      optionalKeys: [model, size, output_format, ratio]
+      optionalKeys: [model, ratio]
       arrayKeys: [image]
       commandAliases: [edit, 图片编辑]
       inputAliases:
@@ -335,10 +335,6 @@ tools:
         提示词: prompt
         描述: prompt
         模型: model
-        尺寸: size
-        分辨率: size
-        格式: output_format
-        输出格式: output_format
         比例: ratio
         画幅: ratio
 
