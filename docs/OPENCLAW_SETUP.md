@@ -2,35 +2,28 @@
 
 ## Recommended skills
 
-Load the following paths under `~/.openclaw/skills/`:
+Install/load these skills under `~/.openclaw/skills/`:
 
-- `meitu-ai/SKILL.md` (base tool skill, should always be loaded)
-- `meitu-video-motion-transfer/SKILL.md`
-- `meitu-image-edit/SKILL.md`
-- `meitu-image-generate/SKILL.md`
-- `meitu-image-upscale/SKILL.md`
-- `meitu-image-virtual-tryon/SKILL.md`
-- `meitu-image-to-video/SKILL.md`
-- `meitu-image-face-swap/SKILL.md`
-- `meitu-image-cutout/SKILL.md`
+- `meitu-tools/SKILL.md`
 - `article-to-cover/SKILL.md`
+
+If your environment supports a repository root entry skill, also include:
+- `SKILL.md` (root dispatcher)
 
 ## Trigger pattern
 
-Recommended:
-- load `meitu-ai` as base tool skill
-- invoke scenario skills directly by name
+- Tool execution: use `meitu-tools`
+- Poster scenario: use `article-to-cover`
 
-Example prompts:
+Examples:
 
 ```text
-Use meitu-image-edit.
-Input:
-{"image":["https://obs.mtlab.meitu.com/public/resources/aigensource.png"],"prompt":"把背景改成雪山，人物保持不变，写实风格","size":"2K","output_format":"jpeg","ratio":"auto"}
+/skill meitu-tools
+command=image-edit
+input={"image":["https://obs.mtlab.meitu.com/public/resources/aigensource.png"],"prompt":"把背景改成雪山，人物保持不变，写实风格"}
 ```
 
 ```text
-Use meitu-image-upscale.
-Input:
-{"image":"https://obs.mtlab.meitu.com/public/resources/aigensource.png"}
+/skill article-to-cover
+请把下面内容做成中文海报封面：AI 图像能力平台上线，支持图片编辑、超清、换头像、试衣、图生视频等功能。
 ```

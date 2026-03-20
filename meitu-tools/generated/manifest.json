@@ -1,0 +1,14 @@
+{
+  "generated": true,
+  "aggregated_skill": "meitu-tools",
+  "capabilities": [
+    "video-motion-transfer",
+    "image-edit",
+    "image-generate",
+    "image-upscale",
+    "image-virtual-tryon",
+    "image-to-video",
+    "image-face-swap",
+    "image-cutout"
+  ]
+}

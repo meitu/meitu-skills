@@ -15,4 +15,3 @@ Target runtime:
 Runner command resolution order:
 1. `MEITU_AI_CMD` env override
 2. `meitu`
-3. `~/Library/Python/3.11/bin/meitu`

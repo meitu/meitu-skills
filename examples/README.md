@@ -12,7 +12,7 @@ Run scripts (image only):
 Each script calls:
 
 ```bash
-python3 meitu-ai/scripts/run_command.py \
+node meitu-tools/scripts/run_command.js \
   --command <built-in-command> \
   --input-json '<json>'
 ```

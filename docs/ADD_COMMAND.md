@@ -1,31 +1,24 @@
 # ADD_COMMAND
 
-Add a new built-in command into the base tool skill (`meitu-ai`).
+Add a new built-in command to `meitu-tools`.
 
 ## Steps
 
-1. Edit `meitu-ai/scripts/run_command.py`.
-2. Add or update one command entry in `COMMAND_SPECS`.
-3. Define only user input keys:
-- `required_keys`
-- `optional_keys`
-- `array_keys`
-4. Update `meitu-ai/SKILL.md` command list.
-5. Validate with a minimal run:
+1. Edit `meitu-tools/scripts/run_command.js`.
+2. Add command entry in `COMMAND_SPECS`.
+3. Add aliases if needed:
+- `COMMAND_ALIASES`
+- `INPUT_KEY_ALIASES`
+4. If command behavior depends on runtime updates, document env controls in `meitu-tools/SKILL.md` (`MEITU_AUTO_UPDATE`, `MEITU_UPDATE_CHECK_TTL_HOURS`, etc.).
+5. Update `meitu-tools/SKILL.md` capability catalog.
+6. Refresh manifest:
 
 ```bash
-python3 meitu-ai/scripts/run_command.py \
-  --command <command_name> \
-  --input-json '{...}'
+python3 scripts/build_aggregate_skill.py
 ```
 
-## Input principle
+7. Validate:
 
-- Only expose keys users actually need to fill.
-- Do not expose internal routing details in documents.
-
-## Optional: Add a scenario skill
-
-If this command needs business-context packaging, add a scenario skill:
-- `<scenario-name>/SKILL.md`
-- call `../meitu-ai/scripts/run_command.py` from that scenario.
+```bash
+node meitu-tools/scripts/run_command.js --command <command_name> --input-json '{...}'
+```

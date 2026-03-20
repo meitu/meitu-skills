@@ -1,17 +1,18 @@
 # INSTALL
 
-## Runtime
-
-Recommended:
+## 1) Install skills
 
 ```bash
-pipx install --force meitu-ai
+npx -y skills add https://github.com/tangyang/skills --yes
 ```
 
-Required runtime:
-- `meitu-ai >= 0.1.2`
+## 2) Install runtime
 
-## Credentials
+```bash
+npm install -g meitu-ai
+```
+
+## 3) Configure credentials
 
 Preferred:
 
@@ -21,12 +22,19 @@ export OPENAPI_SECRET_KEY="..."
 ```
 
 Fallback:
-- `~/.openapi/credentials.json` with keys `accessKey` and `secretKey`.
+- `~/.meitu/credentials.json` (via `meitu config set-ak` and `meitu config set-sk`).
+- legacy fallback also supported: `~/.openapi/credentials.json`.
 
-## Verification
+## 4) Verify
 
 ```bash
-python3 meitu-ai/scripts/run_command.py \
+node meitu-tools/scripts/run_command.js \
   --command image-upscale \
   --input-json '{"image":"https://obs.mtlab.meitu.com/public/resources/aigensource.png"}'
 ```
+
+## 5) Lazy runtime update (default on)
+
+- `MEITU_AUTO_UPDATE=1` (default)
+- `MEITU_UPDATE_CHECK_TTL_HOURS=24` (default)
+- `MEITU_UPDATE_CHANNEL=latest` (default)
