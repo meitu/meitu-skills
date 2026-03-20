@@ -1,6 +1,6 @@
 ---
 name: article-to-cover
-description: "将长文、对话或设计简报转化为结构化海报设计方案与 AI 生成指令(JSON)。支持两种场景：无参考图时从零进行创意规划，有参考图时进行风格洗稿(Washing)或模仿重构(Mimicry)。Generates structured poster design specs and AI-ready prompts from text, conversations, or design briefs. Triggers: 海报设计, poster design, 文章转海报, article-to-cover, 设计方案, design brief, cover image, 信息图, 做张海报."
+description: "Generates structured poster design specs and AI-ready prompts from long-form text, conversations, or design briefs. Supports two modes: creative planning from scratch (no reference image) and reference-based washing/mimicry reconstruction."
 ---
 
 # article-to-cover
@@ -184,7 +184,9 @@ Generate JSON following Scenario 2 format in [references/output-formats.md](refe
      --command "image-generate" \
      --input-json '{"prompt":"{prompt}","size":"{width}x{height}"}'
    ```
-4. If generation fails → adjust prompt and retry through the same meitu-tools command runner
+4. If generation fails:
+   - Retry at most 2 times with adjusted prompt.
+   - If still failed, stop retrying and surface structured error fields from meitu-tools (`error_type`, `user_hint`, `next_action`, `action_url`) to user directly.
 
 ### Step 5: Compliance Check
 
@@ -196,7 +198,7 @@ Generate JSON following Scenario 2 format in [references/output-formats.md](refe
 ### Step 6: Record to Journal
 
 1. Append task entry to `~/.openclaw/visual/journal/entries/` with: date, input summary, style direction chosen, output path, key decisions
-2. Ask user: "要不要记录这次设计经验到知识库？" If yes → update `~/.openclaw/visual/journal/knowledge.yaml`
+2. Ask user: "Do you want to record this design experience into the knowledge base?" If yes → update `~/.openclaw/visual/journal/knowledge.yaml`
 
 ## Output
 

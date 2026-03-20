@@ -1,122 +1,173 @@
 ---
 name: meitu-tools
-description: Meitu 工具能力全集。统一介绍 meitu CLI 的安装、凭证、命令能力与调用方法。覆盖动作迁移、图片编辑、图片生成、图片超清、试衣、图生视频、换头像、抠图。
+description: Unified Meitu CLI capability skill. Covers installation, credentials, command mapping, execution pattern, and user-facing error guidance for all built-in image/video commands.
 ---
 
 # meitu-tools
 
 ## Purpose
 
-统一承载所有单工具能力，并通过一个脚本执行：
+This skill is the single tool-execution hub for Meitu CLI commands.
+Use one runner script for all supported commands:
 - `scripts/run_command.js`
 
-## Runtime
+## Runtime Alignment
 
-Install CLI:
+This skill is aligned with the Node.js `openapi-cli` command set.
+Current built-in command coverage:
+- `video-motion-transfer`
+- `image-edit`
+- `image-generate`
+- `image-upscale`
+- `image-virtual-tryon`
+- `image-to-video`
+- `image-face-swap`
+- `image-cutout`
+- `image-beauty-enhance`
+
+Notes:
+- No effect IDs are exposed in skill prompts.
+- Command routing is done by built-in Meitu CLI commands.
+
+## Install Runtime
 
 ```bash
 npm install -g meitu-ai
+meitu --version
 ```
 
-Credentials (one of two):
+If an existing `meitu` binary conflicts:
 
-1. Env vars:
+```bash
+npm install -g meitu-ai@latest --force
+```
+
+## Credentials
+
+Use one of the following:
+
+1. Environment variables:
 
 ```bash
 export OPENAPI_ACCESS_KEY="..."
 export OPENAPI_SECRET_KEY="..."
 ```
 
-2. File: `~/.meitu/credentials.json` (recommended by Node CLI)
+2. Credentials file (recommended): `~/.meitu/credentials.json`
 
 ```json
 {"accessKey":"...","secretKey":"..."}
 ```
 
-Legacy fallback is also supported: `~/.openapi/credentials.json`.
+Legacy fallback is supported:
+- `~/.openapi/credentials.json`
 
-## Unified execution
+## Unified Execution
 
 ```bash
 node "{baseDir}/scripts/run_command.js" --command "<command>" --input-json '<json object>'
 ```
 
-Output JSON:
+Expected output JSON fields:
 - `ok`
 - `command`
 - `task_id`
 - `media_urls`
 - `result`
 
-## Runtime maintenance (lazy update)
+## Lazy Runtime Update
 
 Default behavior:
-- `scripts/run_command.js` will perform lazy npm update checks automatically.
-- It does not update every call; it checks by TTL and only installs when stale/outdated.
+- `run_command.js` performs lazy npm update checks automatically.
+- It does not update on every call.
+- It checks by TTL and updates only when stale or outdated.
 
-Env controls:
+Environment controls:
 - `MEITU_AUTO_UPDATE=1|0` (default `1`)
 - `MEITU_UPDATE_CHECK_TTL_HOURS=<hours>` (default `24`)
 - `MEITU_UPDATE_CHANNEL=<tag>` (default `latest`)
 - `MEITU_UPDATE_PACKAGE=<name>` (default `meitu-ai`)
+- `MEITU_ORDER_URL=<url>` (order/renewal page for insufficient quota)
+- `MEITU_TASK_WAIT_TIMEOUT_MS=<ms>` (default `600000` for video commands, `900000` for others)
+- `MEITU_TASK_WAIT_INTERVAL_MS=<ms>` (default `2000`)
 
 Manual update intent:
-- When user asks to update runtime immediately, run:
-  - `npm install -g meitu-ai@latest`
-  - `meitu --version`
-- Typical trigger phrases:
-  - “更新 meitu-ai 到最新版本”
-  - “检查并修复 meitu 运行时”
-  - “现在立即更新 npm 包”
+- If the user explicitly asks for an immediate runtime update, run:
 
-## Capability catalog
+```bash
+npm install -g meitu-ai@latest
+meitu --version
+```
 
-1. 动作迁移 `video-motion-transfer`
+## Error Contract (Must Be User-Visible)
+
+When execution fails, runner output includes:
+- `error_type`
+- `error_code`
+- `error_name`
+- `user_hint`
+- `next_action`
+- `action_url` (when order/recharge is required)
+
+Mandatory behavior:
+- For `ORDER_REQUIRED`, explicitly tell the user to place an order/recharge first.
+- If `action_url` exists, provide it directly.
+- For `CREDENTIALS_MISSING`, ask the user to configure AK/SK first, then retry.
+
+## Capability Catalog
+
+1. `video-motion-transfer`
 - required: `image_url`, `video_url`, `prompt`
 - optional: none
 
-2. 图片编辑 `image-edit`
+2. `image-edit`
 - required: `image`, `prompt`
 - optional: `size`, `output_format`, `ratio`
 
-3. 图片生成 `image-generate`
+3. `image-generate`
 - required: `prompt`
 - optional: `image`, `size`
 
-4. 图片超清 `image-upscale`
+4. `image-upscale`
 - required: `image`
 - optional: `model_type`
 
-5. 试衣 `image-virtual-tryon`
+5. `image-virtual-tryon`
 - required: `clothes_image_url`, `person_image_url`
 - optional: `replace`, `need_sd`
 
-6. 图生视频 `image-to-video`
+6. `image-to-video`
 - required: `image`, `prompt`
 - optional: `video_duration`, `ratio`
 
-7. 换头像 `image-face-swap`
+7. `image-face-swap`
 - required: `head_image_url`, `sence_image_url`, `prompt`
 - optional: none
 
-8. 抠图 `image-cutout`
+8. `image-cutout`
 - required: `image`
 - optional: `model_type`
 
-## Natural-language to command mapping
+9. `image-beauty-enhance`
+- required: `image`
+- optional: `beatify_type`
 
-- 动作迁移 / motion transfer -> `video-motion-transfer`
-- 图片编辑 / image edit -> `image-edit`
-- 图片生成 / image generate -> `image-generate`
-- 图片超清 / upscale -> `image-upscale`
-- 试衣 / virtual try-on -> `image-virtual-tryon`
-- 图生视频 / image to video -> `image-to-video`
-- 换头像 / face swap -> `image-face-swap`
-- 抠图 / cutout -> `image-cutout`
+## Natural Language Mapping
 
-## Robust invocation pattern
+Typical intent-to-command mapping:
+- motion transfer -> `video-motion-transfer`
+- image edit -> `image-edit`
+- image generate -> `image-generate`
+- image upscale -> `image-upscale`
+- virtual try-on -> `image-virtual-tryon`
+- image to video -> `image-to-video`
+- face swap -> `image-face-swap`
+- image cutout -> `image-cutout`
+- beauty enhancement -> `image-beauty-enhance`
 
-When the user provides structured execution intent, prefer this shape:
+## Robust Invocation Pattern
+
+When the user provides structured execution intent, prefer:
 
 ```text
 Use meitu-tools.

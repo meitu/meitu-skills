@@ -10,6 +10,14 @@ const SEMVER_PATTERN = /\b(\d+)\.(\d+)\.(\d+)\b/;
 const DEFAULT_UPDATE_TTL_HOURS = 24;
 const DEFAULT_UPDATE_CHANNEL = "latest";
 const DEFAULT_UPDATE_PACKAGE = "meitu-ai";
+const DEFAULT_TASK_WAIT_TIMEOUT_MS = 900000;
+const DEFAULT_VIDEO_TASK_WAIT_TIMEOUT_MS = 600000;
+const VIDEO_COMMANDS = new Set(["image-to-video", "video-motion-transfer"]);
+const ORDER_ERROR_CODES = new Set([80001, 80002]);
+const AUTH_ERROR_CODES = new Set([90002, 90003, 90005]);
+const PARAM_ERROR_CODES = new Set([10000, 90000, 90001, 21101, 21102, 21103, 21104, 21105]);
+const IMAGE_URL_ERROR_CODES = new Set([10003, 21201, 21202, 21203, 21204, 21205]);
+const TEMP_ERROR_CODES = new Set([415, 500, 502, 503, 504, 599, 10002, 10015, 29904, 29905, 90009, 90020, 90021, 90022, 90023, 90099]);
 
 const COMMAND_SPECS = {
   "video-motion-transfer": {
@@ -52,6 +60,11 @@ const COMMAND_SPECS = {
     optionalKeys: ["model_type"],
     arrayKeys: [],
   },
+  "image-beauty-enhance": {
+    requiredKeys: ["image"],
+    optionalKeys: ["beatify_type"],
+    arrayKeys: [],
+  },
 };
 
 const COMMAND_ALIASES = {
@@ -63,6 +76,7 @@ const COMMAND_ALIASES = {
   "图生视频": "image-to-video",
   "换头像": "image-face-swap",
   "抠图": "image-cutout",
+  "美颜增强": "image-beauty-enhance",
   edit: "image-edit",
   generate: "image-generate",
   upscale: "image-upscale",
@@ -70,6 +84,8 @@ const COMMAND_ALIASES = {
   "face-swap": "image-face-swap",
   cutout: "image-cutout",
   "motion-transfer": "video-motion-transfer",
+  "beauty-enhance": "image-beauty-enhance",
+  beauty: "image-beauty-enhance",
 };
 
 const INPUT_KEY_ALIASES = {
@@ -159,10 +175,210 @@ const INPUT_KEY_ALIASES = {
     "图片链接": "image",
     "模型": "model_type",
   },
+  "image-beauty-enhance": {
+    image_url: "image",
+    "图片": "image",
+    "图片url": "image",
+    "图片链接": "image",
+    beautify_type: "beatify_type",
+    beauty_type: "beatify_type",
+    "美颜模式": "beatify_type",
+  },
 };
 
 function normalizeLookupKey(value) {
   return String(value || "").trim().toLowerCase();
+}
+
+function parseNumberCode(value) {
+  const parsed = Number.parseInt(String(value ?? "").trim(), 10);
+  if (Number.isNaN(parsed)) {
+    return null;
+  }
+  return parsed;
+}
+
+function removeEmptyFields(obj) {
+  return Object.fromEntries(
+    Object.entries(obj || {}).filter(([, value]) => value !== undefined && value !== null && value !== "")
+  );
+}
+
+function includesAny(text, terms) {
+  return terms.some((term) => text.includes(term));
+}
+
+function orderUrl() {
+  return String(process.env.MEITU_ORDER_URL || process.env.OPENAPI_ORDER_URL || "").trim();
+}
+
+function qpsOrderUrl() {
+  return String(process.env.MEITU_QPS_ORDER_URL || orderUrl()).trim();
+}
+
+function accountAppealUrl() {
+  return String(process.env.MEITU_ACCOUNT_APPEAL_URL || "").trim();
+}
+
+function inferErrorCodeFromText(text) {
+  const match = String(text || "").match(/\b(8\d{4}|9\d{4}|1\d{4,5}|2\d{4,5})\b/);
+  if (!match) {
+    return null;
+  }
+  return parseNumberCode(match[1]);
+}
+
+function buildErrorHint({ errorCode = null, errorName = "", httpStatus = null, message = "" } = {}) {
+  const normalizedName = String(errorName || "").trim();
+  const normalizedMessage = String(message || "").trim();
+  const text = `${normalizedName} ${normalizedMessage}`.toLowerCase();
+
+  let hint = {
+    error_type: "UNKNOWN_ERROR",
+    user_hint: "请求失败，请稍后重试；若持续失败请联系平台支持。",
+    next_action: "请稍后重试；若持续失败请提供 trace_id 或 request_id 给支持团队。",
+  };
+
+  if (errorCode === 91010 || text.includes("suspended")) {
+    hint = {
+      error_type: "ACCOUNT_SUSPENDED",
+      user_hint: "账号当前处于封禁状态，无法继续调用。",
+      next_action: "请先前往平台申请解封，解封后重试。",
+      action_url: accountAppealUrl(),
+    };
+  } else if (
+    includesAny(text, [
+      "access key not found",
+      "secret key not found",
+      "missing ak",
+      "missing sk",
+      "ak/sk",
+      "credentials",
+      "凭证",
+      "未配置 ak",
+      "未配置 sk",
+    ])
+  ) {
+    hint = {
+      error_type: "CREDENTIALS_MISSING",
+      user_hint: "未找到可用的 AK/SK 凭证，无法完成请求。",
+      next_action: "请先配置 OPENAPI_ACCESS_KEY / OPENAPI_SECRET_KEY 或本地凭证文件后重试。",
+    };
+  } else if (
+    ORDER_ERROR_CODES.has(errorCode) ||
+    includesAny(text, [
+      "rights_limit_exceeded",
+      "order_limit_exceeded",
+      "insufficient balance",
+      "quota exceeded",
+      "余额不足",
+      "权益超出",
+      "次数超出",
+    ])
+  ) {
+    hint = {
+      error_type: "ORDER_REQUIRED",
+      user_hint: "当前权益或订单次数不足，暂时无法继续调用。",
+      next_action: "请先下单/续费后重试。",
+      action_url: orderUrl(),
+    };
+  } else if (
+    errorCode === 90024 ||
+    httpStatus === 429 ||
+    includesAny(text, ["gateway_qps_limit", "qps", "rate limit", "too many requests", "并发过高"])
+  ) {
+    hint = {
+      error_type: "QPS_LIMIT",
+      user_hint: "当前请求频率超过限制。",
+      next_action: "请稍后重试；如需更高 QPS，请联系商务购买扩容。",
+      action_url: qpsOrderUrl(),
+    };
+  } else if (
+    AUTH_ERROR_CODES.has(errorCode) ||
+    [401, 403].includes(httpStatus) ||
+    includesAny(text, ["authorized", "unauthorized", "invalid token", "鉴权", "无效的令牌"])
+  ) {
+    hint = {
+      error_type: "AUTH_ERROR",
+      user_hint: "鉴权失败，AK/SK 或授权状态异常。",
+      next_action: "请检查 AK/SK、应用有效期和网关授权配置后重试。",
+    };
+  } else if (
+    PARAM_ERROR_CODES.has(errorCode) ||
+    httpStatus === 400 ||
+    includesAny(text, ["invalid_parameter", "parameter_error", "param_error", "参数错误", "参数缺失"])
+  ) {
+    hint = {
+      error_type: "PARAM_ERROR",
+      user_hint: "请求参数不符合接口要求。",
+      next_action: "请检查必填参数、参数类型和枚举取值后重试。",
+    };
+  } else if (
+    IMAGE_URL_ERROR_CODES.has(errorCode) ||
+    httpStatus === 424 ||
+    includesAny(text, ["image_download_failed", "invalid_url_error", "下载图片失败", "无效链接"])
+  ) {
+    hint = {
+      error_type: "IMAGE_URL_ERROR",
+      user_hint: "输入图片地址不可访问或下载失败。",
+      next_action: "请确认图片 URL 可公开访问且文件格式正确后重试。",
+    };
+  } else if (
+    errorCode === 90009 ||
+    errorCode === 10002 ||
+    httpStatus === 599 ||
+    includesAny(text, ["request_timeout", "timeout", "超时"])
+  ) {
+    hint = {
+      error_type: "REQUEST_TIMEOUT",
+      user_hint: "请求超时，服务暂时未完成处理。",
+      next_action: "请稍后重试；必要时降低并发或缩小输入规模。",
+    };
+  } else if (
+    TEMP_ERROR_CODES.has(errorCode) ||
+    [415, 500, 502, 503, 504].includes(httpStatus) ||
+    includesAny(text, ["internal", "algorithm_inner_error", "service unavailable", "算法内部异常", "资源不足"])
+  ) {
+    hint = {
+      error_type: "TEMPORARY_UNAVAILABLE",
+      user_hint: "服务暂时不可用或资源紧张。",
+      next_action: "请稍后重试；若持续失败请联系支持团队。",
+    };
+  }
+
+  return removeEmptyFields({
+    ...hint,
+    error_code: errorCode,
+    error_name: normalizedName,
+  });
+}
+
+function hintFromCliPayload(payload, stderr = "") {
+  const directHint = removeEmptyFields({
+    error_type: payload?.error_type,
+    error_code: parseNumberCode(payload?.error_code),
+    error_name: payload?.error_name,
+    user_hint: payload?.user_hint,
+    next_action: payload?.next_action,
+    action_url: payload?.action_url,
+  });
+  if (directHint.error_type) {
+    return directHint;
+  }
+
+  const codeFromPayload =
+    parseNumberCode(payload?.error_code) ??
+    parseNumberCode(payload?.code) ??
+    inferErrorCodeFromText(payload?.message);
+  const nameFromPayload = String(payload?.error_name || payload?.error || payload?.errorName || "").trim();
+  const messageFromPayload = String(payload?.message || payload?.error || stderr || "").trim();
+  const httpStatus = parseNumberCode(payload?.http_status);
+  return buildErrorHint({
+    errorCode: codeFromPayload !== null ? codeFromPayload : inferErrorCodeFromText(stderr),
+    errorName: nameFromPayload,
+    httpStatus,
+    message: `${messageFromPayload}\n${stderr}`.trim(),
+  });
 }
 
 function buildCommandAliasLookup() {
@@ -744,6 +960,9 @@ function printUsage() {
       "  MEITU_UPDATE_CHECK_TTL_HOURS=<hours>    default: 24",
       "  MEITU_UPDATE_CHANNEL=<tag>              default: latest",
       "  MEITU_UPDATE_PACKAGE=<name>             default: meitu-ai",
+      "  MEITU_ORDER_URL=<url>                   billing/order page for insufficient balance",
+      "  MEITU_TASK_WAIT_TIMEOUT_MS=<ms>         default: 600000 for video, 900000 for others",
+      "  MEITU_TASK_WAIT_INTERVAL_MS=<ms>        default: 2000",
     ].join("\n") + "\n"
   );
 }
@@ -816,7 +1035,10 @@ function main() {
     if (!stdout) {
       const timeoutTaskId = parseTaskWaitTimeout(stderr);
       if (timeoutTaskId) {
-        const waitTimeoutMs = envInt("MEITU_TASK_WAIT_TIMEOUT_MS", 900000, 1);
+        const defaultWaitTimeoutMs = VIDEO_COMMANDS.has(resolvedCommand)
+          ? DEFAULT_VIDEO_TASK_WAIT_TIMEOUT_MS
+          : DEFAULT_TASK_WAIT_TIMEOUT_MS;
+        const waitTimeoutMs = envInt("MEITU_TASK_WAIT_TIMEOUT_MS", defaultWaitTimeoutMs, 1);
         const waitIntervalMs = envInt("MEITU_TASK_WAIT_INTERVAL_MS", 2000, 1);
         const waitArgs = [
           "task",
@@ -845,11 +1067,16 @@ function main() {
       if (String(stderr || "").toLowerCase().includes("invalid choice")) {
         stderr = "current meitu runtime does not include built-in commands; please use meitu-ai >= 0.1.2";
       }
+      const errorHint = buildErrorHint({
+        errorCode: inferErrorCodeFromText(stderr),
+        message: stderr,
+      });
       const payload = {
         ok: false,
         command: resolvedCommand,
         error: stderr || "empty cli output",
         exit_code: result.returncode,
+        ...errorHint,
       };
       if (updateReport.checked || updateReport.updated || updateReport.error) {
         payload.runtime_update = updateReport;
@@ -862,6 +1089,10 @@ function main() {
     try {
       payload = JSON.parse(stdout);
     } catch {
+      const errorHint = buildErrorHint({
+        errorCode: inferErrorCodeFromText(stderr),
+        message: stderr || "invalid cli json output",
+      });
       process.stdout.write(
         JSON.stringify({
           ok: false,
@@ -870,6 +1101,7 @@ function main() {
           exit_code: result.returncode,
           stdout,
           stderr,
+          ...errorHint,
         }) + "\n"
       );
       return 1;
@@ -893,6 +1125,7 @@ function main() {
       if (stderr) {
         output.stderr = stderr;
       }
+      Object.assign(output, hintFromCliPayload(payload, stderr));
     }
 
     if (updateReport.checked || updateReport.updated || updateReport.error) {
@@ -902,8 +1135,17 @@ function main() {
     process.stdout.write(JSON.stringify(output) + "\n");
     return ok ? 0 : 1;
   } catch (error) {
+    const errorHint = buildErrorHint({
+      errorCode: inferErrorCodeFromText(error?.message),
+      message: String(error?.message || ""),
+    });
     process.stdout.write(
-      JSON.stringify({ ok: false, command: resolvedCommand, error: String(error.message || error) }) + "\n"
+      JSON.stringify({
+        ok: false,
+        command: resolvedCommand,
+        error: String(error.message || error),
+        ...errorHint,
+      }) + "\n"
     );
     return 1;
   }

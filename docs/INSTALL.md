@@ -3,7 +3,7 @@
 ## 1) Install skills
 
 ```bash
-npx -y skills add https://github.com/tangyang/skills --yes
+npx -y skills add https://github.com/meitu/meitu-skills --yes
 ```
 
 ## 2) Install runtime
