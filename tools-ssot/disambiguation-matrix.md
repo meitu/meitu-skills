@@ -7,8 +7,8 @@
 | 当前工具 | 优先于 | 选择条件 |
 |---|---|---|
 | 视频动作迁移(video-motion-transfer) | 图生视频(image-to-video) | 核心需求是复刻特定动作，而非从图片生成视频或对口型 |
-| 图生视频(image-to-video) | 文生视频(text-to-video) | 用户提供了首帧图片，或核心需求是对口型/语音表演 |
-| 图生视频(image-to-video) | 视频动作迁移(video-motion-transfer) | 不需要复刻特定参考动作，而是从图片自由生成视频 |
+| 图生视频(image-to-video) | 文生视频(text-to-video) | 用户已有明确的视觉主体（图片），且希望视频核心需求是对口型、语言表演 |
+| 图生视频(image-to-video) | 视频动作迁移(video-motion-transfer) | 追求创作的自由度，而非严格限定在某个参考视频的动作轨迹内 |
 | 文生视频(text-to-video) | 图生视频(image-to-video) | 用户未提供首帧图片，且不需要对口型/语音同步 |
 | 图片生成(image-generate) | 图片编辑(image-edit) | 核心意图是生成新图，而非修改现有图片 |
 | 图片生成(image-generate) | 海报生成(image-poster-generate) | 目标不是海报/宣传物料 |
