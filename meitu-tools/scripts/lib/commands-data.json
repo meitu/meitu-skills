@@ -72,7 +72,7 @@
   },
   "video-to-gif": {
     "requiredKeys": [
-      "video_url"
+      "image"
     ],
     "optionalKeys": [
       "wechat_gif"
@@ -82,10 +82,11 @@
       "视频转gif"
     ],
     "inputAliases": {
-      "video": "video_url",
-      "视频": "video_url",
-      "视频url": "video_url",
-      "视频链接": "video_url"
+      "video_url": "image",
+      "video": "image",
+      "视频": "image",
+      "视频url": "image",
+      "视频链接": "image"
     }
   },
   "image-generate": {
@@ -299,7 +300,7 @@
   },
   "image-grid-split": {
     "requiredKeys": [
-      "image_url"
+      "image"
     ],
     "optionalKeys": [],
     "arrayKeys": [],
@@ -308,10 +309,10 @@
       "宫格拆分"
     ],
     "inputAliases": {
-      "image": "image_url",
-      "图片": "image_url",
-      "图片url": "image_url",
-      "图片链接": "image_url"
+      "image_url": "image",
+      "图片": "image",
+      "图片url": "image",
+      "图片链接": "image"
     }
   }
 }
