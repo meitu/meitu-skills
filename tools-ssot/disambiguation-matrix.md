@@ -6,9 +6,9 @@
 
 | 当前工具 | 优先于 | 选择条件 |
 |---|---|---|
-| 动作迁移(video-motion-transfer) | 图生视频(image-to-video) | 核心需求是复刻特定动作，而非从图片生成视频或对口型 |
+| 视频动作迁移(video-motion-transfer) | 图生视频(image-to-video) | 核心需求是复刻特定动作，而非从图片生成视频或对口型 |
 | 图生视频(image-to-video) | 文生视频(text-to-video) | 用户提供了首帧图片，或核心需求是对口型/语音表演 |
-| 图生视频(image-to-video) | 动作迁移(video-motion-transfer) | 不需要复刻特定参考动作，而是从图片自由生成视频 |
+| 图生视频(image-to-video) | 视频动作迁移(video-motion-transfer) | 不需要复刻特定参考动作，而是从图片自由生成视频 |
 | 文生视频(text-to-video) | 图生视频(image-to-video) | 用户未提供首帧图片，且不需要对口型/语音同步 |
 | 图片生成(image-generate) | 图片编辑(image-edit) | 核心意图是生成新图，而非修改现有图片 |
 | 图片生成(image-generate) | 海报生成(image-poster-generate) | 目标不是海报/宣传物料 |
@@ -18,10 +18,10 @@
 | 图片编辑(image-edit) | 海报生成(image-poster-generate) | 编辑目标不是海报，或仅需局部微调 |
 | 图片美容(image-beauty-enhance) | 图片编辑(image-edit) | 需求仅限美颜美肤，不涉及内容修改 |
 | 图片美容(image-beauty-enhance) | 图片超清(image-upscale) | 目标是面部美化而非纯画质提升 |
-| 换头像(image-face-swap) | 图片编辑(image-edit) | 需求明确是人脸替换，非通用编辑 |
-| 换头像(image-face-swap) | 试衣(image-try-on) | 目标是换脸而非换装 |
-| 试衣(image-try-on) | 换头像(image-face-swap) | 目标是换装而非换脸 |
-| 试衣(image-try-on) | 图片编辑(image-edit) | 需求明确是虚拟试衣，非通用编辑 |
+| AI换头(image-face-swap) | 图片编辑(image-edit) | 需求明确是人脸替换，非通用编辑 |
+| AI换头(image-face-swap) | AI换装(image-try-on) | 目标是换脸而非换装 |
+| AI换装(image-try-on) | AI换头(image-face-swap) | 目标是换装而非换脸 |
+| AI换装(image-try-on) | 图片编辑(image-edit) | 需求明确是虚拟试衣，非通用编辑 |
 | 宫格拆分(image-grid-split) | 图片编辑(image-edit) | 按宫格等分拆图，非任意裁切 |
 | 宫格拆分(image-grid-split) | 抠图(image-cutout) | 网格切割整张图，非分离前景主体 |
 
@@ -29,8 +29,8 @@
 
 | 工具 | 不适用场景 | 转向 |
 |---|---|---|
-| 动作迁移(video-motion-transfer) | 人物说话/对口型 | image-to-video |
-| 动作迁移(video-motion-transfer) | 纯文字生成视频 | text-to-video |
+| 视频动作迁移(video-motion-transfer) | 人物说话/对口型 | image-to-video |
+| 视频动作迁移(video-motion-transfer) | 纯文字生成视频 | text-to-video |
 | 图生视频(image-to-video) | 无首帧图片 | text-to-video |
 | 图生视频(image-to-video) | 仅需复刻特定参考动作 | video-motion-transfer |
 | 图生视频(image-to-video) | 仅需轻微动效且无音画同步需求 | — |
@@ -54,11 +54,11 @@
 | 图片美容(image-beauty-enhance) | 修改图片内容 | image-edit |
 | 图片美容(image-beauty-enhance) | 纯画质提升 | image-upscale |
 | 图片美容(image-beauty-enhance) | 换脸 | image-face-swap |
-| 换头像(image-face-swap) | 替换背景 | image-edit |
-| 换头像(image-face-swap) | 仅换发型不换脸 | image-edit |
-| 换头像(image-face-swap) | 虚拟试衣 | image-try-on |
-| 试衣(image-try-on) | 换脸 | image-face-swap |
-| 试衣(image-try-on) | 仅抠出服装 | image-cutout |
+| AI换头(image-face-swap) | 替换背景 | image-edit |
+| AI换头(image-face-swap) | 仅换发型不换脸 | image-edit |
+| AI换头(image-face-swap) | 虚拟试衣 | image-try-on |
+| AI换装(image-try-on) | 换脸 | image-face-swap |
+| AI换装(image-try-on) | 仅抠出服装 | image-cutout |
 | 抠图(image-cutout) | 抠图后换背景 | 先 image-cutout 再 image-edit |
 | 抠图(image-cutout) | 宫格拆分 | image-grid-split |
 | 宫格拆分(image-grid-split) | 任意比例裁切 | image-edit |

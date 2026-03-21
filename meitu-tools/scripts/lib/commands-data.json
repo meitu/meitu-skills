@@ -9,7 +9,7 @@
     "arrayKeys": [],
     "commandAliases": [
       "motion-transfer",
-      "动作迁移"
+      "视频动作迁移"
     ],
     "inputAliases": {
       "image": "image_url",
@@ -235,7 +235,7 @@
     "arrayKeys": [],
     "commandAliases": [
       "face-swap",
-      "换头像"
+      "AI换头"
     ],
     "inputAliases": {
       "head_url": "head_image_url",
@@ -263,7 +263,7 @@
     "commandAliases": [
       "image-try-on",
       "virtual-tryon",
-      "试衣"
+      "AI换装"
     ],
     "inputAliases": {
       "clothes_url": "clothes_image_url",

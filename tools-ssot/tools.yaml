@@ -35,7 +35,7 @@ tools:
   # ── 视频类 ──────────────────────────────
 
   - id: video-motion-transfer
-    name: 动作迁移
+    name: 视频动作迁移
     summary: 将参考视频中的人物动作迁移到目标人物/角色上，驱动目标执行相同动作。
     triggers:
       - 用户提供动作参考视频，要求目标人物/角色模仿该动作
@@ -59,7 +59,7 @@ tools:
       requiredKeys: [image_url, video_url, prompt]
       optionalKeys: []
       arrayKeys: []
-      commandAliases: [motion-transfer, 动作迁移]
+      commandAliases: [motion-transfer, 视频动作迁移]
       inputAliases:
         image: image_url
         图片: image_url
@@ -412,7 +412,7 @@ tools:
 
 
   - id: image-face-swap
-    name: 换头像
+    name: AI换头
     summary: 将图1人物的头部和肤色替换到图2上，保留图2的姿态、服饰和背景。
     triggers:
       - 提供两张人像图，要求换脸/换头
@@ -437,7 +437,7 @@ tools:
       requiredKeys: [head_image_url, sence_image_url, prompt]
       optionalKeys: []
       arrayKeys: []
-      commandAliases: [face-swap, 换头像]
+      commandAliases: [face-swap, AI换头]
       inputAliases:
         head_url: head_image_url
         头像图: head_image_url
@@ -452,7 +452,7 @@ tools:
 
 
   - id: image-try-on
-    name: 试衣
+    name: AI换装
     summary: 将服装图适配到人像上，生成虚拟试穿效果。
     triggers:
       - 提供人像+服装图，要求试穿/换装/看上身效果
@@ -478,7 +478,7 @@ tools:
       requiredKeys: [clothes_image_url, person_image_url]
       optionalKeys: [replace, need_sd]
       arrayKeys: []
-      commandAliases: [image-try-on, virtual-tryon, 试衣]
+      commandAliases: [image-try-on, virtual-tryon, AI换装]
       inputAliases:
         clothes_url: clothes_image_url
         clothes: clothes_image_url

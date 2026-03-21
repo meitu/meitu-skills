@@ -1,5 +1,5 @@
 - tool: video-motion-transfer
-  name: 动作迁移
+  name: 视频动作迁移
   description: |
     <summary>将参考视频中的人物动作迁移到目标人物/角色上，驱动目标执行相同动作。</summary>
     <input>video 1个(动作参考视频) + image|video 1张(目标人物/角色)</input>
@@ -110,7 +110,7 @@
 
 
 - tool: image-face-swap
-  name: 换头像
+  name: AI换头
   description: |
     <summary>将图1人物的头部和肤色替换到图2上，保留图2的姿态、服饰和背景。</summary>
     <input>image 2张(图1=源脸，图2=目标姿态/场景)</input>
@@ -122,7 +122,7 @@
 
 
 - tool: image-try-on
-  name: 试衣
+  name: AI换装
   description: |
     <summary>将服装图适配到人像上，生成虚拟试穿效果。</summary>
     <input>image 2张(人像图1张(不要求完整人像) + 服装图1张(平铺或穿着均可))</input>
