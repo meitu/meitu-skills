@@ -13,7 +13,7 @@ npm install -g meitu-ai
 meitu --version
 ```
 
-建议确认版本 `>= 0.1.2`（需包含全部内置命令）。
+建议确认版本 `>= 0.1.6`（需包含全部内置命令，并与当前技能命令名保持一致）。
 
 如果安装时提示 `EEXIST`（本机已有同名 `meitu`），可执行：
 
@@ -82,7 +82,7 @@ node "$RUNNER" --help
 node "$RUNNER" --command image-upscale --input-json '{"image":"https://obs.mtlab.meitu.com/public/resources/aigensource.png"}'
 
 # 2) 图片编辑
-node "$RUNNER" --command image-edit --input-json '{"image":["https://obs.mtlab.meitu.com/public/resources/aigensource.png"],"prompt":"把背景改成雪山，人物保持不变，写实风格","size":"2K","output_format":"jpeg","ratio":"auto"}'
+node "$RUNNER" --command image-edit --input-json '{"image":["https://obs.mtlab.meitu.com/public/resources/aigensource.png"],"prompt":"把背景改成雪山，人物保持不变，写实风格","model":"praline","ratio":"auto"}'
 
 # 3) 图片生成
 node "$RUNNER" --command image-generate --input-json '{"prompt":"同样人物，背景改成海边日落，写实风格","image":["https://obs.mtlab.meitu.com/public/resources/aigensource.png"],"size":"2K"}'
@@ -114,82 +114,68 @@ MEITU_TASK_WAIT_TIMEOUT_MS=600000 node "$RUNNER" --command video-motion-transfer
   - `video_url`：动作参考视频（动作与镜头参考）
   - `prompt`：生成约束（风格/一致性要求）
 
-## 6. 在龙虾里测试（可复制）
+## 6. 在龙虾里测试（微信文档粘贴版）
 
-工具能力总入口：
+6.0 工具能力总入口
 
-```text
 /skill meitu-tools
 请列出你支持的工具能力，并给出每个能力最小必填参数。
-```
 
-### 6.1 九个工具逐项测试
+6.1 九个工具逐项测试
 
-```text
+1) 图片超清
 /skill meitu-tools
 command=image-upscale
 input={"image":"https://obs.mtlab.meitu.com/public/resources/aigensource.png"}
-```
 
-```text
+2) 图片编辑
 /skill meitu-tools
 command=image-edit
-input={"image":["https://obs.mtlab.meitu.com/public/resources/aigensource.png"],"prompt":"把背景改成雪山，人物保持不变，写实风格","size":"2K","output_format":"jpeg","ratio":"auto"}
-```
+input={"image":["https://obs.mtlab.meitu.com/public/resources/aigensource.png"],"prompt":"把背景改成雪山，人物保持不变，写实风格","model":"praline","ratio":"auto"}
 
-```text
+3) 图片生成
 /skill meitu-tools
 command=image-generate
 input={"prompt":"同样人物，背景改成海边日落，写实风格","image":["https://obs.mtlab.meitu.com/public/resources/aigensource.png"],"size":"2K"}
-```
 
-```text
+4) 试衣
 /skill meitu-tools
 command=image-try-on
 input={"clothes_image_url":"https://obs.mtlab.meitu.com/public/resources/aigensource.png","person_image_url":"https://meitu-commons-test.obs.cn-north-4.myhuaweicloud.com/autotest/aipaintingtext1.jpg","replace":"full","need_sd":"1"}
-```
 
-```text
+5) 换头像
 /skill meitu-tools
 command=image-face-swap
 input={"head_image_url":"https://obs.mtlab.meitu.com/public/resources/aigensource.png","sence_image_url":"https://meitu-commons-test.obs.cn-north-4.myhuaweicloud.com/autotest/aipaintingtext1.jpg","prompt":"把第一张图的人脸自然替换到第二张图的人物上，保持光线一致"}
-```
 
-```text
+6) 抠图
 /skill meitu-tools
 command=image-cutout
 input={"image":"https://obs.mtlab.meitu.com/public/resources/aigensource.png"}
-```
 
-```text
+7) 美颜增强
 /skill meitu-tools
 command=image-beauty-enhance
 input={"image":"https://meitu-commons-test.obs.cn-north-4.myhuaweicloud.com/autotest/aipaintingtext1.jpg","beatify_type":1}
-```
 
-```text
+8) 图生视频
 /skill meitu-tools
 command=image-to-video
 input={"image":["https://obs.mtlab.meitu.com/public/resources/aigensource.png"],"prompt":"让人物微笑并轻微摆头","video_duration":"5","ratio":"9:16"}
-```
 
-```text
+9) 动作迁移
 /skill meitu-tools
 command=video-motion-transfer
 input={"image_url":"https://meitu-commons-test.obs.cn-north-4.myhuaweicloud.com/autotest/aipaintingtext1.jpg","video_url":"https://meitu-commons-test.obs.cn-north-4.myhuaweicloud.com/autotest/1080-5s.mp4","prompt":"使用图片中的人物，按照视频中的动作生成新视频，保持人物身份与风格一致，写实风格"}
-```
 
-### 6.2 场景能力（可选）
+6.2 场景能力（可选）
 
-```text
 /skill article-to-cover
 请把下面内容做成中文海报封面，科技感风格，主标题醒目：
 “AI 图像能力平台上线，支持图片编辑、超清、换头像、试衣、图生视频等功能，面向开发者开放测试。”
-```
 
-### 6.3 自然语言触发示例
+6.3 自然语言触发示例
 
-```text
 请把这张图做高清修复并提升清晰度：https://obs.mtlab.meitu.com/public/resources/aigensource.png
 把这张图背景改成雪山，人物保持不变：https://obs.mtlab.meitu.com/public/resources/aigensource.png
 请生成一张写实风格海边日落人像图
@@ -199,7 +185,6 @@ input={"image_url":"https://meitu-commons-test.obs.cn-north-4.myhuaweicloud.com/
 请帮我做自然人像美颜增强（高P）：https://meitu-commons-test.obs.cn-north-4.myhuaweicloud.com/autotest/aipaintingtext1.jpg
 请把这张图生成 5 秒短视频：https://obs.mtlab.meitu.com/public/resources/aigensource.png
 请用这张图片中的人物，按照这个参考视频的动作生成新视频
-```
 
 ## 7. 验收标准（必须全部通过）
 

@@ -261,7 +261,8 @@
     ],
     "arrayKeys": [],
     "commandAliases": [
-      "virtual-tryon",
+      "image-try-on",
+      "试衣",
       "AI换装"
     ],
     "inputAliases": {

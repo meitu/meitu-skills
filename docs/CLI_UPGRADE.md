@@ -2,7 +2,7 @@
 
 ## Background
 
-`tools-ssot/tools.yaml` 已完成全部 13 个工具的 CLI 字段配置。当前 `meitu-ai` CLI v0.1.4 仅支持其中 9 个命令。本文档记录升级所需的变更和验证步骤。
+`tools-ssot/tools.yaml` 已完成全部 13 个工具的 CLI 字段配置。当前主线已对齐 `meitu-ai` CLI v0.1.6。本文档保留从 v0.1.4 升级到当前版本时的变更和验证记录，供排查历史兼容性问题时参考。
 
 ## Tool ↔ Backend API Mapping
 

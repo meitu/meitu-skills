@@ -161,7 +161,7 @@ function main() {
 
     if (!stdout) {
       if (String(stderr || "").toLowerCase().includes("invalid choice")) {
-        stderr = "current meitu runtime does not include built-in commands; please use meitu-ai >= 0.1.2";
+        stderr = "current meitu runtime does not include built-in commands; please use meitu-ai >= 0.1.6";
       }
       const errorHint = buildErrorHint({
         errorCode: inferErrorCodeFromText(stderr),

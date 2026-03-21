@@ -7,6 +7,8 @@
 const ORDER_ERROR_CODES = new Set([80001, 80002]);
 const AUTH_ERROR_CODES = new Set([90002, 90003, 90005]);
 const PARAM_ERROR_CODES = new Set([10000, 90000, 90001, 21101, 21102, 21103, 21104, 21105]);
+const INVALID_RESOURCES_ERROR_CODES = new Set([10025, 10026, 10027]);
+const ROUTE_ERROR_CODES = new Set([90025]);
 const IMAGE_URL_ERROR_CODES = new Set([10003, 21201, 21202, 21203, 21204, 21205]);
 const TEMP_ERROR_CODES = new Set([415, 500, 502, 503, 504, 599, 10002, 10015, 29904, 29905, 90009, 90020, 90021, 90022, 90023, 90099]);
 
@@ -46,6 +48,14 @@ function inferErrorCodeFromText(text) {
     return null;
   }
   return parseNumberCode(match[1]);
+}
+
+function payloadActionUrl(payload) {
+  const direct = String(payload?.action_url || "").trim();
+  if (direct) {
+    return direct;
+  }
+  return String(payload?.action?.url || "").trim();
 }
 
 function buildErrorHint({ errorCode = null, errorName = "", httpStatus = null, message = "" } = {}) {
@@ -114,6 +124,15 @@ function buildErrorHint({ errorCode = null, errorName = "", httpStatus = null, m
       action_url: qpsOrderUrl(),
     };
   } else if (
+    ROUTE_ERROR_CODES.has(errorCode) ||
+    includesAny(text, ["gateway_route_data_not_found", "route data not found", "路由数据不存在", "路由缺失"])
+  ) {
+    hint = {
+      error_type: "ROUTE_DATA_NOT_FOUND",
+      user_hint: "网关路由数据不存在或未生效，当前能力可能尚未正确发布。",
+      next_action: "请检查路由配置与生效状态，并确认当前账号已开通该能力后重试。",
+    };
+  } else if (
     AUTH_ERROR_CODES.has(errorCode) ||
     [401, 403].includes(httpStatus) ||
     includesAny(text, ["authorized", "unauthorized", "invalid token", "鉴权", "无效的令牌"])
@@ -122,6 +141,15 @@ function buildErrorHint({ errorCode = null, errorName = "", httpStatus = null, m
       error_type: "AUTH_ERROR",
       user_hint: "鉴权失败，AK/SK 或授权状态异常。",
       next_action: "请检查 AK/SK、应用有效期和网关授权配置后重试。",
+    };
+  } else if (
+    INVALID_RESOURCES_ERROR_CODES.has(errorCode) ||
+    includesAny(text, ["invalid_resources", "illegal resource", "非法资源", "资源非法"])
+  ) {
+    hint = {
+      error_type: "INVALID_RESOURCES",
+      user_hint: "资源配置不合法（输入/输出/文本资源异常）。",
+      next_action: "请检查资源类型、格式和可访问性；若仍失败，请确认账号已开通该 API 能力权限。",
     };
   } else if (
     PARAM_ERROR_CODES.has(errorCode) ||
@@ -174,13 +202,14 @@ function buildErrorHint({ errorCode = null, errorName = "", httpStatus = null, m
 }
 
 function hintFromCliPayload(payload, stderr = "") {
+  const actionUrl = payloadActionUrl(payload);
   const directHint = removeEmptyFields({
     error_type: payload?.error_type,
     error_code: parseNumberCode(payload?.error_code),
     error_name: payload?.error_name,
     user_hint: payload?.user_hint,
     next_action: payload?.next_action,
-    action_url: payload?.action_url,
+    action_url: actionUrl,
   });
   if (directHint.error_type) {
     return directHint;
@@ -193,11 +222,14 @@ function hintFromCliPayload(payload, stderr = "") {
   const nameFromPayload = String(payload?.error_name || payload?.error || payload?.errorName || "").trim();
   const messageFromPayload = String(payload?.message || payload?.error || stderr || "").trim();
   const httpStatus = parseNumberCode(payload?.http_status);
-  return buildErrorHint({
-    errorCode: codeFromPayload !== null ? codeFromPayload : inferErrorCodeFromText(stderr),
-    errorName: nameFromPayload,
-    httpStatus,
-    message: `${messageFromPayload}\n${stderr}`.trim(),
+  return removeEmptyFields({
+    ...buildErrorHint({
+      errorCode: codeFromPayload !== null ? codeFromPayload : inferErrorCodeFromText(stderr),
+      errorName: nameFromPayload,
+      httpStatus,
+      message: `${messageFromPayload}\n${stderr}`.trim(),
+    }),
+    action_url: actionUrl,
   });
 }
 

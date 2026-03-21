@@ -10,7 +10,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 - Unified generator (`scripts/generate.js`) replaces both the old `generate.js` and `compile-tools.py`, producing 7 downstream artifacts in one pass
 - `commands.js` now reads from auto-generated `commands-data.json` instead of inline data
 - All 13 tools now have `cli` fields in `tools.yaml`, CLI coverage = 13/13
-- `image-try-on` (id) maps to `image-virtual-tryon` (CLI command) via `cli.command`
+- `image-try-on` now maps directly to `image-try-on` in the CLI registry
 - `image-edit`: added `model` to optionalKeys; documented per-model ratio constraints (praline/nougat/gummy)
 - `image-generate`: added `ratio` to optionalKeys (supports 1:1/4:3/3:4/16:9/9:16/3:2/2:3/21:9)
 - `text-to-video` added to VIDEO_COMMANDS set in executor.js (uses video timeout)
@@ -36,7 +36,7 @@ Tested 2026-03-20. 6/9 original commands PASS; 4 new commands + 2 new params pen
 | image-cutout | PASS | |
 | image-edit (praline) | PASS | |
 | image-face-swap | PASS | |
-| image-virtual-tryon | PASS | |
+| image-try-on | PASS | |
 | image-to-video | PASS | |
 | image-beauty-enhance | FAIL | Server error 98501 (test image not a portrait) |
 | video-motion-transfer | FAIL | Invalid test video URL |

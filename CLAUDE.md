@@ -34,11 +34,11 @@ tools-ssot/tools.yaml  (edit here only)
 
 - **Never hand-edit generated files.** Edit `tools.yaml`, then `npm run generate`.
 - Tools with `cli` field go into CLI pipeline (commands-data.json, manifest, SKILL.md catalogs).
-- CLI registry key = `cli.command || id`.
+- CLI registry key = `cli.command || id` (e.g., `image-try-on` uses `cli.command: image-try-on`).
 - `commands.js` export interface must stay stable — `run_command.js`, `input.js`, `executor.js` depend on it.
 - Commit format: `<type>: <description>` (feat, fix, refactor, docs, chore).
 - Language: code and commits in English; tool names/summaries/aliases in Chinese per tools.yaml conventions.
-- No secrets in code — use env vars `MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY` or `~/.meitu/credentials.json`.
+- No secrets in code — use env vars `OPENAPI_ACCESS_KEY` / `OPENAPI_SECRET_KEY` or `MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`, or `~/.meitu/credentials.json`.
 
 ## Tool ↔ API Mapping
 
@@ -54,7 +54,7 @@ tools.yaml 中的工具 id 与后端 MCP API name 对应关系（从 `preinterna
 
 ## CLI Runtime Compatibility
 
-当前 `meitu-ai` CLI 版本 **0.1.4** 支持 9 个原始命令。4 个新命令（`text-to-video`, `video-to-gif`, `image-poster-generate`, `image-grid-split`）及 2 个新参数（`image-edit --model`, `image-generate --ratio`）需要 CLI 发布新版本后才可用。tools.yaml 已提前配置完毕，CLI 升级后即可生效。
+当前 `meitu-ai` CLI 版本 **0.1.6** 已支持全部 13 个命令，并覆盖 `image-edit --model`、`image-generate --ratio`、`image-try-on` 等最新命令口径。`tools.yaml` 与当前 CLI 需要保持同步。
 
 ## Adding a New Tool
 
