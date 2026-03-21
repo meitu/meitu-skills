@@ -76,8 +76,8 @@ Use one of the following:
 1. Environment variables:
 
 ```bash
-export OPENAPI_ACCESS_KEY="..."
-export OPENAPI_SECRET_KEY="..."
+export MEITU_OPENAPI_ACCESS_KEY="..."
+export MEITU_OPENAPI_SECRET_KEY="..."
 ```
 
 2. Credentials file (recommended): `~/.meitu/credentials.json`

@@ -38,7 +38,7 @@ tools-ssot/tools.yaml  (edit here only)
 - `commands.js` export interface must stay stable — `run_command.js`, `input.js`, `executor.js` depend on it.
 - Commit format: `<type>: <description>` (feat, fix, refactor, docs, chore).
 - Language: code and commits in English; tool names/summaries/aliases in Chinese per tools.yaml conventions.
-- No secrets in code — use env vars `OPENAPI_ACCESS_KEY` / `OPENAPI_SECRET_KEY` or `~/.meitu/credentials.json`.
+- No secrets in code — use env vars `MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY` or `~/.meitu/credentials.json`.
 
 ## Tool ↔ API Mapping
 

@@ -17,8 +17,8 @@ npm install -g meitu-ai
 Preferred:
 
 ```bash
-export OPENAPI_ACCESS_KEY="..."
-export OPENAPI_SECRET_KEY="..."
+export MEITU_OPENAPI_ACCESS_KEY="..."
+export MEITU_OPENAPI_SECRET_KEY="..."
 ```
 
 Fallback:
@@ -46,7 +46,7 @@ Run before `git commit`, `git push`, and sharing zip/tar packages:
 ```bash
 rg -n --hidden -S \
   -g '!.git' -g '!node_modules' \
-  '(OPENAPI_ACCESS_KEY|OPENAPI_SECRET_KEY|accessKey|secretKey|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9_-]{20,}|BEGIN (RSA|EC|OPENSSH) PRIVATE KEY)' .
+  '(MEITU_OPENAPI_ACCESS_KEY|MEITU_OPENAPI_SECRET_KEY|accessKey|secretKey|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9_-]{20,}|BEGIN (RSA|EC|OPENSSH) PRIVATE KEY)' .
 ```
 
 If output is empty, no obvious plaintext secret is detected by this rule set.

@@ -82,7 +82,7 @@ function buildErrorHint({ errorCode = null, errorName = "", httpStatus = null, m
     hint = {
       error_type: "CREDENTIALS_MISSING",
       user_hint: "未找到可用的 AK/SK 凭证，无法完成请求。",
-      next_action: "请先配置 OPENAPI_ACCESS_KEY / OPENAPI_SECRET_KEY 或本地凭证文件后重试。",
+      next_action: "请先配置 MEITU_OPENAPI_ACCESS_KEY / MEITU_OPENAPI_SECRET_KEY 或本地凭证文件后重试。",
     };
   } else if (
     ORDER_ERROR_CODES.has(errorCode) ||

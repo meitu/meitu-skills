@@ -122,7 +122,7 @@ function loadOpenapiCredentialsFromFile() {
       const ak = String(payload.accessKey || "").trim();
       const sk = String(payload.secretKey || "").trim();
       if (ak && sk) {
-        return { OPENAPI_ACCESS_KEY: ak, OPENAPI_SECRET_KEY: sk };
+        return { MEITU_OPENAPI_ACCESS_KEY: ak, MEITU_OPENAPI_SECRET_KEY: sk };
       }
     } catch {
       // continue to next path
@@ -133,8 +133,8 @@ function loadOpenapiCredentialsFromFile() {
 
 function buildEnv() {
   const env = { ...process.env };
-  const hasAk = String(env.OPENAPI_ACCESS_KEY || "").trim();
-  const hasSk = String(env.OPENAPI_SECRET_KEY || "").trim();
+  const hasAk = String(env.MEITU_OPENAPI_ACCESS_KEY || "").trim();
+  const hasSk = String(env.MEITU_OPENAPI_SECRET_KEY || "").trim();
   if (hasAk && hasSk) {
     return env;
   }

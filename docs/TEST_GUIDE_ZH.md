@@ -26,8 +26,8 @@ npm install -g meitu-ai@latest --force
 方式 A（推荐）：
 
 ```bash
-export OPENAPI_ACCESS_KEY="你的AK"
-export OPENAPI_SECRET_KEY="你的SK"
+export MEITU_OPENAPI_ACCESS_KEY="你的AK"
+export MEITU_OPENAPI_SECRET_KEY="你的SK"
 ```
 
 方式 B：
@@ -47,7 +47,7 @@ export OPENAPI_SECRET_KEY="你的SK"
 ```bash
 rg -n --hidden -S \
   -g '!.git' -g '!node_modules' \
-  '(OPENAPI_ACCESS_KEY|OPENAPI_SECRET_KEY|accessKey|secretKey|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9_-]{20,}|BEGIN (RSA|EC|OPENSSH) PRIVATE KEY)' .
+  '(MEITU_OPENAPI_ACCESS_KEY|MEITU_OPENAPI_SECRET_KEY|accessKey|secretKey|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9_-]{20,}|BEGIN (RSA|EC|OPENSSH) PRIVATE KEY)' .
 ```
 
 判定：

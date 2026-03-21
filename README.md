@@ -47,7 +47,7 @@ node meitu-tools/scripts/run_command.js \
 ```bash
 rg -n --hidden -S \
   -g '!.git' -g '!node_modules' \
-  '(OPENAPI_ACCESS_KEY|OPENAPI_SECRET_KEY|accessKey|secretKey|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9_-]{20,}|BEGIN (RSA|EC|OPENSSH) PRIVATE KEY)' .
+  '(MEITU_OPENAPI_ACCESS_KEY|MEITU_OPENAPI_SECRET_KEY|accessKey|secretKey|AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9_-]{20,}|BEGIN (RSA|EC|OPENSSH) PRIVATE KEY)' .
 ```
 
 - Run this before `git commit`, `git push`, and any zip/tar delivery.
