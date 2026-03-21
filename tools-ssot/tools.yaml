@@ -474,11 +474,10 @@ tools:
       - 换脸 → image-face-swap
       - 仅抠出服装 → image-cutout
     cli:
-      command: image-virtual-tryon
       requiredKeys: [clothes_image_url, person_image_url]
       optionalKeys: [replace, need_sd]
       arrayKeys: []
-      commandAliases: [image-try-on, virtual-tryon, AI换装]
+      commandAliases: [virtual-tryon, AI换装]
       inputAliases:
         clothes_url: clothes_image_url
         clothes: clothes_image_url

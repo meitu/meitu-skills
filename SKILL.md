@@ -56,7 +56,7 @@ npm install -g meitu-ai@latest --force
 - Image upscale -> `image-upscale`
 - Beauty enhancement -> `image-beauty-enhance`
 - Face swap -> `image-face-swap`
-- Virtual try-on -> `image-virtual-tryon`
+- Virtual try-on -> `image-try-on`
 - Image cutout -> `image-cutout`
 - Grid split -> `image-grid-split`
 <!-- END CAPABILITY_CATALOG -->

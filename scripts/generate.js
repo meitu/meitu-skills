@@ -112,7 +112,7 @@ const INTENT_MAP = {
   "image-edit": "Image edit",
   "image-generate": "Image generate",
   "image-upscale": "Image upscale",
-  "image-virtual-tryon": "Virtual try-on",
+  "image-try-on": "Virtual try-on",
   "image-to-video": "Image to video",
   "image-face-swap": "Face swap",
   "image-cutout": "Image cutout",

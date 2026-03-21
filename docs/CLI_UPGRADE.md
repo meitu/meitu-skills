@@ -17,7 +17,7 @@
 | `image-upscale` | — | `image-upscale` | v0.1.4 已有 |
 | `image-beauty-enhance` | — | `image-beauty-enhance` | v0.1.4 已有 |
 | `image-face-swap` | — | `image-face-swap` | v0.1.4 已有 |
-| `image-virtual-tryon` | — | `image-virtual-tryon` | v0.1.4 已有 |
+| `image-try-on` | — | `image-try-on` | v0.1.4 已有 |
 | `image-cutout` | — | `image-cutout` | v0.1.4 已有 |
 | `text-to-video` | `video_bonbon_txt2vid_v26` | `text-to-video` | **需新增** |
 | `video-to-gif` | `api_video_to_gif` | `video-to-gif` | **需新增** |
@@ -95,7 +95,7 @@
 测试时间: 2026-03-20
 
 ```
-PASS: image-upscale, image-cutout, image-edit (praline), image-face-swap, image-virtual-tryon, image-to-video
+PASS: image-upscale, image-cutout, image-edit (praline), image-face-swap, image-try-on, image-to-video
 FAIL (server error):    image-beauty-enhance (test image not portrait), video-motion-transfer (invalid test video)
 FAIL (CLI not support): image-generate --ratio, image-edit --model, text-to-video, video-to-gif, image-poster-generate, image-grid-split
 ```

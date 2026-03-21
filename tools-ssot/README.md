@@ -111,7 +111,7 @@ tools.yaml  ← 唯一需要人工维护的文件
 | 图片编辑 | `image-upscale` | 超清/降噪 | ✅ |
 | 图片编辑 | `image-beauty-enhance` | 单人美颜 | ✅ |
 | 图片编辑 | `image-face-swap` | 换脸 | ✅ |
-| 图片编辑 | `image-try-on` | 虚拟试衣 | ✅ (as `image-virtual-tryon`) |
+| 图片编辑 | `image-try-on` | 虚拟试衣 | ✅ |
 | 图片工具 | `image-cutout` | 抠图 | ✅ |
 | 图片工具 | `image-grid-split` | 宫格拆分（当前四宫格） | ✅ |
 

@@ -250,7 +250,7 @@
       "描述": "prompt"
     }
   },
-  "image-virtual-tryon": {
+  "image-try-on": {
     "requiredKeys": [
       "clothes_image_url",
       "person_image_url"
@@ -261,7 +261,6 @@
     ],
     "arrayKeys": [],
     "commandAliases": [
-      "image-try-on",
       "virtual-tryon",
       "AI换装"
     ],

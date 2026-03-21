@@ -25,7 +25,7 @@ Current built-in command coverage:
 - `image-upscale`
 - `image-beauty-enhance`
 - `image-face-swap`
-- `image-virtual-tryon`
+- `image-try-on`
 - `image-cutout`
 - `image-grid-split`
 
@@ -184,7 +184,7 @@ Mandatory behavior:
 - required: `head_image_url`, `sence_image_url`, `prompt`
 - optional: none
 
-11. `image-virtual-tryon`
+11. `image-try-on`
 - required: `clothes_image_url`, `person_image_url`
 - optional: `replace`, `need_sd`
 
@@ -204,7 +204,7 @@ Typical intent-to-command mapping:
 - image edit -> `image-edit`
 - image generate -> `image-generate`
 - image upscale -> `image-upscale`
-- virtual try-on -> `image-virtual-tryon`
+- virtual try-on -> `image-try-on`
 - image to video -> `image-to-video`
 - face swap -> `image-face-swap`
 - image cutout -> `image-cutout`

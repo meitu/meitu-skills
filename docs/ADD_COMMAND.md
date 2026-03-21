@@ -78,10 +78,10 @@ node meitu-tools/scripts/run_command.js --command <cmd> --input-json '{...}'
 如果 CLI 实际命令名与 `id` 不同，用 `cli.command` 指定：
 
 ```yaml
-- id: image-try-on
+- id: my-tool
   cli:
-    command: image-virtual-tryon      # 实际 CLI 命令名
-    commandAliases: [image-try-on, virtual-tryon, 试衣]
+    command: my-tool-v2        # 实际 CLI 命令名（与 id 不同时才需要）
+    commandAliases: [my-tool, 我的工具]
     ...
 ```
 

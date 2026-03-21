@@ -88,7 +88,7 @@ node "$RUNNER" --command image-edit --input-json '{"image":["https://obs.mtlab.m
 node "$RUNNER" --command image-generate --input-json '{"prompt":"同样人物，背景改成海边日落，写实风格","image":["https://obs.mtlab.meitu.com/public/resources/aigensource.png"],"size":"2K"}'
 
 # 4) 试衣
-node "$RUNNER" --command image-virtual-tryon --input-json '{"clothes_image_url":"https://obs.mtlab.meitu.com/public/resources/aigensource.png","person_image_url":"https://meitu-commons-test.obs.cn-north-4.myhuaweicloud.com/autotest/aipaintingtext1.jpg","replace":"full","need_sd":"1"}'
+node "$RUNNER" --command image-try-on --input-json '{"clothes_image_url":"https://obs.mtlab.meitu.com/public/resources/aigensource.png","person_image_url":"https://meitu-commons-test.obs.cn-north-4.myhuaweicloud.com/autotest/aipaintingtext1.jpg","replace":"full","need_sd":"1"}'
 
 # 5) 换头像
 node "$RUNNER" --command image-face-swap --input-json '{"head_image_url":"https://obs.mtlab.meitu.com/public/resources/aigensource.png","sence_image_url":"https://meitu-commons-test.obs.cn-north-4.myhuaweicloud.com/autotest/aipaintingtext1.jpg","prompt":"把第一张图的人脸自然替换到第二张图的人物上，保持光线一致"}'
@@ -145,7 +145,7 @@ input={"prompt":"同样人物，背景改成海边日落，写实风格","image"
 
 ```text
 /skill meitu-tools
-command=image-virtual-tryon
+command=image-try-on
 input={"clothes_image_url":"https://obs.mtlab.meitu.com/public/resources/aigensource.png","person_image_url":"https://meitu-commons-test.obs.cn-north-4.myhuaweicloud.com/autotest/aipaintingtext1.jpg","replace":"full","need_sd":"1"}
 ```
 
@@ -214,7 +214,7 @@ input={"image_url":"https://meitu-commons-test.obs.cn-north-4.myhuaweicloud.com/
 - `image-edit`
 - `image-generate`
 - `image-upscale`
-- `image-virtual-tryon`
+- `image-try-on`
 - `image-to-video`
 - `image-face-swap`
 - `image-cutout`

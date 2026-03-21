@@ -34,7 +34,7 @@ tools-ssot/tools.yaml  (edit here only)
 
 - **Never hand-edit generated files.** Edit `tools.yaml`, then `npm run generate`.
 - Tools with `cli` field go into CLI pipeline (commands-data.json, manifest, SKILL.md catalogs).
-- CLI registry key = `cli.command || id` (e.g., `image-try-on` has `cli.command: image-virtual-tryon`).
+- CLI registry key = `cli.command || id`.
 - `commands.js` export interface must stay stable — `run_command.js`, `input.js`, `executor.js` depend on it.
 - Commit format: `<type>: <description>` (feat, fix, refactor, docs, chore).
 - Language: code and commits in English; tool names/summaries/aliases in Chinese per tools.yaml conventions.
