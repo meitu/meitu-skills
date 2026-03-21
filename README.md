@@ -24,7 +24,7 @@ npm install -g meitu-ai
 
 3. Configure credentials
 
-- `OPENAPI_ACCESS_KEY` + `OPENAPI_SECRET_KEY`, or
+- `MEITU_OPENAPI_ACCESS_KEY` + `MEITU_OPENAPI_SECRET_KEY`, or
 - `~/.meitu/credentials.json` (via `meitu config set-ak` / `meitu config set-sk`)
 - legacy fallback also supported: `~/.openapi/credentials.json`
 
