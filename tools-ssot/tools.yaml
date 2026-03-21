@@ -171,15 +171,16 @@ tools:
       - 图片序列合成GIF
       - 视频格式转换（非GIF目标）
     cli:
-      requiredKeys: [video_url]
+      requiredKeys: [image]
       optionalKeys: [wechat_gif]
       arrayKeys: []
       commandAliases: [视频转gif]
       inputAliases:
-        video: video_url
-        视频: video_url
-        视频url: video_url
-        视频链接: video_url
+        video_url: image
+        video: image
+        视频: image
+        视频url: image
+        视频链接: image
 
 
   # ── 图片生成类 ──────────────────────────
@@ -311,7 +312,7 @@ tools:
         selection_rule: |
           按优先级从高到低判断，先匹配专科模型，都不命中则走全科默认：
           1. nougat — 编辑目标是将照片转为高度风格化的艺术风格时必选：卡通化、3D手办风、二次元、简笔画、概括性可爱风格等艺术再创作。⚠️ 该模型人脸相似度低，不适用于需要保持人脸真实感的场景（证件照、写实肖像等）。
-          2. gummy — 编辑目标是人像写真或宠物写真生成、或发型调整时选：基于用户单人照/宠物照生成写真风格图片，调整发型款式、发丝纹理等。
+          2. gummy — 编辑目标是人像写真或宠物写真生成、或发型调整时选：基于用户人像照/宠物照生成写真风格图片，调整发型款式、发丝纹理等。支持多图输入。
           3. praline（默认）— 以上都不符合时选：文字操作（修改/添加/消除/替换图中文字、文字渲染、手写体）、换背景、改颜色、添加/去除元素、构图调整、物体替换、多图材质风格融合、跨图风格统一、图片分析标注等所有通用编辑场景。
           ⚠️ 判断要点：nougat 是"变画风"（输出不像真人），gummy 是"拍写真/换发型"（输出像真人），praline 是"改内容"（通用编辑）。
     constraints:
@@ -546,12 +547,12 @@ tools:
       - 任意比例裁切 → image-edit
       - 提取前景主体 → image-cutout
     cli:
-      requiredKeys: [image_url]
+      requiredKeys: [image]
       optionalKeys: []
       arrayKeys: []
       commandAliases: [grid-split, 宫格拆分]
       inputAliases:
-        image: image_url
-        图片: image_url
-        图片url: image_url
-        图片链接: image_url
+        image_url: image
+        图片: image
+        图片url: image
+        图片链接: image

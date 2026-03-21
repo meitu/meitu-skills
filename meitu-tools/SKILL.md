@@ -157,7 +157,7 @@ Mandatory behavior:
 - optional: `video_duration`, `sound`
 
 4. `video-to-gif`
-- required: `video_url`
+- required: `image`
 - optional: `wechat_gif`
 
 5. `image-generate`
@@ -193,7 +193,7 @@ Mandatory behavior:
 - optional: `model_type`
 
 13. `image-grid-split`
-- required: `image_url`
+- required: `image`
 - optional: none
 <!-- END CAPABILITY_CATALOG -->
 
