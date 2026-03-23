@@ -1,7 +1,7 @@
 ---
 name: meitu-visual-me
 description: "Memory-driven AI visual assistant. Supports 7 core capabilities (image generation, editing, face swap, virtual try-on, beauty enhance, image-to-video, motion transfer) and 17 scenario workflows. Triggered when user says '帮我画', '换背景', '头像系列', '试穿', '动起来', '微缩场景', '今日卡', '换风格', '美颜', etc. Also applies to any visual content creation need."
-version: "1.0.0"
+version: "1.1.0"
 ---
 
 # Meitu Visual Me
@@ -201,7 +201,7 @@ Formula: `[composition/camera angle] + [subject] + [action/expression] + [scene/
 
 | Task type | Command | Key parameters | Notes |
 |---------|------|---------|------|
-| Text-to-image | `meitu image-generate` | `--prompt --size --ratio` | No reference image |
+| Text-to-image | `meitu image-generate` | `--prompt --size --ratio` | No reference image; `--size` accepts `2k`/`3k`/`WIDTHxHEIGHT` |
 | Generation with reference image | `meitu image-generate` | `--image --prompt --size` | Stylization / group photo |
 | Background swap / content editing | `meitu image-edit` | `--image --prompt --model` | See model selection table |
 | Face swap | `meitu image-face-swap` | `--head_image_url --sence_image_url --prompt` | Avatar series |
@@ -214,14 +214,17 @@ Formula: `[composition/camera angle] + [subject] + [action/expression] + [scene/
 
 | Priority | Model | Use case | Output style |
 |--------|-------|---------|---------|
-| 1 | gummy | Portrait/pet photography, hairstyle adjustment | Realistic portrait |
-| 2 | praline (default) | Everything else: stylization, text manipulation, background swap, color grading, add/remove elements, multi-image fusion | General editing & artistic style |
+| 1 | nougat | Stylization: cartoon, 3D figure, anime, sketch, artistic recreation | Artistic (NOT realistic face) |
+| 2 | gummy | Portrait/pet photography, hairstyle adjustment | Realistic portrait |
+| 3 | praline (default) | Everything else: text manipulation, background swap, color grading, add/remove elements, multi-image fusion | General editing |
+
+> Quick rule: "变画风" (style change, output doesn't look like real person) → nougat; "拍写真/换发型" (portrait photo) → gummy; "改内容" (modify content) → praline
 
 **Reference image routing:**
 
 | Intent mode | Reference image handling | Command |
 |---------|-----------|------|
-| Stylization (photo → figurine/anime/etc.) | Pass via --image, prompt describes target style | `image-edit --model praline` or `image-generate --image` |
+| Stylization (photo → figurine/anime/etc.) | Pass via --image, prompt describes target style | `image-edit --model nougat` (cartoon/anime/3D) or `image-generate --image` (general style transfer) |
 | Background swap | Pass via --image, prompt explicitly says "keep person unchanged" | `image-edit --model praline` |
 | Group photo (multiple references) | Pass multiple via --image, prompt describes group photo scene | `image-generate --image img1 img2` |
 | Analyze reference only (not passed to tool) | Extract composition/style info into prompt | `image-generate` (pure text-to-image) |
@@ -229,12 +232,17 @@ Formula: `[composition/camera angle] + [subject] + [action/expression] + [scene/
 
 **Output directory:** Use `output_dir` resolved in Preflight. Ensure the directory exists (`mkdir -p`). Add `--json --download-dir {output_dir}` to all `meitu` commands.
 
+**Result field references:**
+- With `--download-dir` → use `downloaded_files[0].saved_path` for local path (`media_urls` also available but local path is more reliable)
+- Without `--download-dir` → use `media_urls[0]` for result URL
+- Error response → check `code` and `hint` fields (NOT `error_code` / `user_hint`)
+
 **Image input:** Pass user-provided images via URL or local path. When a reference image is needed, check `./visual/assets/references/user.jpg`.
 
 **Command examples:**
 ```bash
 # Text-to-image
-meitu image-generate --prompt "..." --size 2K --ratio 1:1 --json --download-dir {output_dir}
+meitu image-generate --prompt "..." --size 2k --ratio 1:1 --json --download-dir {output_dir}
 # Image editing
 meitu image-edit --image <url> --prompt "..." --model praline --json --download-dir {output_dir}
 # Image-to-video (async)
@@ -246,7 +254,7 @@ meitu image-to-video --image <url> --prompt "..." --video_duration 5 --json
 | Level | Action | Example |
 |------|------|------|
 | L1 | Remove low-priority modifiers | Drop lighting/material descriptions, keep subject + scene + style |
-| L2 | Downgrade enum parameters | `--size 2K` → `--size 1K`; `--ratio 9:16` → `--ratio 1:1` |
+| L2 | Downgrade enum parameters | `--size 3k` → `--size 2k` (image-generate); `--size 2K` → `--size 1K` (image-poster-generate); `--ratio 9:16` → `--ratio 1:1` |
 | L3 | Remove optional inputs | Drop reference image, switch to pure text-to-image |
 | L4 | Minimize to core elements | Keep only subject + style, remove everything else |
 | L5 | Stop and report error | Inform user of the specific error, suggest checking credentials or contacting support |
@@ -357,7 +365,7 @@ For all workflow details, read [references/workflows.md](references/workflows.md
 | 记忆拼贴 (memory collage) | memory-collage | `image-generate` |
 | 合影 (group photo)、合个影 (take a photo together) | real-toon | `image-generate` |
 | ID 卡 (ID card)、收藏卡 (collectible card) | id-card | `image-generate` |
-| 一键换风格 (one-click style remix)、换风格 (change style)、风格万花筒 (style kaleidoscope) | style-remix | `image-edit --model praline` / `image-generate` |
+| 一键换风格 (one-click style remix)、换风格 (change style)、风格万花筒 (style kaleidoscope) | style-remix | `image-edit --model nougat` (cartoon/anime/3D) / `image-edit --model praline` (general) / `image-generate` |
 
 ### Editing
 

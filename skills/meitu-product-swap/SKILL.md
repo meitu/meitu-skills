@@ -2,26 +2,6 @@
 name: meitu-product-swap
 description: "对电商图片中的商品进行智能替换，支持一对一、一对多、多对一映射关系。当用户提到商品替换、换商品、复刻爆款图片、替换商品主体时触发。"
 version: "1.0.0"
-requirements:
-  credentials:
-    - name: MEITU_OPENAPI_ACCESS_KEY
-      source: env | ~/.meitu/credentials.json
-    - name: MEITU_OPENAPI_SECRET_KEY
-      source: env | ~/.meitu/credentials.json
-  permissions:
-    - type: file_read
-      paths:
-        - ~/.meitu/credentials.json
-        - ~/.openapi/credentials.json
-        - ~/.openclaw/workspace/scripts/
-        - ~/.openclaw/workspace/visual/
-        - ./
-    - type: file_write
-      paths:
-        - ~/.openclaw/workspace/visual/
-        - ./
-    - type: exec
-      commands: ["meitu", "python"]
 ---
 
 # 图片商品替换
@@ -38,7 +18,7 @@ requirements:
   - Install: `npm install -g meitu-cli`（包名 meitu-cli，非 meitu-ai）
   - Command: `meitu image-edit`（model: `praline`，默认值，适用于多图融合/商品替换/合成）
 - credentials: 美图 AI 开放平台 API 凭证
-  - 环境变量：`MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
+  - 环境变量：`OPENAPI_ACCESS_KEY` / `OPENAPI_SECRET_KEY`
   - 或配置文件：`~/.meitu/credentials.json`
   - 配置方式：`meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`
   - 验证：`meitu auth verify --json`

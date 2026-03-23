@@ -18,7 +18,7 @@ meitu <command> [options] --json --download-dir ./output/
 
 **Install:** `npm install -g meitu-cli`（包名 meitu-cli，非 meitu-ai），然后配置凭证：
 - 交互式登录：`meitu login`（推荐，自动写入配置文件）
-- 环境变量：`MEITU_OPENAPI_ACCESS_KEY` + `MEITU_OPENAPI_SECRET_KEY`
+- 环境变量：`OPENAPI_ACCESS_KEY` + `OPENAPI_SECRET_KEY`
 - 或配置文件：`~/.meitu/credentials.json`
 
 ---
@@ -32,7 +32,7 @@ meitu --version
 
 Credentials (pick one):
 - Interactive login: `meitu login`（推荐，自动写入 `~/.meitu/credentials.json`）
-- Env vars: `export MEITU_OPENAPI_ACCESS_KEY="..."` + `export MEITU_OPENAPI_SECRET_KEY="..."`
+- Env vars: `export OPENAPI_ACCESS_KEY="..."` + `export OPENAPI_SECRET_KEY="..."`
 - Config file: `~/.meitu/credentials.json` (`{"accessKey":"...","secretKey":"..."}`)
 
 ---
@@ -86,7 +86,7 @@ Credentials (pick one):
 
 **Ratio constraints by model:**
 - `praline`: auto/1:1/2:3/3:2/3:4/4:3/4:5/5:4/9:16/16:9/21:9
-- `nougat`: auto/1:1/2:3/3:2
+- `nougat`: auto/1:1/2:3/3:2 (3:4 and 4:3 also work in practice)
 - `gummy`: auto/1:1/4:3/3:4/16:9/9:16/3:2/2:3/21:9
 
 ---
@@ -136,11 +136,11 @@ When a user's intent could map to multiple commands, use these disambiguation ru
 | Command | Does NOT have | Common mistake |
 |---------|--------------|---------------|
 | `image-generate` | `--model` | No model selection — backend decides |
-| `image-generate` | `--width`, `--height` | No separate width/height flags — use `size: "2k"/"3k"/"WIDTHxHEIGHT"` |
+| `image-generate` | `--width`, `--height` | No pixel dimensions — use `size: "2k"/"3k"/WIDTHxHEIGHT` (lowercase) |
 | `image-upscale` | `--scale` | No scale factor — auto upscale |
 | `image-edit` | `--mode` | No mode param — use `model` for sub-model selection, `prompt` for edit instructions |
 
-`image-generate size` only accepts: `"2k"`, `"3k"`, or `"WIDTHxHEIGHT"` (for example `1536x2048`).
+`image-generate` size accepts: `"2k"`, `"3k"`, or `WIDTHxHEIGHT` (lowercase). `image-poster-generate` size accepts: `"auto"`, `"512"`, `"1K"`, `"2K"`, `"4K"` (uppercase). Never use pixel values for either.
 
 ---
 
@@ -171,9 +171,9 @@ When a user's intent could map to multiple commands, use these disambiguation ru
 
 ```
 1. Simplify prompt — remove complex descriptions, keep core subject + style
-2. Reduce size — "3k" → "2k"
+2. Reduce size — image-generate: "2k" is lowest enum (use WIDTHxHEIGHT for smaller); image-poster-generate: "2K" → "1K"
 3. Remove reference image — if image-to-image failed, try pure text-to-image
-4. Stop after 2 consecutive failures — report error with error_code and user_hint
+4. Stop after 2 consecutive failures — report error with code and hint
 5. ORDER_REQUIRED → tell user to recharge, provide action_url
 6. CREDENTIALS_MISSING → ask user to configure AK/SK
 ```

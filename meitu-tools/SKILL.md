@@ -128,7 +128,7 @@ Default behavior:
 - If the CLI is missing, lacks built-in commands, or is outdated, the runner returns manual repair guidance.
 
 Environment controls:
-- `MEITU_CONSOLE_URL=<url>` (console page for credentials/auth guidance; default `https://www.miraclevision.com/open-claw/console`)
+- `MEITU_CONSOLE_URL=<url>` (console page for credentials/auth guidance; default `https://www.miraclevision.com/open-claw/pricing`)
 - `MEITU_ORDER_URL=<url>` (order/renewal page for insufficient quota)
 - `MEITU_TASK_WAIT_TIMEOUT_MS=<ms>` (default `600000` for video commands, `900000` for others)
 - `MEITU_TASK_WAIT_INTERVAL_MS=<ms>` (default `2000`)
@@ -156,16 +156,15 @@ When execution fails, runner output includes:
 - `error_name`
 - `user_hint`
 - `next_action`
-- `action_url` (for order/recharge, credentials, or auth guidance)
-- `action_label` (for example `充值入口` / `控制台入口`)
-- `action_display_hint` (explains that long URLs may look truncated in chat but still click through correctly)
+- `action_url` (full URL, may be a long signed URL — do not present this directly to the user)
+- `action_label` (button label, for example `充值入口` / `前往官网`)
+- `action_link` (ready-to-use markdown hyperlink, e.g. `[充值入口](https://...)` — always use this for display)
 
 Mandatory behavior:
-- For `ORDER_REQUIRED`, explicitly tell the user to place an order/recharge first.
-- If `action_url` exists, preserve the full URL and present `action_label + action_url + action_display_hint`.
-- Do not shorten, rewrite, or paraphrase `action_url`.
-- For `CREDENTIALS_MISSING`, return the console link and ask the user to configure AK/SK first, then retry.
-- For `AUTH_ERROR`, return the console link and ask the user to verify AK/SK and authorization status, then retry.
+- For `ORDER_REQUIRED`, tell the user to recharge and render `action_link` as a clickable link.
+- For `CREDENTIALS_MISSING` or `AUTH_ERROR`, tell the user to configure or verify AK/SK and render `action_link`.
+- If `action_link` exists, always render it verbatim — do not rewrite or reconstruct the URL.
+- Never present `action_url` directly; use `action_link` for all user-facing display.
 
 ## Capability Catalog
 

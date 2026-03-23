@@ -136,7 +136,7 @@ meitu video-motion-transfer \
 **异步任务说明：**
 - 该命令为异步任务，CLI 会自动轮询直到完成（内部调用 `meitu task wait`）
 - 生成时间通常 30s-120s，取决于视频时长和服务器负载
-- 返回 JSON：`ok: true` → 结果在 `media_urls[0]`；`ok: false` → 检查 `error_type`
+- 返回 JSON：`ok: true` → 结果在 `downloaded_files[0].saved_path`（因使用了 `--download-dir`）；`ok: false` → 检查 `error_type`
 
 **4. 质量判断与错误降级**
 
@@ -154,7 +154,7 @@ meitu video-motion-transfer \
 | L2 | 检查输入匹配度 | 确认图片体型与视频人物体型是否匹配，不匹配则建议换图 |
 | L3 | 缩短参考视频 | 截取动作最清晰的 3-5 秒片段重试 |
 | L4 | 简化目标图片 | 用 `meitu image-cutout` 去除复杂背景后重试 |
-| L5 | 停止并报错 | 连续 2 次失败 → 报告 error_code 和 user_hint，不再重试 |
+| L5 | 停止并报错 | 连续 2 次失败 → 报告 code 和 hint，不再重试 |
 
 **常见错误码处理：**
 - `ORDER_REQUIRED` → 余额不足，告知用户充值，提供 action_url
@@ -195,7 +195,7 @@ mv {file} {output_dir}/{date}_{name}.mp4
 
 脚本不存在 → 仅执行 `mv` 重命名。
 
-**命名规范：** `{date}_{描述性名称}.mp4`，如 `20260323_girl-hip-hop-dance.mp4`
+**命名规范：** `{date}_{描述性名称}.mp4`，如 `2026-03-23_girl-hip-hop-dance.mp4`
 
 ### Record（项目模式 MUST / 一次性模式跳过）
 

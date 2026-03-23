@@ -307,7 +307,7 @@ Style presets provide only **tonal anchors**; let AI freely generate specific de
 5. Label each image with its style name when delivering
 
 **Command selection:**
-- Stylization (cartoon/figure/anime/art) → `meitu image-edit --model praline --image [source] --prompt "..."`
+- Stylization (cartoon/figure/anime/art) → `meitu image-edit --model nougat --image [source] --prompt "..."`
 - Scene replacement (cyberpunk/neon rain/starscape etc.) → `meitu image-generate --image [source] --prompt "..."`
 
 **Prompt assembly:** Get the corresponding style keywords from `references/style-library.md` (pick 1-2), embed into narrative:
@@ -319,9 +319,9 @@ Style presets provide only **tonal anchors**; let AI freely generate specific de
 
 | # | Style | Category | Command |
 |------|------|------|------|
-| 1 | 盒装手办 | Toy/collectible | `image-edit --model praline` |
-| 2 | 动漫肖像 | Illustration | `image-edit --model praline` |
-| 3 | 水墨动画 | Art | `image-edit --model praline` |
+| 1 | 盒装手办 | Toy/collectible | `image-edit --model nougat` |
+| 2 | 动漫肖像 | Illustration | `image-edit --model nougat` |
+| 3 | 水墨动画 | Art | `image-edit --model nougat` |
 | 4 | 赛博朋克 | Scene | `image-generate` |
 
 Users can choose any combination from the 20+ styles in style-library.md.
@@ -465,4 +465,4 @@ Using reference image, [style description]. Portrait composition, 1:1 square for
 > "Beauty enhancement complete. Want to try a different style?"
 
 **Common combinations:**
-- Beauty enhance → `image-edit --model praline` → stylize after enhancing
+- Beauty enhance → `image-edit --model nougat` → stylize after enhancing

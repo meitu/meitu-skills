@@ -81,7 +81,7 @@ meitu image-beauty-enhance \
 
 **结果处理**
 
-- `ok: true` → 从 `media_urls[0]` 获取结果图片 URL，`--download-dir` 自动下载到本地
+- `ok: true` → `--download-dir` 已指定，从 `downloaded_files[0].saved_path` 获取本地文件路径；若未使用 `--download-dir`，从 `media_urls[0]` 获取结果图片 URL
 - `ok: false` → 进入错误降级
 
 **错误降级**
@@ -102,7 +102,7 @@ meitu image-beauty-enhance \
 | L1 | 降低强度 | `beatify_type` 1 → 0 重试 |
 | L2 | 检查图片质量 | 提示用户更换更清晰、人脸更大的照片 |
 | L3 | 检查图片格式 | 确认为 JPG/PNG/WEBP，非 GIF/BMP 等不支持格式 |
-| L4 | 停止报错 | 连续 2 次失败 → 报告 error_code + user_hint，停止重试 |
+| L4 | 停止报错 | 连续 2 次失败 → 报告 code + hint，停止重试 |
 
 ### Deliver
 

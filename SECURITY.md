@@ -42,7 +42,7 @@ The root skill currently declares:
 
 - `file_read`: `~/.meitu/credentials.json`, `~/.openapi/credentials.json`, `~/.openclaw/workspace/scripts/`, `~/.openclaw/workspace/visual/`, `./`
 - `file_write`: `~/.openclaw/workspace/visual/`, `./`
-- `exec`: `meitu`, `python`
+- `exec`: `meitu`, `node`
 
 ### File Read Scope
 
@@ -50,7 +50,7 @@ The root skill currently declares:
 |------|--------|---------|
 | `~/.meitu/credentials.json` | Read | Load API credentials |
 | `~/.openapi/credentials.json` | Read | Load API credentials from legacy location |
-| `~/.openclaw/workspace/scripts/` | Read | Load shared helper scripts such as `oc-workspace.py` |
+| `~/.openclaw/workspace/scripts/` | Read | Load shared helper scripts such as `oc-workspace.mjs` |
 | `~/.openclaw/workspace/visual/` | Read | Read shared visual memory, rules, references, and outputs |
 | `./` | Read | Read project files such as `openclaw.yaml`, `DESIGN.md`, local assets, and output artifacts |
 
@@ -75,13 +75,13 @@ This skill pack does not declare or rely on `~/Downloads/`.
 | Command | Purpose | When Used |
 |---------|---------|-----------|
 | `meitu` | Execute Meitu CLI commands | Tool execution and generation/edit pipelines |
-| `python` | Run optional helper scripts such as `oc-workspace.py` | Path routing, context reads, output renaming, observation CRUD in scene skills |
+| `node` | Run optional helper scripts such as `oc-workspace.mjs` | Path routing, context reads, output renaming, observation CRUD in scene skills |
 | `npm install -g meitu-cli@latest` | Manual runtime install or upgrade | Only when the operator explicitly asks for repair or upgrade |
 
 Notes:
 
-- `meitu-tools` itself relies on `meitu` and does not need `python` for its main runner path.
-- Several scene skills document `python .../oc-workspace.py` as an allowed helper path, so the overall pack still requires `python` in the current design.
+- `meitu-tools` itself relies on `meitu` and does not need `node` for its main runner path.
+- Several scene skills document `node .../oc-workspace.mjs` as an allowed helper path, so the overall pack still requires `node` in the current design.
 
 ## Prompt and Instruction Handling
 
@@ -133,7 +133,7 @@ Root / Scene Skill
     │
     ├── Read project context from ./
     ├── Optionally read shared memory from ~/.openclaw/workspace/visual/
-    ├── Optionally call python oc-workspace.py for routing/context/rename helpers
+    ├── Optionally call node oc-workspace.mjs for routing/context/rename helpers
     ├── Execute meitu CLI
     └── Optionally write outputs, DESIGN.md, or shared memory updates
 ```
@@ -164,6 +164,6 @@ If you discover a security vulnerability, report it privately to the maintainers
 
 | Version | Changes |
 |---------|---------|
-| 2026-03-23 | Updated security model to reflect root and scene skill permissions, `python` helper execution, project and visual workspace writes, and removal of `~/Downloads/` fallback |
+| 2026-03-23 | Updated security model to reflect root and scene skill permissions, `node` helper execution, project and visual workspace writes, and removal of `~/Downloads/` fallback |
 | 2026-03-23 | Removed automatic runtime version checks and automatic updates; manual repair only |
 | 2025-03-21 | Initial security documentation |

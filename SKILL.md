@@ -22,7 +22,7 @@ requirements:
     - type: exec
       commands:
         - meitu
-        - python
+        - node
 ---
 
 # meitu-skills (Root Entry)
@@ -48,7 +48,7 @@ This is the top-level routing skill:
 
 - `file_read` covers credentials, project files in the current workspace, shared visual memory under `~/.openclaw/workspace/visual/`, and helper scripts under `~/.openclaw/workspace/scripts/`.
 - `file_write` covers project-mode files such as `openclaw.yaml`, `DESIGN.md`, `./output/`, `./drafts/`, plus one-off outputs and shared memory updates under `~/.openclaw/workspace/visual/`.
-- `exec` covers the `meitu` CLI and `python` for the optional `oc-workspace.py` helper used by scene skills for routing, context reads, and safe renaming.
+- `exec` covers the `meitu` CLI and `node` for the optional `oc-workspace.mjs` helper used by scene skills for routing, context reads, and safe renaming.
 
 ## Routing Rules
 

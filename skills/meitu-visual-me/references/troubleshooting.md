@@ -21,7 +21,7 @@
 | Symptom | Cause | Solution |
 |------|------|------|
 | `ok: false`, generation failed | Prompt triggered safety filter or parameter error | Adjust prompt content, check parameter format |
-| Generation timeout | Server queue busy or request too large | Reduce resolution (2K→1K) or simplify request |
+| Generation timeout | Server queue busy or request too large | Reduce resolution (`3k`→`2k` for image-generate; `2K`→`1K` for image-poster-generate) or simplify request |
 | Generation succeeded but quality is poor | Resolution too low or prompt not specific enough | Increase `size` parameter, enrich prompt description |
 | Generation succeeded but person doesn't look right | Reference image not passed correctly | Confirm `image_url` parameter is not empty |
 | `media_urls` is empty | Result retrieval failed | Query task status using `result_id` |
@@ -50,7 +50,7 @@ Follow the 5-level degradation defined in the main workflow (SKILL.md Execute se
 | Level | Action | Example |
 |-------|--------|---------|
 | L1 | Remove low-priority modifiers | Drop lighting/material descriptions, keep subject+scene+style |
-| L2 | Downgrade enum parameters | `--size 2K` → `--size 1K`; `--ratio 9:16` → `--ratio 1:1` |
+| L2 | Downgrade enum parameters | `--size 3k` → `--size 2k` (image-generate); `--size 2K` → `--size 1K` (image-poster-generate); `--ratio 9:16` → `--ratio 1:1` |
 | L3 | Remove optional inputs | Drop reference image, switch to text-to-image |
 | L4 | Minimize to core elements | Keep only subject + style |
 | L5 | Stop and report error | Show specific error message, suggest checking credentials or contacting support |

@@ -33,7 +33,7 @@ The most commonly used capability, covering text-to-image and stylization scenar
 meitu image-generate --prompt "赛博朋克风格的城市夜景"
 
 # With reference image
-meitu image-generate --image "参考图URL" --prompt "将照片转为水彩画风格" --size 2K
+meitu image-generate --image "参考图URL" --prompt "将照片转为水彩画风格" --size 2k
 
 # Multiple reference images
 meitu image-generate --image "图片URL1" "图片URL2" --prompt "合影风格化"
@@ -51,7 +51,7 @@ meitu image-generate --prompt "微缩场景" --json --download-dir ./output
 |------|---------|------|
 | `--prompt PROMPT` | Required | Prompt text |
 | `--image IMAGE_LIST [IMAGE_LIST ...]` | Optional | Image URL array, supports single and multiple images |
-| `--size SIZE` | Optional | Output size: `1K` / `2K` / `4K`, default `2K` |
+| `--size SIZE` | Optional | Output size: `2k` / `3k` / `WIDTHxHEIGHT` (e.g. `1024x768`), default `2k`. **Note:** format differs from `image-poster-generate` (`1K`/`2K`/`4K`), do not mix |
 | `--ratio RATIO` | Optional | Output ratio: `1:1` / `4:3` / `3:4` / `16:9` / `9:16` / `3:2` / `2:3` / `21:9`, default `3:4` |
 | `--download-dir` | Optional | Download directory |
 | `--json` | Optional | JSON-formatted output |
@@ -82,7 +82,7 @@ meitu image-edit --image "图片URL1" "图片URL2" --prompt "统一色调风格"
 |------|---------|------|
 | `--image IMAGE_LIST [IMAGE_LIST ...]` | Required | Image URL array |
 | `--prompt PROMPT` | Required | Prompt text describing the edit operation |
-| `--model MODEL` | Optional | Sub-model: `praline` (general & artistic style) / `gummy` (portrait), default `praline` |
+| `--model MODEL` | Optional | Sub-model: `nougat` (stylization: cartoon/3D/anime/sketch) / `gummy` (portrait/pet) / `praline` (general editing), default `praline` |
 | `--ratio RATIO` | Optional | Output ratio: `auto` / `1:1` / `2:3` / `3:2` / `3:4` / `4:3` / `4:5` / `5:4` / `9:16` / `16:9` / `21:9`, default `auto` |
 | `--download-dir` | Optional | Download directory |
 | `--json` | Optional | JSON-formatted output |
@@ -93,10 +93,16 @@ meitu image-edit --image "图片URL1" "图片URL2" --prompt "统一色调风格"
 
 | Priority | Model | When to use | Output style |
 |--------|-------|--------|---------|
-| 1 | gummy | Portrait/pet photography, hairstyle adjustments | Realistic portrait |
-| 2 | praline (default) | Everything else: stylization, text manipulation, background swap, color changes, add/remove elements, multi-image fusion, composition analysis | General editing & artistic style |
+| 1 | nougat | Stylization: cartoon, 3D figure, anime, sketch, artistic recreation | Artistic (NOT realistic face) |
+| 2 | gummy | Portrait/pet photography, hairstyle adjustments | Realistic portrait |
+| 3 | praline (default) | Everything else: text manipulation, background swap, color changes, add/remove elements, multi-image fusion, composition analysis | General editing |
 
-> Quick rule: portrait shoot/hairstyle change → gummy, everything else (including style change) → praline
+> Quick rule: "变画风" (style change, output doesn't look like real person) → nougat; "拍写真/换发型" (portrait photo) → gummy; "改内容" (modify content) → praline
+
+**Ratio constraints by model (server-side enforced):**
+- `praline`: auto/1:1/2:3/3:2/3:4/4:3/4:5/5:4/9:16/16:9/21:9
+- `nougat`: auto/1:1/2:3/3:2/3:4/4:3 (documented as auto/1:1/2:3/3:2 but 3:4 etc. also work)
+- `gummy`: auto/1:1/4:3/3:4/16:9/9:16/3:2/2:3/21:9
 
 ---
 
@@ -412,8 +418,8 @@ meitu image-grid-split --image "网格图URL" --json
 ## Calling Conventions
 
 1. **Add `--json` to all commands** — ensure parseable output
-2. **Check the `ok` field** — `true` means success, `false` requires error handling
-3. **Get results from `media_urls`** — the first element in the array is the primary result
+2. **Check the `ok` field** — `true` means success, `false` check `code` and `hint` fields for error details
+3. **Get results correctly** — without `--download-dir`: use `media_urls[0]`; with `--download-dir`: use `downloaded_files[0].saved_path` (local path, more reliable). Note: `saved_path` returns absolute paths; display to user as `~/.openclaw/...` format
 4. **Image input supports both local paths and URLs** — CLI handles upload internally
 5. **Note the `sence_image_url` spelling** — face-swap parameter is `sence`, not `scene`
 6. **image-edit has no mode parameter** — all editing operations are described via prompt

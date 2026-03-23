@@ -90,7 +90,7 @@ meitu image-upscale \
 | L2 | 检查图片格式/内容 | 确认为 JPG/PNG/WEBP，非 GIF/BMP/SVG 等不支持格式。`INVALID_RESOURCES` (10025) 也可能是内容审核拒绝 → 告知用户"图片未通过内容审核，请更换图片" |
 | L3 | 检查图片来源 | URL 不可达 → 下载到 `/tmp/meitu-upscale-input.{ext}` 后用本地路径重试 |
 | L4 | 凭证/余额问题 | `ORDER_REQUIRED` → 提示充值，展示 action_url |
-| L5 | 停止报错 | 连续 2 次失败 → 报告 error_code + user_hint，停止重试 |
+| L5 | 停止报错 | 连续 2 次失败 → 报告 code + hint，停止重试 |
 
 临时文件完成后清理：`rm -f /tmp/meitu-upscale-input.*`
 

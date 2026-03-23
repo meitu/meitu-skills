@@ -85,8 +85,8 @@ done
 **结果检查**
 
 解析 `--json` 输出：
-- `ok: true` → 成功，`media_urls[0]` 为结果 PNG（透明背景）
-- `ok: false` → 检查 `error_code` 和 `user_hint`
+- `ok: true` → 成功，`downloaded_files[0].saved_path` 为本地已下载的结果 PNG（透明背景）；若未使用 `--download-dir`，则取 `media_urls[0]`
+- `ok: false` → 检查 `code` 和 `hint`
 
 **错误降级**
 
@@ -94,7 +94,7 @@ done
 |------|------|------|
 | L1 | 切换 model_type | 自动检测失败时，依次尝试 0→1→2 |
 | L2 | 检查图片格式/大小 | 确保图片可访问且非损坏 |
-| L3 | 停止并报错 | 2 次连续失败后，输出 error_code + user_hint |
+| L3 | 停止并报错 | 2 次连续失败后，输出 `code` + `hint` |
 
 特殊错误：
 - `ORDER_REQUIRED` → 提示用户充值，展示 `action_url`
@@ -108,11 +108,11 @@ done
 node $OC_SCRIPT rename --file {path} --name {effect}
 ```
 
-脚本不存在 → `mv` 重命名为 `{output_dir}/{date}_{name}_cutout.png`。
+脚本不存在 → `mv` 重命名为 `{output_dir}/$(date +%Y-%m-%d)_{name}_cutout.png`。
 
 ## Output
 
 - **格式**: PNG（透明背景）
-- **命名**: `{date}_{descriptive-name}_cutout.png`
-  - 例: `20260323_product-photo_cutout.png`
+- **命名**: `{YYYY-MM-DD}_{descriptive-name}_cutout.png`
+  - 例: `2026-03-23_product-photo_cutout.png`
 - **位置**: 由 Deliver 步骤决定（项目 → `./output/`，一次性 → `$VISUAL/output/meitu-cutout/`，无环境 → `~/Downloads/`）

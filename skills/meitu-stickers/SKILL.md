@@ -125,7 +125,7 @@ meitu image-generate \
 | `custom`（写实类：写真/证件照等） | `gummy` | 写实人像生成 |
 | `custom`（不确定） | `nougat` | 贴纸天然偏艺术，默认 nougat |
 
-> **Ratio 约束：** `nougat` 仅支持 `auto/1:1/2:3/3:2`。当前使用 `1:1`（OK）。`gummy` 支持 `auto/1:1/4:3/3:4/16:9/9:16/3:2/2:3/21:9`。
+> **Ratio 约束：** `nougat` 官方支持 `auto/1:1/2:3/3:2`，实测 `3:4` 和 `4:3` 也可用。当前使用 `1:1`（OK）。`gummy` 支持 `auto/1:1/4:3/3:4/16:9/9:16/3:2/2:3/21:9`。
 
 **生成命令：**
 
@@ -147,7 +147,7 @@ meitu image-edit \
 | L2 | 简化风格描述 | 将风格 prompt 缩减为一句：如 `chibi` → "2x2 grid of chibi stickers from this photo, 4 expressions" + GRID_CONSTRAINTS |
 | L3 | 移除可选输入 | N/A（源图为必须输入） |
 | L4 | 最小化到核心要素 | prompt → "2x2 sticker grid, 4 stickers, {style} style, white background, well separated" |
-| L5 | 停止报错 | 连续 2 次失败 → 报错给用户，附 error_code 和 user_hint |
+| L5 | 停止报错 | 连续 2 次失败 → 报错给用户，附 code 和 hint |
 
 **展示四宫格给用户，等待确认后再切图。** 不要直接执行 grid-split。
 → 进入 Refine

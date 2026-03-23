@@ -14,8 +14,7 @@ const ROUTE_ERROR_CODES = new Set([90025]);
 const IMAGE_URL_ERROR_CODES = new Set([10003, 21201, 21202, 21203, 21204, 21205]);
 const CONTENT_REQUIREMENTS_ERROR_CODES = new Set([98501]);
 const TEMP_ERROR_CODES = new Set([415, 500, 502, 503, 504, 599, 10002, 10015, 29904, 29905, 90009, 90020, 90021, 90022, 90023, 90099]);
-const LONG_ACTION_URL_DISPLAY_HINT =
-  "该链接较长，聊天窗口可能省略显示中间字符，但直接点击仍会访问完整地址；如需核对完整链接，请复制到浏览器地址栏查看。";
+const STATIC_PRICING_URL = "https://www.miraclevision.com/open-claw/pricing";
 
 function parseNumberCode(value) {
   const parsed = Number.parseInt(String(value ?? "").trim(), 10);
@@ -36,14 +35,18 @@ function includesAny(text, terms) {
 }
 
 function orderUrl() {
-  return String(process.env.MEITU_ORDER_URL || process.env.OPENAPI_ORDER_URL || "").trim();
+  return String(
+    process.env.MEITU_ORDER_URL ||
+      process.env.OPENAPI_ORDER_URL ||
+      "https://www.miraclevision.com/open-claw/pricing"
+  ).trim();
 }
 
 function consoleUrl() {
   return String(
     process.env.MEITU_CONSOLE_URL ||
       process.env.OPENAPI_CONSOLE_URL ||
-      "https://www.miraclevision.com/open-claw/console"
+      "https://www.miraclevision.com/open-claw/pricing"
   ).trim();
 }
 
@@ -86,21 +89,22 @@ function defaultActionLabel(errorType) {
     return "申诉入口";
   }
   if (normalizedType === "AUTH_ERROR" || normalizedType === "CREDENTIALS_MISSING") {
-    return "控制台入口";
+    return "前往官网";
   }
   return "处理入口";
 }
 
-function buildActionFields(actionUrl, errorType, actionLabel = "", actionDisplayHint = "") {
+function buildActionFields(actionUrl, errorType, actionLabel = "") {
   const normalizedUrl = String(actionUrl || "").trim();
   if (!normalizedUrl) {
     return {};
   }
-  return removeEmptyFields({
+  const label = String(actionLabel || defaultActionLabel(errorType) || "查看详情").trim();
+  return {
     action_url: normalizedUrl,
-    action_label: String(actionLabel || defaultActionLabel(errorType)).trim(),
-    action_display_hint: String(actionDisplayHint || LONG_ACTION_URL_DISPLAY_HINT).trim(),
-  });
+    action_label: label,
+    action_link: `[${label}](${STATIC_PRICING_URL})`,
+  };
 }
 
 function buildErrorHint({ errorCode = null, errorName = "", httpStatus = null, message = "" } = {}) {
@@ -155,7 +159,7 @@ function buildErrorHint({ errorCode = null, errorName = "", httpStatus = null, m
     hint = {
       error_type: "CREDENTIALS_MISSING",
       user_hint: "未找到可用的 AK/SK 凭证，无法完成请求。",
-      next_action: "请先前往控制台获取并配置 AK/SK，或写入本地凭证文件后重试。",
+      next_action: "请先前往官网获取并配置 AK/SK，或写入本地凭证文件后重试。",
       action_url: consoleUrl(),
     };
   } else if (
@@ -204,7 +208,7 @@ function buildErrorHint({ errorCode = null, errorName = "", httpStatus = null, m
     hint = {
       error_type: "AUTH_ERROR",
       user_hint: "鉴权失败，AK/SK 或授权状态异常。",
-      next_action: "请前往控制台检查 AK/SK、应用状态和授权配置后重试。",
+      next_action: "请前往官网检查 AK/SK、应用状态和授权配置后重试。",
       action_url: consoleUrl(),
     };
   } else if (
@@ -311,14 +315,14 @@ function buildErrorHint({ errorCode = null, errorName = "", httpStatus = null, m
 }
 
 function hintFromCliPayload(payload, stderr = "") {
-  const actionUrl = payloadActionUrl(payload);
+  const cliActionUrl = payloadActionUrl(payload);
   const directHint = removeEmptyFields({
     error_type: payload?.error_type,
     error_code: parseNumberCode(payload?.error_code),
     error_name: payload?.error_name,
     user_hint: payload?.user_hint,
     next_action: payload?.next_action,
-    ...buildActionFields(actionUrl, payload?.error_type, payload?.action_label, payload?.action_display_hint),
+    ...buildActionFields(cliActionUrl, payload?.error_type, payload?.action_label),
   });
   if (directHint.error_type) {
     return directHint;
@@ -337,14 +341,12 @@ function hintFromCliPayload(payload, stderr = "") {
     httpStatus,
     message: `${messageFromPayload}\n${stderr}`.trim(),
   });
+  // CLI 有 action_url 直接用，否则用 runner 静态兜底 URL
+  const { action_url: hintUrl, ...builtHintWithoutUrl } = builtHint;
+  const resolvedUrl = cliActionUrl || hintUrl || STATIC_PRICING_URL;
   return removeEmptyFields({
-    ...builtHint,
-    ...buildActionFields(
-      actionUrl,
-      builtHint.error_type,
-      payload?.action_label,
-      payload?.action_display_hint
-    ),
+    ...builtHintWithoutUrl,
+    ...buildActionFields(resolvedUrl, builtHint.error_type, payload?.action_label),
   });
 }
 
