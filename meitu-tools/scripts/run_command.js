@@ -16,10 +16,8 @@ const {
 const {
   DEFAULT_TASK_WAIT_TIMEOUT_MS,
   DEFAULT_VIDEO_TASK_WAIT_TIMEOUT_MS,
-  maybeLazyUpdate,
-  mergeUpdateReports,
   looksLikeRuntimeMismatch,
-} = require("./lib/updater");
+} = require("./lib/runtime");
 
 function parseArgs(argv) {
   const args = { command: "", inputJson: "", help: false };
@@ -52,15 +50,25 @@ function printUsage() {
       "Run meitu built-in command with validated input JSON (Node.js runtime).",
       "",
       "Env toggles:",
-      "  MEITU_AUTO_UPDATE=1|0                   default: 1",
-      "  MEITU_UPDATE_CHECK_TTL_HOURS=<hours>    default: 24",
-      "  MEITU_UPDATE_CHANNEL=<tag>              default: latest",
-      "  MEITU_UPDATE_PACKAGE=<name>             default: meitu-ai",
+      "  MEITU_CONSOLE_URL=<url>                 console page for credential/auth guidance",
       "  MEITU_ORDER_URL=<url>                   billing/order page for insufficient balance",
       "  MEITU_TASK_WAIT_TIMEOUT_MS=<ms>         default: 600000 for video, 900000 for others",
       "  MEITU_TASK_WAIT_INTERVAL_MS=<ms>        default: 2000",
+      "",
+      "Manual repair / upgrade:",
+      "  npm install -g meitu-cli@latest",
+      "  meitu --version",
     ].join("\n") + "\n"
   );
+}
+
+function runtimeRepairHint() {
+  return {
+    error_type: "RUNTIME_OUTDATED",
+    user_hint: "当前 meitu CLI 未安装、缺少内置命令或版本过旧，暂不支持该内置命令。",
+    next_action:
+      "请手动执行 'npm install -g meitu-cli@latest'；如安装时报 EEXIST 或已有同名二进制冲突，可执行 'npm install -g meitu-cli@latest --force'；随后执行 'meitu --version' 确认运行时可用后重试。",
+  };
 }
 
 function main() {
@@ -112,21 +120,9 @@ function main() {
     const cmdArgs = buildCliArgs(resolvedCommand, normalizedInput);
 
     const env = buildEnv();
-    let updateReport = maybeLazyUpdate(env, false, "startup");
-
     let result = runMeitu(cmdArgs, env);
     let stdout = String(result.stdout || "").trim();
     let stderr = String(result.stderr || "").trim();
-
-    if (!stdout && looksLikeRuntimeMismatch(stderr)) {
-      const forcedUpdate = maybeLazyUpdate(env, true, "compatibility_error");
-      updateReport = mergeUpdateReports(updateReport, forcedUpdate);
-      if (forcedUpdate.updated) {
-        result = runMeitu(cmdArgs, env);
-        stdout = String(result.stdout || "").trim();
-        stderr = String(result.stderr || "").trim();
-      }
-    }
 
     if (!stdout) {
       const timeoutTaskId = parseTaskWaitTimeout(stderr);
@@ -160,13 +156,16 @@ function main() {
     }
 
     if (!stdout) {
+      const runtimeMismatch = looksLikeRuntimeMismatch(stderr);
       if (String(stderr || "").toLowerCase().includes("invalid choice")) {
-        stderr = "current meitu runtime does not include built-in commands; please use meitu-ai >= 0.1.6";
+        stderr = "current meitu runtime does not include built-in commands; please use meitu-cli >= 0.1.6";
       }
-      const errorHint = buildErrorHint({
-        errorCode: inferErrorCodeFromText(stderr),
-        message: stderr,
-      });
+      const errorHint = runtimeMismatch
+        ? runtimeRepairHint()
+        : buildErrorHint({
+            errorCode: inferErrorCodeFromText(stderr),
+            message: stderr,
+          });
       const payload = {
         ok: false,
         command: resolvedCommand,
@@ -174,9 +173,6 @@ function main() {
         exit_code: result.returncode,
         ...errorHint,
       };
-      if (updateReport.checked || updateReport.updated || updateReport.error) {
-        payload.runtime_update = updateReport;
-      }
       process.stdout.write(JSON.stringify(payload) + "\n");
       return 1;
     }
@@ -222,10 +218,6 @@ function main() {
         output.stderr = stderr;
       }
       Object.assign(output, hintFromCliPayload(payload, stderr));
-    }
-
-    if (updateReport.checked || updateReport.updated || updateReport.error) {
-      output.runtime_update = updateReport;
     }
 
     process.stdout.write(JSON.stringify(output) + "\n");

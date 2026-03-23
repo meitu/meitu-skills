@@ -1,4 +1,0 @@
-Use meitu-tools.
-Execute command=image-upscale with input:
-{"image":"https://obs.mtlab.meitu.com/public/resources/aigensource.png"}
-Return task_id and final image URL.

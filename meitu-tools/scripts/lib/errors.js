@@ -7,10 +7,15 @@
 const ORDER_ERROR_CODES = new Set([80001, 80002]);
 const AUTH_ERROR_CODES = new Set([90002, 90003, 90005]);
 const PARAM_ERROR_CODES = new Set([10000, 90000, 90001, 21101, 21102, 21103, 21104, 21105]);
-const INVALID_RESOURCES_ERROR_CODES = new Set([10025, 10026, 10027]);
+const INPUT_RESOURCES_ERROR_CODES = new Set([10025]);
+const OUTPUT_RESOURCES_ERROR_CODES = new Set([10026]);
+const TEXT_RESOURCES_ERROR_CODES = new Set([10027]);
 const ROUTE_ERROR_CODES = new Set([90025]);
 const IMAGE_URL_ERROR_CODES = new Set([10003, 21201, 21202, 21203, 21204, 21205]);
+const CONTENT_REQUIREMENTS_ERROR_CODES = new Set([98501]);
 const TEMP_ERROR_CODES = new Set([415, 500, 502, 503, 504, 599, 10002, 10015, 29904, 29905, 90009, 90020, 90021, 90022, 90023, 90099]);
+const LONG_ACTION_URL_DISPLAY_HINT =
+  "该链接较长，聊天窗口可能省略显示中间字符，但直接点击仍会访问完整地址；如需核对完整链接，请复制到浏览器地址栏查看。";
 
 function parseNumberCode(value) {
   const parsed = Number.parseInt(String(value ?? "").trim(), 10);
@@ -32,6 +37,14 @@ function includesAny(text, terms) {
 
 function orderUrl() {
   return String(process.env.MEITU_ORDER_URL || process.env.OPENAPI_ORDER_URL || "").trim();
+}
+
+function consoleUrl() {
+  return String(
+    process.env.MEITU_CONSOLE_URL ||
+      process.env.OPENAPI_CONSOLE_URL ||
+      "https://www.miraclevision.com/open-claw/console"
+  ).trim();
 }
 
 function qpsOrderUrl() {
@@ -58,10 +71,60 @@ function payloadActionUrl(payload) {
   return String(payload?.action?.url || "").trim();
 }
 
+function defaultActionLabel(errorType) {
+  const normalizedType = String(errorType || "").trim();
+  if (!normalizedType) {
+    return "";
+  }
+  if (normalizedType === "ORDER_REQUIRED") {
+    return "充值入口";
+  }
+  if (normalizedType === "QPS_LIMIT") {
+    return "扩容入口";
+  }
+  if (normalizedType === "ACCOUNT_SUSPENDED") {
+    return "申诉入口";
+  }
+  if (normalizedType === "AUTH_ERROR" || normalizedType === "CREDENTIALS_MISSING") {
+    return "控制台入口";
+  }
+  return "处理入口";
+}
+
+function buildActionFields(actionUrl, errorType, actionLabel = "", actionDisplayHint = "") {
+  const normalizedUrl = String(actionUrl || "").trim();
+  if (!normalizedUrl) {
+    return {};
+  }
+  return removeEmptyFields({
+    action_url: normalizedUrl,
+    action_label: String(actionLabel || defaultActionLabel(errorType)).trim(),
+    action_display_hint: String(actionDisplayHint || LONG_ACTION_URL_DISPLAY_HINT).trim(),
+  });
+}
+
 function buildErrorHint({ errorCode = null, errorName = "", httpStatus = null, message = "" } = {}) {
   const normalizedName = String(errorName || "").trim();
   const normalizedMessage = String(message || "").trim();
   const text = `${normalizedName} ${normalizedMessage}`.toLowerCase();
+  const downloadLikeText = includesAny(text, [
+    "download",
+    "image_download_failed",
+    "invalid_url_error",
+    "下载图片失败",
+    "无效链接",
+  ]);
+  const contentViolationText = includesAny(text, [
+    "涉黄",
+    "色情",
+    "porn",
+    "nsfw",
+    "adult content",
+    "unsafe content",
+    "内容违规",
+    "内容不合规",
+    "policy violation",
+  ]);
 
   let hint = {
     error_type: "UNKNOWN_ERROR",
@@ -92,7 +155,8 @@ function buildErrorHint({ errorCode = null, errorName = "", httpStatus = null, m
     hint = {
       error_type: "CREDENTIALS_MISSING",
       user_hint: "未找到可用的 AK/SK 凭证，无法完成请求。",
-      next_action: "请先配置 MEITU_OPENAPI_ACCESS_KEY / MEITU_OPENAPI_SECRET_KEY 或本地凭证文件后重试。",
+      next_action: "请先前往控制台获取并配置 AK/SK，或写入本地凭证文件后重试。",
+      action_url: consoleUrl(),
     };
   } else if (
     ORDER_ERROR_CODES.has(errorCode) ||
@@ -140,16 +204,44 @@ function buildErrorHint({ errorCode = null, errorName = "", httpStatus = null, m
     hint = {
       error_type: "AUTH_ERROR",
       user_hint: "鉴权失败，AK/SK 或授权状态异常。",
-      next_action: "请检查 AK/SK、应用有效期和网关授权配置后重试。",
+      next_action: "请前往控制台检查 AK/SK、应用状态和授权配置后重试。",
+      action_url: consoleUrl(),
     };
   } else if (
-    INVALID_RESOURCES_ERROR_CODES.has(errorCode) ||
-    includesAny(text, ["invalid_resources", "illegal resource", "非法资源", "资源非法"])
+    (INPUT_RESOURCES_ERROR_CODES.has(errorCode) && contentViolationText) ||
+    includesAny(text, ["content_error", "内容违规", "内容不合规", "unsafe content", "policy violation"])
   ) {
     hint = {
-      error_type: "INVALID_RESOURCES",
-      user_hint: "资源配置不合法（输入/输出/文本资源异常）。",
-      next_action: "请检查资源类型、格式和可访问性；若仍失败，请确认账号已开通该 API 能力权限。",
+      error_type: "CONTENT_ERROR",
+      user_hint: "输入内容审核失败，不符合接口要求。",
+      next_action: "请更换符合接口要求的图片/视频/文本内容后重试。",
+    };
+  } else if (
+    INPUT_RESOURCES_ERROR_CODES.has(errorCode) ||
+    includesAny(text, ["invalid input resources", "非法资源，输入"])
+  ) {
+    hint = {
+      error_type: "INVALID_INPUT_RESOURCES",
+      user_hint: "输入资源审核失败，不符合接口要求。",
+      next_action: "请检查输入图片/视频/文本的格式、大小、可访问性及内容是否符合接口要求。",
+    };
+  } else if (
+    OUTPUT_RESOURCES_ERROR_CODES.has(errorCode) ||
+    includesAny(text, ["invalid output resources", "非法资源，输出"])
+  ) {
+    hint = {
+      error_type: "INVALID_OUTPUT_RESOURCES",
+      user_hint: "输出资源不符合接口要求。",
+      next_action: "请检查输出格式、保存约束和目标资源配置后重试。",
+    };
+  } else if (
+    TEXT_RESOURCES_ERROR_CODES.has(errorCode) ||
+    includesAny(text, ["invalid text resources", "非法资源，文本"])
+  ) {
+    hint = {
+      error_type: "INVALID_TEXT_RESOURCES",
+      user_hint: "文本资源不符合接口要求。",
+      next_action: "请检查文本长度、格式和内容要求后重试。",
     };
   } else if (
     PARAM_ERROR_CODES.has(errorCode) ||
@@ -170,6 +262,19 @@ function buildErrorHint({ errorCode = null, errorName = "", httpStatus = null, m
       error_type: "IMAGE_URL_ERROR",
       user_hint: "输入图片地址不可访问或下载失败。",
       next_action: "请确认图片 URL 可公开访问且文件格式正确后重试。",
+    };
+  } else if (
+    (CONTENT_REQUIREMENTS_ERROR_CODES.has(errorCode) && !downloadLikeText) ||
+    includesAny(text, [
+      "content_requirements_unmet",
+      "内容主体不符合要求",
+      "content subject does not meet requirements",
+    ])
+  ) {
+    hint = {
+      error_type: "CONTENT_REQUIREMENTS_UNMET",
+      user_hint: "98501:内容主体不符合要求",
+      next_action: "请更换符合当前能力要求的图片主体后重试；如使用 image-beauty-enhance，请提供清晰的单人人像图。",
     };
   } else if (
     errorCode === 90009 ||
@@ -194,10 +299,14 @@ function buildErrorHint({ errorCode = null, errorName = "", httpStatus = null, m
     };
   }
 
-  return removeEmptyFields({
+  const output = removeEmptyFields({
     ...hint,
     error_code: errorCode,
     error_name: normalizedName,
+  });
+  return removeEmptyFields({
+    ...output,
+    ...buildActionFields(output.action_url, output.error_type),
   });
 }
 
@@ -209,7 +318,7 @@ function hintFromCliPayload(payload, stderr = "") {
     error_name: payload?.error_name,
     user_hint: payload?.user_hint,
     next_action: payload?.next_action,
-    action_url: actionUrl,
+    ...buildActionFields(actionUrl, payload?.error_type, payload?.action_label, payload?.action_display_hint),
   });
   if (directHint.error_type) {
     return directHint;
@@ -222,14 +331,20 @@ function hintFromCliPayload(payload, stderr = "") {
   const nameFromPayload = String(payload?.error_name || payload?.error || payload?.errorName || "").trim();
   const messageFromPayload = String(payload?.message || payload?.error || stderr || "").trim();
   const httpStatus = parseNumberCode(payload?.http_status);
+  const builtHint = buildErrorHint({
+    errorCode: codeFromPayload !== null ? codeFromPayload : inferErrorCodeFromText(stderr),
+    errorName: nameFromPayload,
+    httpStatus,
+    message: `${messageFromPayload}\n${stderr}`.trim(),
+  });
   return removeEmptyFields({
-    ...buildErrorHint({
-      errorCode: codeFromPayload !== null ? codeFromPayload : inferErrorCodeFromText(stderr),
-      errorName: nameFromPayload,
-      httpStatus,
-      message: `${messageFromPayload}\n${stderr}`.trim(),
-    }),
-    action_url: actionUrl,
+    ...builtHint,
+    ...buildActionFields(
+      actionUrl,
+      builtHint.error_type,
+      payload?.action_label,
+      payload?.action_display_hint
+    ),
   });
 }
 

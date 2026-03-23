@@ -5,6 +5,7 @@
  */
 
 const { spawnSync } = require("node:child_process");
+const path = require("node:path");
 const { COMMAND_SPECS } = require("./commands");
 
 const VIDEO_COMMANDS = new Set([
@@ -12,6 +13,7 @@ const VIDEO_COMMANDS = new Set([
   "video-motion-transfer",
   "text-to-video",
 ]);
+const ALLOWED_COMMAND_BASENAMES = new Set(["meitu"]);
 
 function envInt(name, defaultValue, minValue = 1) {
   const raw = String(process.env[name] || "").trim();
@@ -45,9 +47,11 @@ function resolveCliCommandPrefix() {
   const override = String(process.env.MEITU_AI_CMD || "").trim();
   if (override) {
     const parts = override.split(/\s+/).filter(Boolean);
-    if (parts.length) {
+    const commandBase = path.basename(parts[0] || "");
+    if (parts.length === 1 && ALLOWED_COMMAND_BASENAMES.has(commandBase)) {
       return parts;
     }
+    console.warn(`[security] blocked MEITU_AI_CMD override: ${parts[0] || "<empty>"}`);
   }
   return ["meitu"];
 }
