@@ -1,6 +1,6 @@
 ---
 name: meitu-skills
-description: Root entry skill for Meitu capabilities. Routes requests to scene skills (meitu-poster, meitu-stickers, meitu-visual-me, meitu-product-swap, meitu-video-dance, meitu-upscale, meitu-product-view, meitu-image-fix, meitu-id-photo, meitu-cutout, meitu-carousel, meitu-beauty) or meitu-tools for direct Meitu CLI tool execution.
+description: Root entry skill for Meitu capabilities. Routes requests to scene skills (meitu-poster, meitu-stickers, meitu-visual-me, meitu-product-swap, meitu-video-dance, meitu-upscale, meitu-product-view, meitu-image-fix, meitu-id-photo, meitu-cutout, meitu-carousel, meitu-beauty, meitu-image-adapt) or meitu-tools for direct Meitu CLI tool execution.
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -42,6 +42,7 @@ This is the top-level routing skill:
 - Use `meitu-cutout` for removing backgrounds and extracting foreground subjects.
 - Use `meitu-carousel` for generating cohesive carousel sets (cover + inner pages).
 - Use `meitu-beauty` for AI beauty enhancement on portrait photos.
+- Use `meitu-image-adapt` for intelligently adapting images to a target aspect ratio or platform size, extending backgrounds without distorting the subject.
 - Use `meitu-tools` for direct tool execution with the Meitu CLI.
 
 ## Permission Scope
@@ -92,7 +93,12 @@ This is the top-level routing skill:
 12. Use `meitu-beauty` when:
 - The user wants skin smoothing, brightening, or facial feature refinement on a single portrait photo.
 
-13. Use `meitu-tools` when:
+13. Use `meitu-image-adapt` when:
+- The user wants to adapt, extend, or outpaint an image to a different aspect ratio or platform size.
+- The user wants to convert a portrait image to landscape, or vice versa.
+- The user mentions 图片适配, 图片延展, 外扩, outpaint, or adapting an image to a specific platform (小红书, 抖音, 公众号, etc.).
+
+14. Use `meitu-tools` when:
 - The user wants direct generation/editing execution.
 - The user already provides command-like parameters.
 
@@ -127,17 +133,18 @@ npm install -g meitu-cli@latest --force
 ## Tool Capability Map
 
 <!-- BEGIN CAPABILITY_CATALOG -->
-- Motion transfer -> `video-motion-transfer`
+- Video motion transfer -> `video-motion-transfer`
 - Image to video -> `image-to-video`
 - Text to video -> `text-to-video`
 - Video to GIF -> `video-to-gif`
 - Image generate -> `image-generate`
-- Poster generate -> `image-poster-generate`
+- Image poster generate -> `image-poster-generate`
 - Image edit -> `image-edit`
 - Image upscale -> `image-upscale`
-- Beauty enhance -> `image-beauty-enhance`
-- Face swap -> `image-face-swap`
+- Image beauty enhance -> `image-beauty-enhance`
+- Image face swap -> `image-face-swap`
 - Virtual try-on -> `image-try-on`
+- Image adapt -> `image-adapt`
 - Image cutout -> `image-cutout`
 - Image grid split -> `image-grid-split`
 <!-- END CAPABILITY_CATALOG -->

@@ -26,6 +26,7 @@ Use one runner script for all supported commands:
 
 This skill is aligned with the Node.js `meitu-cli` command set.
 Current built-in command coverage:
+<!-- BEGIN COMMAND_COVERAGE -->
 - `video-motion-transfer`
 - `image-to-video`
 - `text-to-video`
@@ -37,8 +38,10 @@ Current built-in command coverage:
 - `image-beauty-enhance`
 - `image-face-swap`
 - `image-try-on`
+- `image-adapt`
 - `image-cutout`
 - `image-grid-split`
+<!-- END COMMAND_COVERAGE -->
 
 Notes:
 - No effect IDs are exposed in skill prompts.
@@ -62,6 +65,21 @@ If an existing `meitu` binary conflicts:
 
 ```bash
 npm install -g meitu-cli@latest --force
+```
+
+## Install Skills
+
+Preferred (ClawHub):
+
+```bash
+npm install -g clawhub
+clawhub install meitu-skills
+```
+
+Fallback (GitHub URL):
+
+```bash
+npx -y skills add https://github.com/meitu/meitu-skills --yes
 ```
 
 ## Agent Bootstrap Policy (Must Follow)
@@ -213,11 +231,15 @@ Mandatory behavior:
 - required: `clothes_image_url`, `person_image_url`
 - optional: `replace`, `need_sd`
 
-12. `image-cutout`
+12. `image-adapt`
+- required: `image`, `width`, `height`
+- optional: none
+
+13. `image-cutout`
 - required: `image`
 - optional: `model_type`
 
-13. `image-grid-split`
+14. `image-grid-split`
 - required: `image`
 - optional: none
 <!-- END CAPABILITY_CATALOG -->
@@ -225,19 +247,22 @@ Mandatory behavior:
 ## Natural Language Mapping
 
 Typical intent-to-command mapping:
-- motion transfer -> `video-motion-transfer`
-- image to video -> `image-to-video`
-- text to video -> `text-to-video`
-- video to GIF -> `video-to-gif`
-- image generate -> `image-generate`
-- poster generate -> `image-poster-generate`
-- image edit -> `image-edit`
-- image upscale -> `image-upscale`
-- beauty enhance -> `image-beauty-enhance`
-- face swap -> `image-face-swap`
-- virtual try-on -> `image-try-on`
-- image cutout -> `image-cutout`
-- image grid split -> `image-grid-split`
+<!-- BEGIN NL_MAPPING -->
+- Video motion transfer -> `video-motion-transfer`
+- Image to video -> `image-to-video`
+- Text to video -> `text-to-video`
+- Video to GIF -> `video-to-gif`
+- Image generate -> `image-generate`
+- Image poster generate -> `image-poster-generate`
+- Image edit -> `image-edit`
+- Image upscale -> `image-upscale`
+- Image beauty enhance -> `image-beauty-enhance`
+- Image face swap -> `image-face-swap`
+- Virtual try-on -> `image-try-on`
+- Image adapt -> `image-adapt`
+- Image cutout -> `image-cutout`
+- Image grid split -> `image-grid-split`
+<!-- END NL_MAPPING -->
 
 ## Security
 

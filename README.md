@@ -22,6 +22,15 @@ See [SECURITY.md](SECURITY.md) for:
 
 1. Install all skills
 
+Preferred (ClawHub):
+
+```bash
+npm install -g clawhub
+clawhub install meitu-skills
+```
+
+Fallback (GitHub URL):
+
 ```bash
 npx -y skills add https://github.com/meitu/meitu-skills --yes
 ```

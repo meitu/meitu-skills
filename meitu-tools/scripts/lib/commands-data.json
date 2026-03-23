@@ -278,6 +278,30 @@
       "人像图": "person_image_url"
     }
   },
+  "image-adapt": {
+    "requiredKeys": [
+      "image",
+      "width",
+      "height"
+    ],
+    "optionalKeys": [],
+    "arrayKeys": [],
+    "commandAliases": [
+      "image-adapt",
+      "图片适配",
+      "图片延展"
+    ],
+    "inputAliases": {
+      "image_url": "image",
+      "图片": "image",
+      "图片url": "image",
+      "图片链接": "image",
+      "宽": "width",
+      "宽度": "width",
+      "高": "height",
+      "高度": "height"
+    }
+  },
   "image-cutout": {
     "requiredKeys": [
       "image"
