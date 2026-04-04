@@ -1,7 +1,25 @@
 ---
 name: meitu-video-dance
 description: "将参考视频中的动作（舞蹈、手势、运动）迁移到目标人物或角色图片上，生成动作视频。当用户提到动作迁移、舞蹈视频、让照片跳舞、让人物动起来、dance transfer、motion transfer、视频动作复刻时触发。"
-version: "1.0.0"
+version: "1.1.0"
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+requirements:
+  credentials:
+    - name: MEITU_OPENAPI_ACCESS_KEY
+      source: env | ~/.meitu/credentials.json
+    - name: MEITU_OPENAPI_SECRET_KEY
+      source: env | ~/.meitu/credentials.json
+  permissions:
+    - type: file_read
+      paths:
+        - ~/.meitu/credentials.json
+        - ~/.openclaw/workspace/visual/
+    - type: file_write
+      paths:
+        - ~/.openclaw/workspace/visual/
+    - type: exec
+      commands:
+        - meitu
 ---
 
 ## Overview
@@ -13,9 +31,8 @@ version: "1.0.0"
 - **meitu-cli**: `npm install -g meitu-cli`
   - 凭证配置: `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`
   - 验证: `meitu auth verify --json`
-- **oc-workspace.mjs** (可选): `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`
 
-> **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`，`$OC_SCRIPT` = `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`
+> **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
 
 ---
 
@@ -29,23 +46,18 @@ Preflight → [Context] → Execute → Refine → Deliver → [Record]
 
 1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
 2. `meitu auth verify --json` → 凭证无效则引导配置
-3. `node $OC_SCRIPT resolve` → 获取 mode, visual, can_read_knowledge, can_record
-   脚本不存在 → 检查 cwd 有无 openclaw.yaml → 确定 mode；检查 $VISUAL 目录 → 确定 capabilities
-   can_record = cwd 有 openclaw.yaml AND $VISUAL 存在（两者缺一即 false）
+3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
+   检查 `$VISUAL` 目录 → 确定 capabilities
+   can_record = cwd 有 openclaw.yaml AND `$VISUAL` 存在（两者缺一即 false）
 4. output_dir 解析（Preflight 内 MUST 完成）：
-   `node $OC_SCRIPT route-output --skill meitu-video-dance --name tmp --ext tmp`
-   脚本不存在 → 3 级 fallback：
-     ① cwd 有 openclaw.yaml → ./output/
-     ② $VISUAL 存在 → $VISUAL/output/meitu-video-dance/
-     ③ 均无 → ~/Downloads/
+   Resolve output_dir: openclaw.yaml → `./output/` | else → `$VISUAL/output/meitu-video-dance/`
    `mkdir -p {output_dir}`
 
 ### Context（项目模式时执行，一次性模式跳过）
 
 mode = one-off → 跳过此步，直接到 Execute。
 
-`node $OC_SCRIPT read-context` → 返回 {quality, preferences, brand_refs}
-脚本不存在 → 逐步读取：
+逐步读取：
   1. 读 DESIGN.md → 提取 Context References（quality, preferences, brand_refs）
   2. 尝试读全局资产：quality.yaml → global.md → scenes/{type}.md（scene 文件来源：从 openclaw.yaml 的 `project.types`（数组优先）或 `project.type` 读取类型）
   3. 读不到用内联兜底值（均 skip if missing）
@@ -188,12 +200,7 @@ meitu video-motion-transfer \
 
 直接使用 Preflight 解析的 output_dir。
 
-```bash
-node $OC_SCRIPT rename --file {path} --name {effect}
-mv {file} {output_dir}/{date}_{name}.mp4
-```
-
-脚本不存在 → 仅执行 `mv` 重命名。
+`mv {file} {output_dir}/{date}_{name}.mp4`
 
 **命名规范：** `{date}_{描述性名称}.mp4`，如 `2026-03-23_girl-hip-hop-dance.mp4`
 
@@ -203,9 +210,9 @@ can_record = false → 跳过。一次性模式下反馈仅当前对话有效。
 > can_record 定义：`can_record = cwd 有 openclaw.yaml AND $VISUAL 存在`（两者缺一即 false）
 
 User approved style →
-  `node $OC_SCRIPT read-observations` → Agent 检查语义相似 key →
-  `node $OC_SCRIPT write-observation --key "..." --scope-hint "meitu-video-dance" --project "..."`
-  → promotion_ready? → 提议晋升（非阻塞：在回复末尾提及，不打断主流程） → confirmed → write target + delete-observation
+  read `$VISUAL/memory/observations/observations.yaml` → scan similar key → merge or append → write back.
+  `len(projects) >= 2` → propose promotion (non-blocking).
+  提议晋升（非阻塞：在回复末尾提及，不打断主流程） → confirmed → write target + delete observation entry
 
 User rejected ("不要 XX") →
   has openclaw.yaml → ask scope → project: DESIGN.md Constraints / universal: quality.yaml

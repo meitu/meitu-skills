@@ -2,6 +2,24 @@
 name: meitu-product-swap
 description: "对电商图片中的商品进行智能替换，支持一对一、一对多、多对一映射关系。当用户提到商品替换、换商品、复刻爆款图片、替换商品主体时触发。"
 version: "1.0.0"
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+requirements:
+  credentials:
+    - name: MEITU_OPENAPI_ACCESS_KEY
+      source: env | ~/.meitu/credentials.json
+    - name: MEITU_OPENAPI_SECRET_KEY
+      source: env | ~/.meitu/credentials.json
+  permissions:
+    - type: file_read
+      paths:
+        - ~/.meitu/credentials.json
+        - ~/.openclaw/workspace/visual/
+    - type: file_write
+      paths:
+        - ~/.openclaw/workspace/visual/
+    - type: exec
+      commands:
+        - meitu
 ---
 
 # 图片商品替换
@@ -18,16 +36,15 @@ version: "1.0.0"
   - Install: `npm install -g meitu-cli`（包名 meitu-cli，非 meitu-ai）
   - Command: `meitu image-edit`（model: `praline`，默认值，适用于多图融合/商品替换/合成）
 - credentials: 美图 AI 开放平台 API 凭证
-  - 环境变量：`OPENAPI_ACCESS_KEY` / `OPENAPI_SECRET_KEY`
+  - 环境变量：`MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
   - 或配置文件：`~/.meitu/credentials.json`
   - 配置方式：`meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`
   - 验证：`meitu auth verify --json`
 - prompt template: [references/prompts.md](references/prompts.md)（Agent 基于模板自行组装 prompt）
 - workspace (optional): `{OPENCLAW_HOME}/workspace/visual/`
   - Not found → skip all knowledge reads, skill works without it
-- scripts: `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`（共享脚本，由 init-visual-home.sh 安装）
 
-> **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`，`$OC_SCRIPT` = `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`
+> **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
 
 ## Core Workflow
 
@@ -43,25 +60,11 @@ Preflight → [Context] → Execute → Refine → Deliver → [Record]
 
 1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
 2. `meitu auth verify --json` → 凭证无效则引导配置
-3. `node $OC_SCRIPT resolve` → 获取 mode, visual, can_read_knowledge, can_record
-   脚本不存在 → 检查 cwd 有无 openclaw.yaml → 确定 mode；检查 $VISUAL 目录 → 确定 capabilities
+3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
    can_record = cwd 有 openclaw.yaml AND $VISUAL 存在（两者缺一即 false）
-4. output_dir 解析（Preflight 内 MUST 完成，不可延迟到 Execute 或 Deliver）：
-   `node $OC_SCRIPT route-output --skill meitu-product-swap --name tmp --ext tmp` → 获取 output_dir
-   脚本不存在 → 3 级 fallback：
-     ① cwd 有 openclaw.yaml → ./output/
-     ② $VISUAL 存在 → $VISUAL/output/meitu-product-swap/
-     ③ 均无 → ~/Downloads/
+4. Resolve output_dir: openclaw.yaml → `./output/` | else → `$VISUAL/output/meitu-product-swap/`
    `mkdir -p {output_dir}`
    硬约束：output_dir MUST NOT 指向 skill 文件夹内部
-
-   **当 OC_SCRIPT = null 时，后续步骤的操作对照表：**
-   | 步骤 | 有脚本 | 无脚本 fallback |
-   |------|--------|----------------|
-   | Context | `read-context` 一次调用 | Agent 逐步读 DESIGN.md + yaml 文件 |
-   | Execute | 直接用 Preflight 解析的 output_dir | 直接用 Preflight 解析的 output_dir |
-   | Deliver | `rename` → 规范文件名 | `mv {file} {output_dir}/{date}_{name}.{ext}` |
-   | Record | observation CRUD 子命令 | Agent 直接读写 observations.yaml |
 
 5. 项目创建（仅当用户主动要求时）：
    已在项目目录中（有 `openclaw.yaml`）→ 跳过。否则：
@@ -82,8 +85,7 @@ Preflight → [Context] → Execute → Refine → Deliver → [Record]
 
 mode = one-off → 跳过此步，直接到 Execute。以下仅限 project 模式：
 
-`node $OC_SCRIPT read-context` → 返回 {quality, preferences, brand_refs, scene_memories}
-脚本不存在 → 逐步手动读（均 skip if missing）：
+逐步读取上下文（均 skip if missing）：
   1. 读 ./DESIGN.md → 提取 Context References（brand, palette, platform 等）
      → 对每个引用尝试读全局资产（如 brand: acme → $VISUAL/assets/brands/acme/）
      → 读到 → 用最新版；读不到 → 用 DESIGN.md 内联兜底值
@@ -217,8 +219,7 @@ meitu image-edit \
 ### Deliver
 
 output_dir 已在 Preflight 解析，此处仅做重命名。
-`node $OC_SCRIPT rename --file {path} --name {effect}` → 规范文件名
-脚本不存在 → `mv {file} {output_dir}/{date}_{name}.{ext}`
+`mv {file} {output_dir}/{date}_{name}.{ext}`
 
 If DESIGN.md Iteration Log > 5 entries → compact: keep recent 5, archive older to `./drafts/design-history.md`
 
@@ -234,18 +235,9 @@ can_record = false → 跳过。
 
 - **User approves style →** write observation:
 
-  优先（`OC_SCRIPT` 可用）：
-  1. `node $OC_SCRIPT read-observations` → 查看已有观察
-  2. Agent 语义判断是否有相似 key；有则复用，无则新建
-  3. `node $OC_SCRIPT write-observation --key "..." --scope-hint "meitu-product-swap" --project "..."`
-  4. 若返回 `promotion_ready: true` →「非阻塞」提议晋升（见下方路由规则），在回复末尾提及，不打断主流程
-  5. User confirms → 写入目标 + `node $OC_SCRIPT delete-observation --key "..."`
-
-  Fallback（`OC_SCRIPT` = null）：
-  1. Read `$VISUAL/memory/observations/observations.yaml`（不存在则创建）
-  2. Scan entries for semantically similar key → merge or create
-  3. Write back file
-  4. If `len(projects) >= 2` →「非阻塞」提议晋升，在回复末尾提及，不打断主流程
+  1. read `$VISUAL/memory/observations/observations.yaml` → scan similar key → merge or append → write back
+  2. `len(projects) >= 2` → propose promotion (non-blocking)，在回复末尾提及，不打断主流程
+  3. User confirms → 写入目标 + delete observation entry
 
   Observation entry schema:
   ```yaml
@@ -280,6 +272,5 @@ can_record = false → 跳过。
 
 - **项目型任务**（有 `openclaw.yaml`）→ `./output/{date}_{effect-name}.{ext}`
 - **一次性任务**（`$VISUAL` 存在）→ `$VISUAL/output/meitu-product-swap/{date}_{effect-name}.{ext}`
-- **一次性任务**（`$VISUAL` 不存在）→ `~/Downloads/{date}_{effect-name}.{ext}`
 - 文件名格式：`{date}_{effect-name}.{ext}`（如 `2026-03-22_serum-bottle-marble.jpg`）
-- meitu CLI `--download-dir` 下载后需通过 `$OC_SCRIPT rename`（或 fallback `mv`）重命名为上述格式
+- meitu CLI `--download-dir` 下载后需通过 `mv` 重命名为上述格式

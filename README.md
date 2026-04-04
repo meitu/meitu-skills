@@ -43,9 +43,8 @@ npm install -g meitu-cli@latest
 
 3. Configure credentials
 
-- `MEITU_OPENAPI_ACCESS_KEY` + `MEITU_OPENAPI_SECRET_KEY`, or
+- `MEITU_OPENAPI_ACCESS_KEY` + `MEITU_OPENAPI_SECRET_KEY` (env), or
 - `~/.meitu/credentials.json` (via `meitu config set-ak` / `meitu config set-sk`)
-- legacy fallback also supported: `~/.openapi/credentials.json`
 
 4. Smoke test
 

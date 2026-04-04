@@ -1,5 +1,11 @@
 {
+  "name": "meitu-skills",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meitu/meitu-skills.git"
+  },
+  "homepage": "https://github.com/meitu/meitu-skills#readme",
   "scripts": {
     "generate": "node scripts/generate.js"
   },

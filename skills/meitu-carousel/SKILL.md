@@ -1,7 +1,25 @@
 ---
 name: meitu-carousel
 description: "一键生成轮播套组，封面+内页风格统一。适用于小红书组图笔记、知识卡片轮播、产品介绍套图。当用户提到套组、组图、轮播图、轮播套组、知识卡片套图、产品套图时触发。"
-version: "1.0.0"
+version: "1.1.0"
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+requirements:
+  credentials:
+    - name: MEITU_OPENAPI_ACCESS_KEY
+      source: env | ~/.meitu/credentials.json
+    - name: MEITU_OPENAPI_SECRET_KEY
+      source: env | ~/.meitu/credentials.json
+  permissions:
+    - type: file_read
+      paths:
+        - ~/.meitu/credentials.json
+        - ~/.openclaw/workspace/visual/
+    - type: file_write
+      paths:
+        - ~/.openclaw/workspace/visual/
+    - type: exec
+      commands:
+        - meitu
 ---
 
 # 轮播套组生成
@@ -18,21 +36,20 @@ version: "1.0.0"
   - Install: `npm install -g meitu-cli`（包名 meitu-cli，非 meitu-ai）
   - Commands used: `image-poster-generate`
 - credentials: 美图 AI 开放平台 API 凭证
-  - 环境变量：`OPENAPI_ACCESS_KEY` / `OPENAPI_SECRET_KEY`
+  - 环境变量：`MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
   - 或配置文件：`~/.meitu/credentials.json`
   - 配置方式：`meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`
   - 验证：`meitu auth verify --json`
 - workspace (optional): `{OPENCLAW_HOME}/workspace/visual/`
   - Path resolution: `$OPENCLAW_HOME` env var → `~/.openclaw` (macOS/Linux) / `%LOCALAPPDATA%\openclaw` (Windows)
   - If directory not found → skip all knowledge reads, skill works without it
-- scripts (optional): `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`（共享脚本，由 init-visual-home.sh 安装；不存在时使用内联默认值）
 - memory read/write paths (project mode):
   - `$VISUAL/rules/quality.yaml` — forbidden elements
   - `$VISUAL/memory/global.md` — global preferences
   - `$VISUAL/memory/scenes/{type}.md` — scene preferences
   - `$VISUAL/memory/observations/observations.yaml` — observation staging
 
-> **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`，`$OC_SCRIPT` = `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`
+> **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
 
 ## Core Workflow
 
@@ -48,26 +65,20 @@ Preflight → [Context] → Execute → Refine → Deliver → [Record]
 
 1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
 2. `meitu auth verify --json` → 凭证无效则引导配置
-3. `node $OC_SCRIPT resolve` → 获取 mode, visual, can_read_knowledge, can_record
-   脚本不存在 → 检查 cwd 有无 openclaw.yaml → 确定 mode；检查 `$VISUAL` 目录 → 确定 capabilities
+3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
+   检查 `$VISUAL` 目录 → 确定 capabilities
    can_record = cwd 有 openclaw.yaml AND $VISUAL 存在（两者缺一即 false）
 4. output_dir 解析（Preflight 内 MUST 完成，不可延迟到 Execute 或 Deliver）：
-   `node $OC_SCRIPT route-output --skill meitu-carousel --name tmp --ext tmp` → 获取 output_dir
-   脚本不存在 → 3 级 fallback：
-     ① cwd 有 openclaw.yaml → ./output/
-     ② $VISUAL 存在 → $VISUAL/output/meitu-carousel/
-     ③ 均无 → ~/Downloads/
+   Resolve output_dir: openclaw.yaml → `./output/` | else → `$VISUAL/output/meitu-carousel/`
    `mkdir -p {output_dir}`
    硬约束：output_dir MUST NOT 指向 skill 文件夹内部
-5. 项目创建（仅当用户主动要求时）：`node $OC_SCRIPT scaffold-project --name "{name}" --type "meitu-carousel" --brand "{brand}"`
-   脚本不存在 → 手动创建 `{OPENCLAW_HOME}/workspace/visual/projects/{name}/` + `openclaw.yaml`；已在项目目录中 → 跳过
+5. 项目创建（仅当用户主动要求时）：手动创建 `{OPENCLAW_HOME}/workspace/visual/projects/{name}/` + `openclaw.yaml`；已在项目目录中 → 跳过
 
 ### Context（创意型 MUST / 工具型跳过 / 一次性模式跳过）
 
 mode = one-off → 跳过此步，直接到 Execute。以下仅限 project 模式：
 
-`node $OC_SCRIPT read-context` → 返回 {quality, preferences, brand_refs, scene_memories}
-脚本不存在 → 逐步手动读（均 skip if missing）：
+逐步读取（均 skip if missing）：
 1. 读 ./DESIGN.md → 提取 Context References（brand, palette, platform 等）
    → 对每个引用尝试读全局资产（如 brand: acme → $VISUAL/assets/brands/acme/）
    → 读到 → 用最新版；读不到 → 用 DESIGN.md 内联兜底值
@@ -218,8 +229,7 @@ meitu image-poster-generate \
 ### Deliver
 
 output_dir 已在 Preflight 解析，此处仅做重命名。
-`node $OC_SCRIPT rename --file {path} --name {effect}` → 规范文件名
-脚本不存在 → `mv {file} {output_dir}/{date}_{name}.{ext}`
+`mv {file} {output_dir}/{date}_{name}.{ext}`
 命名示例：`2026-03-22_cover.jpeg`、`2026-03-22_inner-1.jpeg`、`2026-03-22_inner-2.jpeg`
 
 If DESIGN.md Iteration Log > 5 entries → compact: keep recent 5, archive older to `./drafts/design-history.md`
@@ -233,10 +243,7 @@ If DESIGN.md Iteration Log > 5 entries → compact: keep recent 5, archive older
 **项目模式下：**
 
 - **User approved style →**
-  `node $OC_SCRIPT read-observations` → Agent 检查语义相似 key →
-  `node $OC_SCRIPT write-observation --key "..." --scope-hint "meitu-carousel" --project "..."`
-  脚本不存在 → 手动读写 `$VISUAL/memory/observations/observations.yaml`
-  → `promotion_ready`（projects >= 2）? →「非阻塞」在回复末尾提议晋升，不打断主流程 → confirmed → write target + delete-observation
+  read `$VISUAL/memory/observations/observations.yaml` → scan similar key → merge or append → write back. `len(projects) >= 2` → propose promotion (non-blocking)
 
 - **User rejected ("不要 XX") →**
   已在 quality data → 自动过滤；新拒绝 + has openclaw.yaml → ask scope → project: `./DESIGN.md` Constraints / universal: `$VISUAL/rules/quality.yaml`；no openclaw.yaml → current task only
@@ -267,6 +274,4 @@ Output path 由 Preflight 解析的 output_dir 决定：
 |------|------|------|
 | 项目模式（有 `openclaw.yaml`） | `./output/{date}_{type}.jpeg` | `./output/2026-03-22_cover.jpeg` |
 | 一次性模式（`$VISUAL` 存在） | `$VISUAL/output/meitu-carousel/{date}_{type}.jpeg` | `~/.openclaw/workspace/visual/output/meitu-carousel/2026-03-22_inner-1.jpeg` |
-| 一次性模式（`$VISUAL` 不存在） | `~/Downloads/{date}_{type}.jpeg` | `~/Downloads/2026-03-22_cover.jpeg` |
-
 文件命名规则：`{date}_{type}.{ext}`，type 为 `cover` 或 `inner-{n}`（n 从 1 开始）。

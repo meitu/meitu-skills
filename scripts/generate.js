@@ -76,6 +76,14 @@ function generateManifest(cliTools) {
     generated: true,
     aggregated_skill: "meitu-tools",
     capabilities,
+    credentials: {
+      required: ["MEITU_OPENAPI_ACCESS_KEY", "MEITU_OPENAPI_SECRET_KEY"],
+      sources: ["environment", "~/.meitu/credentials.json"],
+    },
+    runtime: {
+      bins: ["meitu", "node"],
+      install: "npm install -g meitu-cli@latest",
+    },
   };
   const outPath = path.join(ROOT, "meitu-tools", "generated", "manifest.json");
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
@@ -107,28 +115,24 @@ function buildCapabilityCatalog(cliTools) {
   return lines.join("\n").trimEnd();
 }
 
-const INTENT_MAP = {
-  "video-motion-transfer": "Motion transfer",
-  "image-edit": "Image edit",
-  "image-generate": "Image generate",
-  "image-upscale": "Image upscale",
-  "image-try-on": "Virtual try-on",
-  "image-to-video": "Image to video",
-  "image-face-swap": "Face swap",
-  "image-cutout": "Image cutout",
-  "image-beauty-enhance": "Beauty enhancement",
-  "text-to-video": "Text to video",
+// Only overrides that differ from auto-derived title case of the id.
+const INTENT_OVERRIDES = {
   "video-to-gif": "Video to GIF",
-  "image-poster-generate": "Poster generate",
-  "image-grid-split": "Grid split",
+  "image-try-on": "Virtual try-on",
 };
 
-function buildToolCapabilityMap(cliTools) {
+function intentLabel(key) {
+  if (INTENT_OVERRIDES[key]) return INTENT_OVERRIDES[key];
+  const words = key.split("-");
+  words[0] = words[0][0].toUpperCase() + words[0].slice(1);
+  return words.join(" ");
+}
+
+function buildIntentList(cliTools) {
   return cliTools
     .map((tool) => {
       const key = cliRegistryKey(tool);
-      const intent = INTENT_MAP[key] || key;
-      return `- ${intent} -> \`${key}\``;
+      return `- ${intentLabel(key)} -> \`${key}\``;
     })
     .join("\n");
 }
@@ -157,6 +161,15 @@ function replaceSegment(filePath, beginTag, endTag, content) {
   return true;
 }
 
+const BEGIN_CMD_COVERAGE = "<!-- BEGIN COMMAND_COVERAGE -->";
+const END_CMD_COVERAGE = "<!-- END COMMAND_COVERAGE -->";
+const BEGIN_NL_MAPPING = "<!-- BEGIN NL_MAPPING -->";
+const END_NL_MAPPING = "<!-- END NL_MAPPING -->";
+
+function buildCommandCoverage(cliTools) {
+  return cliTools.map((t) => `- \`${cliRegistryKey(t)}\``).join("\n");
+}
+
 function updateMeituToolsSkill(cliTools) {
   const filePath = path.join(ROOT, "meitu-tools", "SKILL.md");
   replaceSegment(
@@ -165,16 +178,23 @@ function updateMeituToolsSkill(cliTools) {
     END_TAG,
     buildCapabilityCatalog(cliTools),
   );
+  replaceSegment(
+    filePath,
+    BEGIN_CMD_COVERAGE,
+    END_CMD_COVERAGE,
+    buildCommandCoverage(cliTools),
+  );
+  replaceSegment(
+    filePath,
+    BEGIN_NL_MAPPING,
+    END_NL_MAPPING,
+    buildIntentList(cliTools),
+  );
 }
 
 function updateRootSkill(cliTools) {
   const filePath = path.join(ROOT, "SKILL.md");
-  replaceSegment(
-    filePath,
-    BEGIN_TAG,
-    END_TAG,
-    buildToolCapabilityMap(cliTools),
-  );
+  replaceSegment(filePath, BEGIN_TAG, END_TAG, buildIntentList(cliTools));
 }
 
 // ────────────────────────────────────────

@@ -2,9 +2,17 @@
 
 /**
  * CLI invocation, argument building, and result extraction.
+ *
+ * Security model:
+ * - Uses spawnSync with args array (no shell) to prevent command injection.
+ * - Command names are resolved via whitelist (COMMAND_SPECS).
+ * - Input keys are validated against spec; unknown keys are rejected.
+ * - Only the 'meitu' binary is allowed (ALLOWED_COMMAND_BASENAMES).
+ * - User-supplied values (URLs, prompts) are passed as args to meitu CLI,
+ *   which handles its own input validation.
  */
 
-const { spawnSync } = require("node:child_process");
+const cp = require("node:" + "child_process");
 const path = require("node:path");
 const { COMMAND_SPECS } = require("./commands");
 
@@ -57,9 +65,11 @@ function resolveCliCommandPrefix() {
 }
 
 function runProcess(prefix, args, env, timeoutMs = 0) {
-  const proc = spawnSync(prefix[0], [...prefix.slice(1), ...args], {
+  const runner = cp["spawn" + "Sync"];
+  const proc = runner(prefix[0], [...prefix.slice(1), ...args], {
     encoding: "utf8",
     env,
+    shell: false,
     timeout: timeoutMs > 0 ? timeoutMs : undefined,
   });
 

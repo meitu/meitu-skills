@@ -2,6 +2,9 @@
 
 /**
  * Input normalization, alias resolution, validation, and credential loading.
+ *
+ * Security: Input keys are validated against COMMAND_SPECS whitelist.
+ * Unknown keys are rejected to prevent injection of arbitrary CLI flags.
  */
 
 const fs = require("node:fs");
@@ -111,22 +114,17 @@ function validateInput(command, userInput) {
 }
 
 function loadOpenapiCredentialsFromFile() {
-  const paths = [
-    path.join(os.homedir(), ".meitu", "credentials.json"),
-    path.join(os.homedir(), ".openapi", "credentials.json"),
-  ];
-  for (const credPath of paths) {
-    try {
-      const raw = fs.readFileSync(credPath, "utf8");
-      const payload = JSON.parse(raw);
-      const ak = String(payload.accessKey || "").trim();
-      const sk = String(payload.secretKey || "").trim();
-      if (ak && sk) {
-        return { MEITU_OPENAPI_ACCESS_KEY: ak, MEITU_OPENAPI_SECRET_KEY: sk };
-      }
-    } catch {
-      // continue to next path
+  const credPath = path.join(os.homedir(), ".meitu", "credentials.json");
+  try {
+    const raw = fs.readFileSync(credPath, "utf8");
+    const payload = JSON.parse(raw);
+    const ak = String(payload.accessKey || "").trim();
+    const sk = String(payload.secretKey || "").trim();
+    if (ak && sk) {
+      return { MEITU_OPENAPI_ACCESS_KEY: ak, MEITU_OPENAPI_SECRET_KEY: sk };
     }
+  } catch {
+    // file not found or invalid
   }
   return {};
 }

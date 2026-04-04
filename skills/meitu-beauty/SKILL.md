@@ -1,7 +1,25 @@
 ---
 name: meitu-beauty
 description: "对人像照片进行 AI 美颜处理（磨皮、美白、精修五官）。当用户提到美颜、磨皮、美白、精修、beautify、beauty enhance、让照片更好看时触发。仅支持单人照片。"
-version: "1.0.0"
+version: "1.1.0"
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+requirements:
+  credentials:
+    - name: MEITU_OPENAPI_ACCESS_KEY
+      source: env | ~/.meitu/credentials.json
+    - name: MEITU_OPENAPI_SECRET_KEY
+      source: env | ~/.meitu/credentials.json
+  permissions:
+    - type: file_read
+      paths:
+        - ~/.meitu/credentials.json
+        - ~/.openclaw/workspace/visual/
+    - type: file_write
+      paths:
+        - ~/.openclaw/workspace/visual/
+    - type: exec
+      commands:
+        - meitu
 ---
 
 # Meitu Beauty
@@ -13,10 +31,9 @@ version: "1.0.0"
 ## Dependencies
 
 - **meitu-cli** ≥ 0.1.9 — `npm install -g meitu-cli`
-- **凭证配置**: `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."` 或环境变量 `OPENAPI_ACCESS_KEY` / `OPENAPI_SECRET_KEY`
-- **oc-workspace.mjs**: `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`（可选，不存在时降级）
+- **凭证配置**: `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."` 或环境变量 `MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
 
-> **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`，`$OC_SCRIPT` = `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`
+> **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
 
 ## Core Workflow
 
@@ -28,14 +45,10 @@ Preflight → [Context: 跳过（工具型美颜，无创意自由度）] → Ex
 
 1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
 2. `meitu auth verify --json` → 凭证无效则引导配置
-3. `node $OC_SCRIPT resolve` → 获取 mode, visual, can_read_knowledge, can_record
-   脚本不存在 → 检查 cwd 有无 openclaw.yaml → 确定 mode；检查 $VISUAL 目录 → 确定 capabilities
+3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
+   检查 `$VISUAL` 目录 → 确定 capabilities
 4. output_dir 解析（Preflight 内 MUST 完成）：
-   `node $OC_SCRIPT route-output --skill meitu-beauty --name tmp --ext tmp`
-   脚本不存在 → 3 级 fallback：
-     ① cwd 有 openclaw.yaml → ./output/
-     ② $VISUAL 存在 → $VISUAL/output/meitu-beauty/
-     ③ 均无 → ~/Downloads/
+   Resolve output_dir: openclaw.yaml → `./output/` | else → `$VISUAL/output/meitu-beauty/`
    `mkdir -p {output_dir}`
 
 ### Execute
@@ -108,11 +121,7 @@ meitu image-beauty-enhance \
 
 直接使用 Preflight 解析的 output_dir。
 
-```bash
-node $OC_SCRIPT rename --file {path} --name {effect}
-```
-
-脚本不存在 → `mv` 重命名为 `{output_dir}/{date}_beauty_{original_name}.{ext}`。
+`mv {file} {output_dir}/{date}_beauty_{original_name}.{ext}`
 
 命名示例：`2026-03-23_beauty_portrait.jpg`
 

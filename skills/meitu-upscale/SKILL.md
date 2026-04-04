@@ -1,7 +1,25 @@
 ---
 name: meitu-upscale
 description: "将模糊或低分辨率图片提升至高清（超分辨率）。支持人像、商品、截图、文字图等多种图片类型。当用户提到超清、变清晰、高清、提升分辨率、图片模糊、放大图片、upscale、super resolution 时触发。"
-version: "1.0.0"
+version: "1.1.0"
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+requirements:
+  credentials:
+    - name: MEITU_OPENAPI_ACCESS_KEY
+      source: env | ~/.meitu/credentials.json
+    - name: MEITU_OPENAPI_SECRET_KEY
+      source: env | ~/.meitu/credentials.json
+  permissions:
+    - type: file_read
+      paths:
+        - ~/.meitu/credentials.json
+        - ~/.openclaw/workspace/visual/
+    - type: file_write
+      paths:
+        - ~/.openclaw/workspace/visual/
+    - type: exec
+      commands:
+        - meitu
 ---
 
 # Meitu Upscale
@@ -13,10 +31,9 @@ version: "1.0.0"
 ## Dependencies
 
 - **meitu-cli** ≥ 0.1.9 — `npm install -g meitu-cli`
-- **凭证配置**: `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`，或环境变量 `OPENAPI_ACCESS_KEY` / `OPENAPI_SECRET_KEY`
-- **oc-workspace.mjs**: `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`（可选，不存在时降级）
+- **凭证配置**: `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`，或环境变量 `MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
 
-> **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`，`$OC_SCRIPT` = `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`
+> **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
 
 ## Core Workflow
 
@@ -28,14 +45,10 @@ Preflight → [Context: 跳过（工具型超分，无创意自由度）] → Ex
 
 1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
 2. `meitu auth verify --json` → 凭证无效则引导配置
-3. `node $OC_SCRIPT resolve` → 获取 mode, visual, can_read_knowledge, can_record
-   脚本不存在 → 检查 cwd 有无 openclaw.yaml → 确定 mode；检查 $VISUAL 目录 → 确定 capabilities
+3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
+   检查 `$VISUAL` 目录 → 确定 capabilities
 4. output_dir 解析（Preflight 内 MUST 完成）：
-   `node $OC_SCRIPT route-output --skill meitu-upscale --name tmp --ext tmp`
-   脚本不存在 → 3 级 fallback：
-     ① cwd 有 openclaw.yaml → ./output/
-     ② $VISUAL 存在 → $VISUAL/output/meitu-upscale/
-     ③ 均无 → ~/Downloads/
+   Resolve output_dir: openclaw.yaml → `./output/` | else → `$VISUAL/output/meitu-upscale/`
    `mkdir -p {output_dir}`
 
 ### Execute
@@ -98,11 +111,7 @@ meitu image-upscale \
 
 直接使用 Preflight 解析的 output_dir。
 
-```bash
-node $OC_SCRIPT rename --file {path} --name {effect}
-```
-
-脚本不存在 → `mv` 重命名为 `{output_dir}/{date}_upscale.{ext}`。
+`mv {path} {output_dir}/{date}_upscale.{ext}`
 
 > **扩展名**: `{ext}` 从 `downloaded_files[0].saved_path` 的实际扩展名取（服务端可能返回 `.jpeg` 而非 `.jpg`），统一转为 `.jpg`（即 `.jpeg` → `.jpg`）。
 

@@ -8,12 +8,9 @@ Record 段的补充参考。
 
 当用户给出风格认可反馈时：
 
-1. Run: `node {OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs read-observations 2>/dev/null` → 获取已有观察列表
-   （脚本不存在则手动读 `$VISUAL/memory/observations/observations.yaml`，不存在则创建）
+1. 读 `$VISUAL/memory/observations/observations.yaml`（不存在则创建文件 + 目录）
 2. Agent 语义判断是否有相似 key；有则复用 key，无则用用户语言组织新 key
-3. Run: `node {OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs write-observation --key "{observation}" --scope-hint "{scene-or-null}" --project "{project-name}" 2>/dev/null`
-   （脚本不存在则手动写入 observations.yaml，schema 见下方）
-   脚本自动处理 merge（similar key → append project, update last-seen）和 create（new key）。
+3. 写入 observations.yaml：similar key → merge（append project, update last-seen）；new key → create entry
 
    Observation entry schema:
    ```yaml
@@ -39,9 +36,7 @@ Record 段的补充参考。
    >   → 保存到 {scope-hint} 场景 [默认]
    >   → 保存到全局偏好
    >   → 不保存"
-2. User confirms → write distilled preference to target file, then run:
-   `node {OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs delete-observation --key "{key}" 2>/dev/null`
-   （脚本不存在则手动从 observations.yaml 删除对应 entry）
+2. User confirms → write distilled preference to target file, then delete the observation entry from `observations.yaml`
 3. User ignores → do nothing
 
 **Target 路由：**

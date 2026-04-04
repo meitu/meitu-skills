@@ -16,5 +16,22 @@
     "image-adapt",
     "image-cutout",
     "image-grid-split"
-  ]
+  ],
+  "credentials": {
+    "required": [
+      "MEITU_OPENAPI_ACCESS_KEY",
+      "MEITU_OPENAPI_SECRET_KEY"
+    ],
+    "sources": [
+      "environment",
+      "~/.meitu/credentials.json"
+    ]
+  },
+  "runtime": {
+    "bins": [
+      "meitu",
+      "node"
+    ],
+    "install": "npm install -g meitu-cli@latest"
+  }
 }

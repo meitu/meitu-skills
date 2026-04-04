@@ -1,6 +1,16 @@
 #!/usr/bin/env node
 "use strict";
 
+/**
+ * Unified runner for meitu-cli built-in commands.
+ *
+ * Security model:
+ * - Command names resolved via whitelist (lib/commands.js).
+ * - Input keys validated against command spec; unknown keys rejected.
+ * - Uses spawnSync (no shell) to prevent command injection.
+ * - See lib/executor.js and lib/input.js for implementation details.
+ */
+
 const { resolveCommandAlias } = require("./lib/commands");
 const { buildErrorHint, hintFromCliPayload, inferErrorCodeFromText } = require("./lib/errors");
 const { normalizeInputAliases, validateInput, buildEnv } = require("./lib/input");

@@ -18,7 +18,7 @@ meitu <command> [options] --json --download-dir ./output/
 
 **Install:** `npm install -g meitu-cli`（包名 meitu-cli，非 meitu-ai），然后配置凭证：
 - 交互式登录：`meitu login`（推荐，自动写入配置文件）
-- 环境变量：`OPENAPI_ACCESS_KEY` + `OPENAPI_SECRET_KEY`
+- 环境变量：`MEITU_OPENAPI_ACCESS_KEY` + `MEITU_OPENAPI_SECRET_KEY`
 - 或配置文件：`~/.meitu/credentials.json`
 
 ---
@@ -32,7 +32,7 @@ meitu --version
 
 Credentials (pick one):
 - Interactive login: `meitu login`（推荐，自动写入 `~/.meitu/credentials.json`）
-- Env vars: `export OPENAPI_ACCESS_KEY="..."` + `export OPENAPI_SECRET_KEY="..."`
+- Env vars: `export MEITU_OPENAPI_ACCESS_KEY="..."` + `export MEITU_OPENAPI_SECRET_KEY="..."`
 - Config file: `~/.meitu/credentials.json` (`{"accessKey":"...","secretKey":"..."}`)
 
 ---

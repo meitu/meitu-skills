@@ -2,6 +2,24 @@
 name: meitu-image-fix
 description: "自动诊断图片的画质、人像、内容问题，按最优顺序串联 image-upscale/beauty-enhance/image-edit/cutout 修复。当用户说修图、变清晰、去水印、去路人、磨皮美颜、修一下这张图、图片模糊、老照片修复时触发。"
 version: "1.0.0"
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+requirements:
+  credentials:
+    - name: MEITU_OPENAPI_ACCESS_KEY
+      source: env | ~/.meitu/credentials.json
+    - name: MEITU_OPENAPI_SECRET_KEY
+      source: env | ~/.meitu/credentials.json
+  permissions:
+    - type: file_read
+      paths:
+        - ~/.meitu/credentials.json
+        - ~/.openclaw/workspace/visual/
+    - type: file_write
+      paths:
+        - ~/.openclaw/workspace/visual/
+    - type: exec
+      commands:
+        - meitu
 ---
 
 # Meitu Image Fix
@@ -13,10 +31,9 @@ version: "1.0.0"
 ## Dependencies
 
 - **meitu-cli** (>=0.1.9): `npm install -g meitu-cli`
-- **凭证**: `meitu config set-ak` / `meitu config set-sk`，或 env `OPENAPI_ACCESS_KEY` / `OPENAPI_SECRET_KEY`
-- **oc-workspace.mjs** (optional): `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`，用于输出路径路由
+- **凭证**: `meitu config set-ak` / `meitu config set-sk`，或 env `MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
 
-> **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`，`$OC_SCRIPT` = `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`
+> **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
 
 ## Core Workflow
 
@@ -29,15 +46,9 @@ Preflight → [Context: 跳过] → Execute (诊断 → 规划 → 逐步执行)
 
 1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
 2. `meitu auth verify --json` → 凭证无效则引导配置
-3. `node $OC_SCRIPT resolve` → 获取 mode, visual, can_read_knowledge, can_record
-   脚本不存在 → 检查 cwd 有无 openclaw.yaml → 确定 mode；检查 $VISUAL 目录 → 确定 capabilities
+3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
    can_record = cwd 有 openclaw.yaml AND $VISUAL 存在（两者缺一即 false）
-4. output_dir 解析（Preflight 内 MUST 完成）：
-   `node $OC_SCRIPT route-output --skill meitu-image-fix --name tmp --ext tmp`
-   脚本不存在 → 3 级 fallback：
-     ① cwd 有 openclaw.yaml → ./output/
-     ② $VISUAL 存在 → $VISUAL/output/meitu-image-fix/
-     ③ 均无 → ~/Downloads/
+4. Resolve output_dir: openclaw.yaml → `./output/` | else → `$VISUAL/output/meitu-image-fix/`
    `mkdir -p {output_dir}`
 
 ### Context
@@ -217,17 +228,15 @@ L5: 首步即失败 → 检查凭证/余额，报错含 code + hint
 
 output_dir 已在 Preflight 预解析，Execute 最后一步的 `--download-dir` 已直接写入该目录，Deliver 仅做 rename。
 
-`node $OC_SCRIPT rename --file {path} --name {effect}`
-脚本不存在 → `mv {output_dir}/{task_id_file} "{output_dir}/{date}_{effect}.{ext}"`
+`mv {output_dir}/{task_id_file} {output_dir}/{date}_{effect}.{ext}`
 
 ### Record（项目模式 MUST / 一次性模式跳过）
 
 can_record = cwd 有 openclaw.yaml AND `$VISUAL` 存在（两者缺一即 false）→ false 时跳过。一次性模式下反馈仅当前对话有效。
 
 User approved style →
-  `node $OC_SCRIPT read-observations` → Agent 检查语义相似 key →
-  `node $OC_SCRIPT write-observation --key "..." --scope-hint "..." --project "..."`
-  → promotion_ready? → 非阻塞提议晋升（在回复末尾提及："你在 N 个项目中都偏好 X，要保存吗？"）→ confirmed → write target + delete-observation
+  read `$VISUAL/memory/observations/observations.yaml` → scan similar key → merge or append → write back. `len(projects) >= 2` → propose promotion (non-blocking)
+  → 非阻塞提议晋升（在回复末尾提及："你在 N 个项目中都偏好 X，要保存吗？"）→ confirmed → write target + delete observation
 
 User rejected ("不要 XX") →
   has openclaw.yaml → ask scope → project: DESIGN.md Constraints / universal: quality.yaml（需用户确认）

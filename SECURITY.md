@@ -19,7 +19,6 @@ This skill pack requires Meitu OpenAPI credentials to function. Supported source
 |--------|----------|----------|
 | Environment variables | `MEITU_OPENAPI_ACCESS_KEY`, `MEITU_OPENAPI_SECRET_KEY` | Highest |
 | Credentials file | `~/.meitu/credentials.json` | Fallback |
-| Legacy file | `~/.openapi/credentials.json` | Lowest |
 
 ### Credentials File Format
 
@@ -38,28 +37,33 @@ Security guidance:
 
 ## Declared Permissions
 
-The root skill currently declares:
+The root skill is a routing-only skill and declares minimal permissions:
 
-- `file_read`: `~/.meitu/credentials.json`, `~/.openapi/credentials.json`, `~/.openclaw/workspace/scripts/`, `~/.openclaw/workspace/visual/`, `./`
-- `file_write`: `~/.openclaw/workspace/visual/`, `./`
-- `exec`: `meitu`, `node`
+- `file_read`: `~/.meitu/credentials.json`
+- `exec`: `meitu`
 
-### File Read Scope
+Scene skills declare their own permissions based on their workflows:
+
+- `file_read`: `~/.meitu/credentials.json`, `~/.openclaw/workspace/visual/`
+- `file_write`: `~/.openclaw/workspace/visual/`
+- `exec`: `meitu` (and `node` for `meitu-tools`)
+
+### Root Skill Permission Scope
 
 | Path | Access | Purpose |
 |------|--------|---------|
 | `~/.meitu/credentials.json` | Read | Load API credentials |
-| `~/.openapi/credentials.json` | Read | Load API credentials from legacy location |
-| `~/.openclaw/workspace/scripts/` | Read | Load shared helper scripts such as `oc-workspace.mjs` |
-| `~/.openclaw/workspace/visual/` | Read | Read shared visual memory, rules, references, and outputs |
-| `./` | Read | Read project files such as `openclaw.yaml`, `DESIGN.md`, local assets, and output artifacts |
 
-### File Write Scope
+The root skill does not write files or read project directories. It only routes to scene skills.
+
+### Scene Skill Permission Scope
 
 | Path | Access | Purpose |
 |------|--------|---------|
-| `~/.openclaw/workspace/visual/` | Write | Update shared memory, observation staging, reusable references, and one-off outputs |
-| `./` | Write | Create or update project files such as `openclaw.yaml`, `DESIGN.md`, `./output/`, and `./drafts/` |
+| `~/.meitu/credentials.json` | Read | Load API credentials |
+| `~/.openclaw/workspace/visual/` | Read/Write | Read/write shared visual memory, rules, references, and outputs |
+
+Scene skills may also read/write project-local files (`./`) when operating in project mode (detected by presence of `openclaw.yaml`), but this is not declared in skill metadata—permissions are granted at runtime by the agent based on user context.
 
 Examples of expected writes in scene workflows:
 
@@ -68,20 +72,21 @@ Examples of expected writes in scene workflows:
 - Project initialization via `openclaw.yaml`
 - Shared observation or memory updates under `~/.openclaw/workspace/visual/memory/`
 
-This skill pack does not declare or rely on `~/Downloads/`.
+This skill pack writes outputs to `~/.openclaw/workspace/visual/` or project-local `./output/` directories.
 
 ### Command Execution Scope
 
 | Command | Purpose | When Used |
 |---------|---------|-----------|
 | `meitu` | Execute Meitu CLI commands | Tool execution and generation/edit pipelines |
-| `node` | Run optional helper scripts such as `oc-workspace.mjs` | Path routing, context reads, output renaming, observation CRUD in scene skills |
+| `node` | Execute internal runner script | `meitu-tools/scripts/run_command.js` for CLI command dispatch |
 | `npm install -g meitu-cli@latest` | Manual runtime install or upgrade | Only when the operator explicitly asks for repair or upgrade |
 
 Notes:
 
-- `meitu-tools` itself relies on `meitu` and does not need `node` for its main runner path.
-- Several scene skills document `node .../oc-workspace.mjs` as an allowed helper path, so the overall pack still requires `node` in the current design.
+- `meitu-tools` executes `scripts/run_command.js` via `node` to dispatch CLI commands.
+- Scene skills call `meitu` CLI directly and do not need `node`.
+- Scene skills use inline path resolution logic (no external helper scripts).
 
 ## Prompt and Instruction Handling
 
@@ -133,7 +138,6 @@ Root / Scene Skill
     │
     ├── Read project context from ./
     ├── Optionally read shared memory from ~/.openclaw/workspace/visual/
-    ├── Optionally call node oc-workspace.mjs for routing/context/rename helpers
     ├── Execute meitu CLI
     └── Optionally write outputs, DESIGN.md, or shared memory updates
 ```
@@ -144,6 +148,8 @@ Root / Scene Skill
 - Does not treat user prompt text as authority to run arbitrary binaries
 - Does not declare permission to write outside the current workspace and `~/.openclaw/workspace/visual/`
 - Does not require `~/Downloads/`
+- Does not execute arbitrary JavaScript from the current project workspace
+- Does not execute external helper scripts from user home directories
 - Does not intentionally disclose credentials or unrelated local files in responses
 
 ## Audit Checklist
@@ -152,7 +158,6 @@ Before publishing or using this skill pack in production:
 
 - [ ] Credentials are stored securely and not committed
 - [ ] Declared permissions still match the written workflow in `SKILL.md` and scene skills
-- [ ] Any documented helper script usage still matches declared `exec` permissions
 - [ ] Manual runtime repair is acceptable for your environment
 - [ ] `meitu-cli` source and release provenance have been reviewed before any manual install or upgrade
 
@@ -164,6 +169,7 @@ If you discover a security vulnerability, report it privately to the maintainers
 
 | Version | Changes |
 |---------|---------|
-| 2026-03-23 | Updated security model to reflect root and scene skill permissions, `node` helper execution, project and visual workspace writes, and removal of `~/Downloads/` fallback |
+| 2026-03-25 | Removed legacy credential path; removed external helper script dependency; consolidated root permissions |
+| 2026-03-23 | Updated security model to reflect root and scene skill permissions, project and visual workspace writes |
 | 2026-03-23 | Removed automatic runtime version checks and automatic updates; manual repair only |
 | 2025-03-21 | Initial security documentation |

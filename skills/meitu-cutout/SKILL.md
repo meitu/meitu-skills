@@ -1,7 +1,25 @@
 ---
 name: meitu-cutout
 description: "使用 meitu-cli 抠图，分离前景主体并生成透明背景图片。当用户提到抠图、去背景、透明背景、背景移除、cutout、remove background、提取主体时触发。"
-version: "1.0.0"
+version: "1.1.0"
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+requirements:
+  credentials:
+    - name: MEITU_OPENAPI_ACCESS_KEY
+      source: env | ~/.meitu/credentials.json
+    - name: MEITU_OPENAPI_SECRET_KEY
+      source: env | ~/.meitu/credentials.json
+  permissions:
+    - type: file_read
+      paths:
+        - ~/.meitu/credentials.json
+        - ~/.openclaw/workspace/visual/
+    - type: file_write
+      paths:
+        - ~/.openclaw/workspace/visual/
+    - type: exec
+      commands:
+        - meitu
 ---
 
 # Meitu Cutout
@@ -13,10 +31,9 @@ version: "1.0.0"
 ## Dependencies
 
 - **meitu-cli**: `npm install -g meitu-cli`
-- **凭证**: `meitu config set-ak --value "..."` / `meitu config set-sk --value "..."`, 或 env vars `OPENAPI_ACCESS_KEY` / `OPENAPI_SECRET_KEY`
-- **脚本** (optional): `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs` — 用于输出路径路由
+- **凭证**: `meitu config set-ak --value "..."` / `meitu config set-sk --value "..."`, 或 env vars `MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
 
-> **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`，`$OC_SCRIPT` = `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`
+> **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
 
 ## Core Workflow
 
@@ -28,14 +45,10 @@ Preflight → [Context: 跳过（工具型抠图，无创意自由度）] → Ex
 
 1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
 2. `meitu auth verify --json` → 凭证无效则引导配置
-3. `node $OC_SCRIPT resolve` → 获取 mode, visual, can_read_knowledge, can_record
-   脚本不存在 → 检查 cwd 有无 openclaw.yaml → 确定 mode；检查 $VISUAL 目录 → 确定 capabilities
+3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
+   检查 `$VISUAL` 目录 → 确定 capabilities
 4. output_dir 解析（Preflight 内 MUST 完成）：
-   `node $OC_SCRIPT route-output --skill meitu-cutout --name tmp --ext tmp`
-   脚本不存在 → 3 级 fallback：
-     ① cwd 有 openclaw.yaml → ./output/
-     ② $VISUAL 存在 → $VISUAL/output/meitu-cutout/
-     ③ 均无 → ~/Downloads/
+   Resolve output_dir: openclaw.yaml → `./output/` | else → `$VISUAL/output/meitu-cutout/`
    `mkdir -p {output_dir}`
 
 ### Execute
@@ -104,15 +117,11 @@ done
 
 直接使用 Preflight 解析的 output_dir。
 
-```bash
-node $OC_SCRIPT rename --file {path} --name {effect}
-```
-
-脚本不存在 → `mv` 重命名为 `{output_dir}/$(date +%Y-%m-%d)_{name}_cutout.png`。
+`mv {file} {output_dir}/{date}_{name}_cutout.png`
 
 ## Output
 
 - **格式**: PNG（透明背景）
 - **命名**: `{YYYY-MM-DD}_{descriptive-name}_cutout.png`
   - 例: `2026-03-23_product-photo_cutout.png`
-- **位置**: 由 Deliver 步骤决定（项目 → `./output/`，一次性 → `$VISUAL/output/meitu-cutout/`，无环境 → `~/Downloads/`）
+- **位置**: 由 Deliver 步骤决定（项目 → `./output/`，一次性 → `$VISUAL/output/meitu-cutout/`）

@@ -2,8 +2,24 @@
 name: meitu-image-adapt
 description: "将任意图片智能适配到目标比例，自动重构构图逻辑，保持主体比例不变形、内容完整不丢失，背景自然延展无接缝。当用户提到图片适配、图片延展、图片扩展、外扩、outpaint、将竖图变横图、适配小红书/抖音/公众号尺寸时触发。"
 version: "1.0.0"
-pipeline: tool
-tools: [meitu-cli]
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+requirements:
+  credentials:
+    - name: MEITU_OPENAPI_ACCESS_KEY
+      source: env | ~/.meitu/credentials.json
+    - name: MEITU_OPENAPI_SECRET_KEY
+      source: env | ~/.meitu/credentials.json
+  permissions:
+    - type: file_read
+      paths:
+        - ~/.meitu/credentials.json
+        - ~/.openclaw/workspace/visual/
+    - type: file_write
+      paths:
+        - ~/.openclaw/workspace/visual/
+    - type: exec
+      commands:
+        - meitu
 ---
 
 ## Overview
@@ -15,9 +31,8 @@ tools: [meitu-cli]
 - **meitu-cli**: `npm install -g meitu-cli`
   - 凭证配置: `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`
   - 验证: `meitu auth verify --json`
-- **oc-workspace** (可选): `$OC_SCRIPT` = `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`
 
-> **路径别名:** `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`，`$OC_SCRIPT` = `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`
+> **路径别名:** `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
 
 ---
 
@@ -31,8 +46,9 @@ Preflight → Execute → Deliver
 
 1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
 2. `meitu auth verify --json` → 凭证无效则提示配置 AK/SK
-3. `node $OC_SCRIPT route-output --skill meitu-image-adapt` → {output_dir}
-   脚本不存在 → openclaw.yaml? → `./output/` | `$VISUAL` 存在? → `$VISUAL/output/meitu-image-adapt/` | 均无 → `~/Downloads/`
+3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
+4. Resolve output_dir: openclaw.yaml → `./output/` | else → `$VISUAL/output/meitu-image-adapt/`
+   `mkdir -p {output_dir}`
 
 ### Execute
 
@@ -114,9 +130,7 @@ meitu image-adapt \
 
 ### Deliver
 
-`node $OC_SCRIPT rename --file {path} --name {effect}` → 规范文件名
-脚本不存在 →
-  `mkdir -p {output_dir} && mv {file} {output_dir}/{date}_{name}.{ext}`
+`mv {file} {output_dir}/{date}_{name}.{ext}`
 
 **命名规范：** `{date}_{描述性名称}.{ext}`
 - `{date}` = `YYYY-MM-DD`（如 `2026-03-23`）
@@ -125,7 +139,7 @@ meitu image-adapt \
 
 路径展示用 `~/` 格式。
 
-**示例：** `~/Downloads/2026-03-23_adapt-xiaohongshu-cover.png`
+**示例：** `~/…/output/meitu-image-adapt/2026-03-23_adapt-xiaohongshu-cover.png`
 
 ---
 

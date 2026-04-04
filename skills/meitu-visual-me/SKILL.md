@@ -2,6 +2,24 @@
 name: meitu-visual-me
 description: "Memory-driven AI visual assistant. Supports 7 core capabilities (image generation, editing, face swap, virtual try-on, beauty enhance, image-to-video, motion transfer) and 17 scenario workflows. Triggered when user says '帮我画', '换背景', '头像系列', '试穿', '动起来', '微缩场景', '今日卡', '换风格', '美颜', etc. Also applies to any visual content creation need."
 version: "1.1.0"
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+requirements:
+  credentials:
+    - name: MEITU_OPENAPI_ACCESS_KEY
+      source: env | ~/.meitu/credentials.json
+    - name: MEITU_OPENAPI_SECRET_KEY
+      source: env | ~/.meitu/credentials.json
+  permissions:
+    - type: file_read
+      paths:
+        - ~/.meitu/credentials.json
+        - ~/.openclaw/workspace/visual/
+    - type: file_write
+      paths:
+        - ~/.openclaw/workspace/visual/
+    - type: exec
+      commands:
+        - meitu
 ---
 
 # Meitu Visual Me
@@ -36,11 +54,10 @@ Memory-driven AI visual assistant. Reads user profiles and daily memories to gen
 - credentials: `meitu config set-ak --value <AK>` + `meitu config set-sk --value <SK>`
 - user knowledge (optional): `./visual/` (created on demand; if absent, all knowledge reads are skipped)
 - project files: `./` (cwd, containing `openclaw.yaml`, `DESIGN.md`, etc.)
-- scripts (optional): `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs` (shared script; when absent, use inline fallback)
 - platform context (optional): `USER.md`, `MEMORY.md`, `memory/今日.md`, `SOUL.md`, `IDENTITY.md` (platform-injected; skip if absent)
 - user config (optional): `$VISUAL/config/defaults.yaml`
 
-> **Path alias:** In the text below, `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`, `$OC_SCRIPT` = `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`. When `./visual/` exists, it points to that directory; on the OpenClaw platform it auto-resolves to `~/.openclaw/workspace/visual/`.
+> **Path alias:** In the text below, `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`. When `./visual/` exists, it points to that directory; on the OpenClaw platform it auto-resolves to `~/.openclaw/workspace/visual/`.
 
 ## Platform Setup
 
@@ -59,36 +76,19 @@ Must pass before every generation; if it fails, **stop generation**:
 3. Check whether the `./visual/` directory exists (if not, prompt first-time user; do not block)
 4. Did the user send an image or a video? — Videos are not supported; prompt user to send a screenshot
 5. **One-time workspace resolution** (results persist throughout the workflow):
-   ```bash
-   node $OC_SCRIPT resolve 2>/dev/null
-   ```
-   Success: obtain JSON, set variables / Failure: inline fallback
-
-   ```bash
-   node $OC_SCRIPT route-output --skill meitu-visual-me --name tmp --ext tmp 2>/dev/null
-   ```
-   → obtain output_dir / Failure: use fallback rules below
+   Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
+   检查 `./visual/` 目录 → 确定 capabilities
 
    **Variables available after resolution (referenced directly in subsequent steps):**
    ```
-   OC_SCRIPT        = script path (available) or null
    mode             = "project" (cwd has openclaw.yaml) | "one-off"
    visual           = ./visual/ path (value if exists, otherwise null)
    can_read_knowledge = visual exists
    can_record       = mode == "project" AND visual exists
-   output_dir       = mode == "project" ? "./output/" : (visual != null ? "$VISUAL/output/meitu-visual-me/" : "~/Downloads/")
+   output_dir       = Resolve output_dir: openclaw.yaml → "./output/" | else → "$VISUAL/output/meitu-visual-me/"
    ```
    `mkdir -p {output_dir}`
    Hard constraint: output_dir MUST NOT point to inside the skill folder
-
-   **Fallback lookup table when OC_SCRIPT = null:**
-
-   | Step | With script | Without script (fallback) |
-   |------|--------|----------------|
-   | Context | Single `read-context` call | Agent reads DESIGN.md + yaml files step by step |
-   | Execute | `route-output` → output_dir | Use output_dir resolved in Preflight directly |
-   | Deliver | `rename` → standardized filename | `mv {file} {output_dir}/{date}_{name}.{ext}` |
-   | Record | observation CRUD subcommands | Agent reads/writes observations.yaml directly |
 
 ---
 
@@ -148,9 +148,6 @@ Each workflow's corresponding CLI command is listed in the Workflows section tab
 #### Part 2: Load Context
 
 The read level is determined by the routing table above. Zero-read and light-read workflows do not need this step.
-
-If OC_SCRIPT is available → single `read-context` call to fetch all context
-If OC_SCRIPT = null → read the following checklist step by step:
 
 Standard read checklist (highest to lowest priority):
 
@@ -282,8 +279,7 @@ Iterative refinement loop for creative tasks:
 Files are already in the correct directory (Execute uses Preflight's output_dir); only rename is needed:
 
 **File renaming:**
-- OC_SCRIPT available → `node $OC_SCRIPT rename --file {downloaded} --name {description}`
-- OC_SCRIPT = null → `mv {downloaded} {output_dir}/{YYYY-MM-DD}_{description}.{ext}`
+`mv {downloaded} {output_dir}/{YYYY-MM-DD}_{description}.{ext}`
 
 **Path display rule:** When presenting file paths to the user, prefer `~/.openclaw/...` format. Some chat platforms (e.g., WeChat Work MEDIA) only recognize `~/` prefix paths; absolute paths will prevent images/files from displaying. Internal processing can use absolute paths.
 
@@ -316,17 +312,10 @@ If the user says nothing, write nothing and don't read observations.yaml (zero o
 
 **Positive feedback recording path:**
 
-Preferred (OC_SCRIPT available):
-1. `node $OC_SCRIPT read-observations` → view existing observations
-2. Agent semantically checks whether a similar key exists; if so, reuse it; if not, create a new one
-3. `node $OC_SCRIPT write-observation --key "..." --scope-hint "{project.type}" --project "{project.name}"`
-4. If it returns `promotion_ready: true` → propose promotion
-
-Fallback (OC_SCRIPT = null):
 1. Read `$VISUAL/memory/observations/observations.yaml` (create if it doesn't exist)
 2. Scan for semantically similar keys → merge or create new
 3. Write back to file
-4. If `len(projects) >= 2` → propose promotion
+4. If `len(projects) >= 2` → propose promotion (non-blocking)
 
 **Promotion proposal template:**
 > "You've preferred X across N projects. Want to save it?

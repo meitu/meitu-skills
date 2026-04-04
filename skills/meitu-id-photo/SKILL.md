@@ -1,7 +1,25 @@
 ---
 name: meitu-id-photo
 description: "生成标准证件照（一寸、二寸、护照、签证等）。自然美颜 + AI 重绘（换正装 + 纯色背景 + 规格裁剪）。当用户提到证件照、一寸照、二寸照、白底照片、蓝底照片、红底照片、passport photo、ID photo、签证照、驾照照片、身份证照、证件照换底色、证件照尺寸时触发。"
-version: "1.0.0"
+version: "1.1.0"
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+requirements:
+  credentials:
+    - name: MEITU_OPENAPI_ACCESS_KEY
+      source: env | ~/.meitu/credentials.json
+    - name: MEITU_OPENAPI_SECRET_KEY
+      source: env | ~/.meitu/credentials.json
+  permissions:
+    - type: file_read
+      paths:
+        - ~/.meitu/credentials.json
+        - ~/.openclaw/workspace/visual/
+    - type: file_write
+      paths:
+        - ~/.openclaw/workspace/visual/
+    - type: exec
+      commands:
+        - meitu
 ---
 
 ## Overview
@@ -13,9 +31,8 @@ version: "1.0.0"
 - **meitu-cli** (>=0.1.9): `npm install -g meitu-cli`
   - 凭证配置：`meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`
   - 验证：`meitu auth verify --json`
-- **oc-workspace.mjs**（可选）：`{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`
 
-> **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`，`$OC_SCRIPT` = `{OPENCLAW_HOME}/workspace/scripts/oc-workspace.mjs`
+> **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
 
 ## Core Workflow
 
@@ -29,15 +46,11 @@ Preflight → [Context: 跳过] → Execute (规格确认 → 两步管线) → 
 
 1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
 2. `meitu auth verify --json` → 凭证无效则引导配置
-3. `node $OC_SCRIPT resolve` → 获取 mode, visual, can_read_knowledge, can_record
-   脚本不存在 → 检查 cwd 有无 openclaw.yaml → 确定 mode；检查 $VISUAL 目录 → 确定 capabilities
+3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
+   检查 `$VISUAL` 目录 → 确定 capabilities
    can_record = cwd 有 openclaw.yaml AND $VISUAL 存在（两者缺一即 false）
 4. output_dir 解析（Preflight 内 MUST 完成）：
-   `node $OC_SCRIPT route-output --skill meitu-id-photo --name tmp --ext tmp`
-   脚本不存在 → 3 级 fallback：
-     ① cwd 有 openclaw.yaml → `./output/`
-     ② `$VISUAL` 存在 → `$VISUAL/output/meitu-id-photo/`
-     ③ 均无 → `~/Downloads/`
+   Resolve output_dir: openclaw.yaml → `./output/` | else → `$VISUAL/output/meitu-id-photo/`
    `mkdir -p {output_dir}`
 
 > **硬约束：** `{output_dir}` 禁止指向 skill 文件夹内部。output/ 永远在 skill 文件夹外部。
@@ -228,12 +241,8 @@ L5: 首步即失败 → 检查凭证/余额，报错含 code + hint
 
 output_dir 已在 Preflight 解析完毕，文件已由 `--download-dir` 下载到 `{output_dir}`。最终步骤返回 JSON 中 `downloaded_files[0].saved_path` 即为本地文件路径。Deliver 只做重命名：
 
-`node $OC_SCRIPT rename --file {downloaded_files[0].saved_path} --name {spec_name}` → 规范文件名
-
-脚本不存在 →
-
 ```bash
-mv "{output_dir}/{task_id_filename}" "{output_dir}/$(date +%Y-%m-%d)_{spec_name}_{color_name}.{ext}"
+mv "{downloaded_files[0].saved_path}" "{output_dir}/{date}_{spec_name}_{color_name}.{ext}"
 ```
 
 `{ext}` 取自 `downloaded_files[0].saved_path` 的实际扩展名。
@@ -247,14 +256,12 @@ mv "{output_dir}/{task_id_filename}" "{output_dir}/$(date +%Y-%m-%d)_{spec_name}
 **No feedback →** 完全跳过，不读 observations.yaml，零开销。
 
 **User approved style →**
-  `node $OC_SCRIPT read-observations` → Agent 检查语义相似 key →
-  `node $OC_SCRIPT write-observation --key "..." --scope-hint "..." --project "..."`
-  → `promotion_ready: true`（`len(projects) >= 2`）时，非阻塞提议（在回复末尾提及，不打断主流程）：
+  read `$VISUAL/memory/observations/observations.yaml` → scan similar key → merge or append → write back. `len(projects) >= 2` → propose promotion (non-blocking)：
   > "顺便说一下，你在 N 个项目中都偏好 X。要保存吗？
   >   → 保存到场景 [默认]
   >   → 保存到全局偏好
   >   → 不保存"
-  User confirms → write to `$VISUAL/memory/scenes/{scope}.md` 或 `global.md`，then `delete-observation --key "..."`
+  User confirms → write to `$VISUAL/memory/scenes/{scope}.md` 或 `global.md`，then delete observation key
   User ignores → do nothing
 
 **User rejected ("不要 XX") →**

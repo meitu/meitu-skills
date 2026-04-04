@@ -414,16 +414,7 @@ Projects are created under `{OPENCLAW_HOME}/workspace/visual/projects/{project-n
 
 ### Scaffolding
 
-Use shared scaffold script to create a new project:
-
-```bash
-node {OPENCLAW_HOME}/workspace/scripts/scaffold.mjs project \
-  --name "cafe-mid-autumn" \
-  --brand "cafe-travel" \
-  --type "poster-design" 2>/dev/null
-```
-
-If scaffold.mjs is not available, manually create the directory structure and files (see openclaw.yaml Schema and DESIGN.md Structure sections below).
+Manually create the project directory structure and files (see openclaw.yaml Schema and DESIGN.md Structure sections below).
 
 This creates:
 ```
