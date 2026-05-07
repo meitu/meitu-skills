@@ -24,11 +24,11 @@ requirements:
 
 ## Overview
 
-将用户提供的图片智能适配到目标宽高（像素），主体保持不变形，背景自然延展无接缝。核心工具为 `meitu image-adapt`。
+将用户提供的图片智能适配到目标宽高（像素），主体保持不变形，背景自然延展无接缝。核心工具为 `meitu image-transform` 的画布扩展能力。
 
 ## Dependencies
 
-- **meitu-cli**: `npm install -g meitu-cli`
+- **meitu-cli** (>=2.0.6): `npm install -g meitu-cli@latest`
   - 凭证配置: `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`
   - 验证: `meitu auth verify --json`
 
@@ -44,7 +44,7 @@ Preflight → Execute → Deliver
 
 ### Preflight
 
-1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
+1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli@latest`
 2. `meitu auth verify --json` → 凭证无效则提示配置 AK/SK
 3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
 4. Resolve output_dir: openclaw.yaml → `./output/` | else → `$VISUAL/output/meitu-image-adapt/`
@@ -102,10 +102,11 @@ Preflight → Execute → Deliver
 **4. 调用 meitu-cli**
 
 ```bash
-meitu image-adapt \
-  --image "{image}" \
-  --width {width} \
-  --height {height} \
+meitu image-transform \
+  --image_url "{image}" \
+  --target_width {width} \
+  --target_height {height} \
+  [--prompt "{extend_prompt}"] \
   --json \
   --download-dir "{output_dir}"
 ```
@@ -113,6 +114,13 @@ meitu image-adapt \
 **返回处理：**
 - `ok: true` → `downloaded_files[0].saved_path` 获取本地路径
 - `ok: false` → 检查 `error_type`、`code`、`hint`
+
+`extend_prompt` 仅在用户明确描述了扩展区域内容时提供，例如：
+- `"extend seaside sky and sand naturally"`
+- `"extend studio background with clean white walls"`
+- `"extend city street scene consistently"`
+
+未提供时可以省略，由默认扩图路径完成自然外延。
 
 **5. 错误降级策略**
 

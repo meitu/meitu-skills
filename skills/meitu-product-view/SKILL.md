@@ -32,7 +32,7 @@ requirements:
 
 ## Dependencies
 
-- **meitu-cli** (≥0.1.9): `npm install -g meitu-cli`
+- **meitu-cli** (≥2.0.6): `npm install -g meitu-cli@latest`
   - 凭证配置: `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`
   - 验证: `meitu auth verify --json`
 
@@ -48,7 +48,7 @@ Preflight → [Context] → Execute → Refine → Deliver → [Record]
 
 ### Preflight
 
-1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
+1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli@latest`
 2. `meitu auth verify --json` → 凭证无效则引导配置
 3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
    检查 `$VISUAL` 目录 → 确定 capabilities
@@ -151,8 +151,8 @@ If user mentions specific e-commerce platform → read [references/ecommerce-spe
 
 ```bash
 meitu image-cutout \
-  --image {image_url} \
-  --model_type 1 \
+  --image_url {image_url} \
+  --prompt "e-commerce product foreground subject" \
   --json
 ```
 
@@ -166,9 +166,9 @@ meitu image-cutout \
 
 ```bash
 meitu image-edit \
-  --image {source_image_url} \
+  --image_list {source_image_url} \
   --prompt "{angle_prompt}" \
-  --model praline \
+  --model praline_pro \
   --ratio {target_ratio} \
   --json \
   --download-dir {output_dir}
@@ -221,9 +221,9 @@ meitu image-edit \
 
 ```bash
 meitu image-edit \
-  --image {source_image_url} \
+  --image_list {source_image_url} \
   --prompt "{combo_three_view_prompt}" \
-  --model praline \
+  --model praline_pro \
   --ratio 4:3 \
   --json \
   --download-dir {output_dir}
@@ -240,18 +240,18 @@ meitu image-edit \
 ```bash
 # 先生成正面场景图
 meitu image-edit \
-  --image {original_image_url} \
+  --image_list {original_image_url} \
   --prompt "{front_view_scene_prompt}" \
-  --model praline \
+  --model praline_pro \
   --ratio 1:1 \
   --json \
   --download-dir {output_dir}
 
 # 以正面场景图为参考，生成其余角度
 meitu image-edit \
-  --image {front_scene_result_url} \
+  --image_list {front_scene_result_url} \
   --prompt "将图中的商品旋转到从右侧面观看的角度，展示商品的侧面轮廓。保持商品直立，不要改变商品外观，保证背景一致性。" \
-  --model praline \
+  --model praline_pro \
   --ratio 1:1 \
   --json \
   --download-dir {output_dir}
@@ -271,9 +271,9 @@ meitu image-edit \
 **触发条件**：用户主动要求 OR 目标平台要求 ≥2000px（如 Amazon）。
 
 ```bash
-meitu image-upscale \
-  --image {generated_url} \
-  --model_type 1 \
+meitu image-superres-enhance \
+  --image_url {generated_url} \
+  --prompt "e-commerce product image" \
   --json \
   --download-dir {output_dir}
 ```
@@ -288,8 +288,8 @@ meitu image-upscale \
 
 ```bash
 meitu image-cutout \
-  --image {generated_url} \
-  --model_type 1 \
+  --image_url {generated_url} \
+  --prompt "e-commerce product foreground subject" \
   --json \
   --download-dir {output_dir}
 ```

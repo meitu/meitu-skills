@@ -40,7 +40,7 @@ If user provides a non-standard command name, resolve it using `cli.commandAlias
 - Example: `海报生成` → `image-poster-generate`
 
 **Registry key** = `cli.command || id`
-- Example: `image-try-on` tool uses `cli.command: image-try-on`, so the CLI command is `image-try-on`.
+- Example: `image-face-swap` tool uses `cli.command: image-face-swap`, so the CLI command is `image-face-swap`.
 
 ### Step 3: Resolve Input Key Aliases
 
@@ -49,10 +49,10 @@ Map user-provided input keys to canonical CLI keys using `cli.inputAliases`:
 Example for `image-to-video`:
 | User key | CLI key |
 |----------|---------|
-| `image_url`, `图片`, `图片url`, `图片链接` | `image` |
+| `image`, `image_url`, `图片`, `图片url`, `图片链接` | `image_list` |
 | `提示词`, `描述` | `prompt` |
 | `时长` | `video_duration` |
-| `比例`, `画幅` | `ratio` |
+| `比例`, `画幅`, `ratio` | `aspect_ratio` |
 
 **Reject unknown keys**: If user provides keys not in `cli.requiredKeys` or `cli.optionalKeys`, reject them with an error message.
 
@@ -62,22 +62,34 @@ Check that all `cli.requiredKeys` are provided with non-empty values. If any are
 
 ### Step 5: Build CLI Arguments
 
-Construct the command arguments:
+Construct the command arguments using the canonical CLI key names from `tools.yaml`:
 
 ```
 meitu <command> --<key1> <value1> --<key2> <value2> --json
 ```
 
-For **array keys** (listed in `cli.arrayKeys`), repeat the flag:
+For **array keys** (listed in `cli.arrayKeys`), use the canonical plural flag and pass all values after that flag:
+```bash
+--image_list url1 url2
 ```
---image url1 --image url2
-```
+
+Examples:
+- `text-to-image` reference images → `--image_list url1 url2`
+- `image-edit` base/reference images → `--image_list url1 url2`
+- `video-motion-transfer` → `--image_list image_url --reference_video_list video_url`
 
 ### Step 6: Execute CLI
 
 Run via Bash:
 ```bash
 meitu <command> --key1 value1 --key2 value2 --json
+```
+
+Examples:
+```bash
+meitu image-edit --image_list url1 --prompt "..." --model praline_pro --json
+meitu text-to-image --image_list ref1 ref2 --prompt "..." --size 2K --json
+meitu video-motion-transfer --image_list image_url --reference_video_list video_url --prompt "..." --json
 ```
 
 Capture both stdout and stderr.
@@ -88,7 +100,7 @@ If stdout is empty and stderr contains pattern `task wait timeout: <task_id>`:
 
 1. Extract the `task_id` from stderr
 2. Determine timeout based on command type:
-   - **Video commands** (`image-to-video`, `video-motion-transfer`, `text-to-video`): 600000ms
+   - **Video commands** (`image-to-video`, `text-to-video`, `video-motion-transfer`, `video-multimodal-generate`, `video-effect-apply`, `video-content-replace`, `video-element-remove`, `video-canvas-expand`, `video-quality-enhance`, `video-resolution-upscale`, `video-denoise-enhance`, `video-lowlight-enhance`, `video-framerate-enhance`, `video-stitch`, `video-audio-add`): 600000ms
    - **Other commands**: 900000ms
 3. Execute task wait:
    ```bash
@@ -122,7 +134,7 @@ When CLI returns an error, classify it and generate user-friendly hints.
 | `errorCode === 10027` or message contains `invalid text resources`, `非法资源，文本` | `INVALID_TEXT_RESOURCES` | 文本资源不符合接口要求。 | 请检查文本长度、格式和内容要求后重试。 |
 | `errorCode in [10000, 90000, 90001, 21101, 21102, 21103, 21104, 21105]` or httpStatus === 400 or message contains `参数错误`, `参数缺失`, `invalid_parameter` | `PARAM_ERROR` | 请求参数不符合接口要求。 | 请检查必填参数、参数类型和枚举取值后重试。 |
 | `errorCode in [10003, 21201, 21202, 21203, 21204, 21205]` or httpStatus === 424 or message contains `image_download_failed`, `invalid_url_error`, `下载图片失败`, `无效链接` | `IMAGE_URL_ERROR` | 输入图片地址不可访问或下载失败。 | 请确认图片 URL 可公开访问且文件格式正确后重试。 |
-| `errorCode === 98501` (non-download) or message contains `内容主体不符合要求` | `CONTENT_REQUIREMENTS_UNMET` | 98501:内容主体不符合要求。 | 请更换符合当前能力要求的图片主体后重试；如使用 image-beauty-enhance，请提供清晰的单人人像图。 |
+| `errorCode === 98501` (non-download) or message contains `内容主体不符合要求` | `CONTENT_REQUIREMENTS_UNMET` | 98501:内容主体不符合要求。 | 请更换符合当前能力要求的图片主体后重试；如使用 image-superres-enhance，请提供清晰的单人人像图。 |
 | `errorCode === 90009 || 10002` or httpStatus === 599 or message contains `timeout`, `超时` | `REQUEST_TIMEOUT` | 请求超时，服务暂时未完成处理。 | 请稍后重试；必要时降低并发或缩小输入规模。 |
 | `errorCode in [415, 500, 502, 503, 504, 599, 10002, 10015, 29904, 29905, 90009, 90020, 90021, 90022, 90023, 90099]` or message contains `internal`, `service unavailable`, `算法内部异常`, `资源不足` | `TEMPORARY_UNAVAILABLE` | 服务暂时不可用或资源紧张。 | 请稍后重试；若持续失败请联系支持团队。 |
 | stderr contains `invalid choice`, `unknown command`, `command not found`, `enoent` | `RUNTIME_OUTDATED` | 当前 meitu CLI 未安装、缺少内置命令或版本过旧，暂不支持该内置命令。 | 请手动执行 'npm install -g meitu-cli@latest'；如安装时报 EEXIST 或已有同名二进制冲突，可执行 'npm install -g meitu-cli@latest --force'；随后执行 'meitu --version' 确认运行时可用后重试。 |

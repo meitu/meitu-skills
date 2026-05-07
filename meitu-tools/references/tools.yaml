@@ -1,0 +1,2207 @@
+# ============================================================
+# cli-tools-all.yaml — 全量工具 CLI 注册表 (SSOT)
+#
+# 说明：
+#   本文件包含所有 DAG 卡片对应的 CLI 工具定义，共 40 个工具（已忽略 image-color-enhance 与 image-mosaic-apply）。
+#   基于 cli-tools-all0417.yaml，同步当前 CLI 2.0.6 可用命令集。
+#   覆盖图片搜索(1)、图片生成(4)、图片创意(1)、图片编辑(10)、
+#   图片工具(2)、图片增强(2)、图片变换(1)、文本/代码(3)、
+#   视频生成(5)、视频编辑(4)、视频增强(5)、视频工具(3)、
+#   音频(2) 四大域。
+#   格式与 tools.yaml 完全一致，可直接合并或独立使用。
+#
+# 字段说明（同 tools.yaml）：
+#   summary        — 一句话功能描述(<=40字)
+#   triggers       — 触发条件列表
+#   prefer_over    — 与哪些工具容易混淆，选当前工具的判断条件
+#   input          — 输入规格
+#   output         — 输出规格
+#   params         — 额外参数(如子模型选择)，无则省略
+#   constraints    — 硬性约束/前置依赖，无则省略
+#   not_for        — 不适用场景 + 应转向的工具
+#   cli            — CLI 注册表数据
+#     command          — 实际 CLI 命令名（省略则用 id）
+#     requiredKeys     — 必填输入键
+#     optionalKeys     — 可选输入键
+#     arrayKeys        — 值为数组的键
+#     commandAliases   — 命令别名
+#     inputAliases     — 输入键别名映射
+# ============================================================
+
+tools:
+
+  # ══════════════════════════════════════════
+  # ── 音频类 ────────────────────────────────
+  # ══════════════════════════════════════════
+
+  - id: audio-music-generate
+    name: 纯音乐生成
+    summary: 纯音乐/BGM生成，无人声无歌词，支持多种风格和时长控制（30-120秒）。
+    description: "Generates vocal-free, lyric-free pure music / BGM for background music, ambient mood, and emotional scoring, duration 30–120 seconds. `prompt` required; `duration` required, defaults to `30` seconds if not provided, auto-clamped to 30–120 seconds with notification. Suited for ambient/mood/background pure music, not for strong-rhythm or full song structures. Prohibited: songs with vocals/lyrics, strong-rhythm/high-variation instrumental music, adding audio to existing videos, structured song creation, audio editing."
+    triggers:
+      - 生成BGM/配乐/纯音乐/背景音乐
+      - 做个音乐垫/轻音乐/伴奏/器乐/氛围音乐
+      - 无人声音乐/钢琴曲/电子乐/爵士乐
+    prefer_over:
+      - tool: audio-song-generate
+        when: 明确要求纯音乐/无人声/无歌词，且非强节奏/强变化需求
+    input:
+      - type: text
+        count: "1"
+        note: 纯音乐描述（主题/风格/场景/情绪）
+    output:
+      type: audio
+      note: 纯音乐文件，30-120秒
+    constraints:
+      - 时长范围 30-120 秒，超出自动钳位
+      - 不支持输出超过 120s
+    not_for:
+      - 含人声的完整歌曲 → audio-song-generate
+      - 强节奏/强变化/完整编曲感的纯音乐 → audio-song-generate
+      - 为已有视频添加音频 → video-audio-add
+    cli:
+      requiredKeys: [prompt, duration]
+      optionalKeys: []
+      arrayKeys: []
+      commandAliases: [music, bgm, audio-music, 纯音乐生成, 背景音乐]
+      inputAliases:
+        提示词: prompt
+        描述: prompt
+        风格: prompt
+        场景: prompt
+        时长: duration
+        秒: duration
+      requestPaths:
+        prompt: text
+
+
+  - id: audio-song-generate
+    name: 歌曲生成
+    summary: 歌词驱动的完整歌曲生成（含人声），也支持强节奏/完整编曲感的纯音乐。
+    description: "Lyrics-driven complete song generation (with vocals), also supports strong-rhythm/full-arrangement instrumental music. `prompt` (style description) required; `prompt_lyrics` (lyrics) required for vocal songs, can be empty for instrumental; `model` (auto/mureka-6/mureka-7.5/mureka-o1, default `auto`) optional. When `prompt` conflicts with `prompt_lyrics` style, `prompt` takes priority. Prohibited: plain ambient BGM/background music, generating lyrics text only, albums over 5 minutes, dubbing/scoring for existing videos."
+    triggers:
+      - 写首歌/创作歌曲/生成一首歌/帮我作曲
+      - 带歌词的音乐/做首歌/歌曲创作
+      - 品牌歌曲/作词作曲/编曲配唱/唱一首
+    prefer_over:
+      - tool: audio-music-generate
+        when: 需要人声/歌词/完整歌曲结构，或强节奏/强变化/完整编曲感的纯音乐
+    input:
+      - type: text
+        count: "1"
+        note: 歌曲风格描述 prompt
+      - type: text
+        count: "1"
+        note: 歌词内容 prompt_lyrics
+    output:
+      type: audio
+      note: 含人声的完整歌曲
+    params:
+      - name: model
+        type: enum
+        values: [auto, mureka-6, mureka-7.5, mureka-o1]
+        default: auto
+        selection_rule: |
+          生成模型选择：auto 由系统自动决策；非法值回退至 auto
+    not_for:
+      - 普通纯音乐/BGM/背景配乐（非强节奏） → audio-music-generate
+      - 为已有视频添加音频 → video-audio-add
+      - 只写歌词不要旋律 → 不属于本工具范围
+    cli:
+      requiredKeys: [prompt, prompt_lyrics]
+      optionalKeys: [model]
+      arrayKeys: []
+      commandAliases: [song, audio-song, 歌曲生成, 写歌, 作曲]
+      inputAliases:
+        风格: prompt
+        提示词: prompt
+        描述: prompt
+        风格描述: prompt
+        歌词: prompt_lyrics
+        歌词内容: prompt_lyrics
+        模型: model
+      requestPaths:
+        prompt_lyrics: lyrics
+
+
+  # ══════════════════════════════════════════
+  # ── 图片搜索类 ────────────────────────────
+  # ══════════════════════════════════════════
+
+  - id: image-search
+    name: 文搜图
+    summary: 关键词搜图/以图搜图，内部图库+Pinterest联合检索，找参考图/素材/灵感。
+    description: "Keyword image search / reverse image search with internal library + Pinterest joint retrieval. `prompt` (search term array) and `image_ids` (image ID array) at least one required; `query_mode` (search/retrieve, default `search`), `size` (1–20, default `4`), `source_type` (auto/internal/pinterest, default `auto`) required. Retries with synonyms when empty, returns not-found if still empty. Prohibited: image generation/AI creation, image editing/modification, video search, OCR/image understanding."
+    triggers:
+      - 搜图/找参考图/找素材/搜几张
+      - 找类似的图/以图搜图/帮我搜/找图片
+    input:
+      - type: text
+        count: "0+"
+        note: 搜索关键词数组（search模式必填）
+      - type: image
+        count: "0+"
+        note: 参考图ID（retrieve模式必填）
+    output:
+      type: image
+      note: 图片列表，默认返回4张
+    constraints:
+      - prompt 和 image_ids 至少提供一项
+      - 最多返回 20 张
+    not_for:
+      - 图片生成/AI创作 → text-to-image
+      - 图片编辑/修改 → image-edit
+    cli:
+      requiredKeys: []
+      optionalKeys: [prompt, image_ids, query_mode, size, source_type]
+      arrayKeys: [prompt, image_ids]
+      commandAliases: [search, 搜图, 文搜图, 找图]
+      inputAliases:
+        关键词: prompt
+        搜索词: prompt
+        搜索: prompt
+        描述: prompt
+        图片id: image_ids
+        参考图id: image_ids
+        模式: query_mode
+        查询模式: query_mode
+        数量: size
+        返回数量: size
+        来源: source_type
+        数据源: source_type
+
+
+  # ══════════════════════════════════════════
+  # ── 图片生成类 ────────────────────────────
+  # ══════════════════════════════════════════
+
+  - id: text-to-image
+    name: 图片生成
+    summary: 从文字描述（文字驱动）生成全新图片，支持通用创意生成与商业级高品质生成。
+    description: "Generates brand-new images from text descriptions from scratch (no base image); reference images serve only as style/mood supplements, not as content subjects. Covers general text-to-image/multi-image reference fusion and commercial-grade high-quality generation, supports generating images at specified resolution (e.g. 4K wallpaper). `prompt` required; `model` (auto/gummy/praline_pro, default `auto`), `size` (1K/2K/4K, default `2K`), `ratio` and `image_list` optional. `image_list` and `ratio` are mutually exclusive — `ratio` not supported when `image_list` is provided. `output_format` is managed internally by the combo-tool and not exposed externally. Prohibited: editing existing images, reference-image-driven creation (reference image as primary content source), portraits/pet photos/ID photos, poster/banner layout design, style transfer/preset effects, video generation, image search, quality enhancement/superres of existing images."
+    triggers:
+      - 无底图，纯文字从零生图
+      - 新图中需包含指定文字
+      - 商业级/电商/宣传/封面图生成
+      - 写实/电影截图风格图片
+    prefer_over:
+      - tool: image-edit
+        when: 核心意图是生成新图，而非修改现有图片
+      - tool: image-poster-generate
+        when: 目标不是海报/宣传物料
+    input:
+      - type: text
+        count: "1"
+        note: 生成描述 prompt
+      - type: image
+        count: "0+"
+        note: 可选参考图 URL 数组
+    output:
+      type: image
+    params:
+      - name: model
+        type: enum
+        values: [auto, gummy, praline_pro]
+        default: auto
+        selection_rule: |
+          model 为 sub_api 的外部别名；auto 或不传时按 sub_api selection_rule 路由：
+          gummy       → text_to_image (image_gummy_generate)
+          praline_pro → text_to_image_praline (image_praline_create_v2)
+          指定 model 调用失败时，仍按 sub_api 降级链继续重试
+      - name: sub_api
+        type: enum
+        values: [text_to_image, text_to_image_praline]
+        default: text_to_image
+        selection_rule: |
+          有 image_list（参考图融合）→ text_to_image (image_gummy_generate)  ⚠️ praline 不支持 image_list
+          商业级/宣传/电商/文字渲染/写实/电影截图风格 → text_to_image_praline (image_praline_create_v2)
+          创意/插画/概念/风格混搭/通用 → text_to_image (image_gummy_generate)
+          text_to_image_praline 失败 → 降级至 text_to_image
+    constraints:
+      - size 指定不支持值 → 回退至默认 2K
+      - image_list 仅 text_to_image (gummy) 支持，praline 不支持参考图输入
+      - output_format 由 combo-tool 内部管理，不对外暴露
+    not_for:
+      - 对已有图片局部修改 → image-edit
+      - 参考图驱动的创作（参考图是主要内容来源） → image-edit
+      - 海报设计（含排版） → image-poster-generate
+      - 换脸 → image-face-swap
+    cli:
+      requiredKeys: [prompt]
+      optionalKeys: [image_list, size, ratio, model]
+      arrayKeys: [image_list]
+      commandAliases: [generate, image-generate, 图片生成, 文生图]
+      inputAliases:
+        image: image_list
+        image_url: image_list
+        参考图: image_list
+        参考图片: image_list
+        提示词: prompt
+        描述: prompt
+        尺寸: size
+        分辨率: size
+        比例: ratio
+        宽高比: ratio
+        模型: model
+
+
+  - id: image-poster-generate
+    name: 海报生成
+    summary: 生成含文字排版的海报，支持中文与非中文，适用于宣传/广告/活动推广。
+    description: "Generates brand-new posters with layout, supporting pure text description or product/portrait images as material input, multiple styles and sizes. `prompt` required; `model` (Gummy/Nougat/PralineV2/GummyV4.5/Praline_2, default `Praline_2`), `image_list`, `ratio` (default `auto`), `size` (default `auto`), `output_format` (default `png`), `enhance_prompt` optional. Model selection: default Praline_2, realistic portrait GummyV4.5, high-creativity PralineV2, general portrait Gummy, special style Nougat. Prohibited: secondary editing of existing posters (change background/text/elements/size), general image editing, pure image generation without layout needs, video/animated posters, general text editing outside poster context."
+    triggers:
+      - 生成海报/宣传图/广告图
+      - 基于图片生成海报
+      - 生成系列海报
+    prefer_over:
+      - tool: text-to-image
+        when: 输出物明确是海报/宣传物料，需文字排版和版式
+      - tool: image-edit
+        when: 无任何参考图/底图，从零纯文字生成全新海报版面
+    input:
+      - type: text
+        count: "1"
+        note: 海报内容/设计要求 prompt
+      - type: image
+        count: "0+"
+        note: 可选素材图
+    output:
+      type: image
+      note: 每次仅1张
+    params:
+      - name: model
+        type: enum
+        values: [Gummy, Nougat, PralineV2, GummyV4.5, Praline_2]
+        default: Praline_2
+        selection_rule: |
+          默认/综合 → Praline_2
+          写实人像 → GummyV4.5
+          高创意 → PralineV2
+          通用人像 → Gummy
+          特殊风格 → Nougat
+    constraints:
+      - 每次仅输出1张
+      - 中文与非中文自动适配不同模型
+    not_for:
+      - 通用图片生成（非海报） → text-to-image
+      - 非海报图片编辑 → image-edit
+    cli:
+      requiredKeys: [prompt]
+      optionalKeys: [model, image_list, size, ratio, output_format, enhance_prompt, enhance_template]
+      arrayKeys: [image_list]
+      commandAliases: [poster, image-poster, 海报生成, 做海报]
+      inputAliases:
+        image: image_list
+        图片: image_list
+        素材图: image_list
+        提示词: prompt
+        描述: prompt
+        模型: model
+        尺寸: size
+        分辨率: size
+        比例: ratio
+        画幅: ratio
+        格式: output_format
+        输出格式: output_format
+
+
+  - id: image-portrait-generate
+    name: 写真生成
+    summary: 人像/宠物写真生成、双人合影合成，高精度人像保真，支持形象照/艺术照。
+    description: "Generates high-fidelity portraits from reference images (person/pet), covering portrait generation (ID photo/professional headshot/artistic photo/pet portrait/group photo/hairstyle adjustment) and dual-person composite/group photo synthesis. `image_list` (1–N person/pet images) and `prompt` required; `size` (2K/4K, default `2K`) optional. Local editing (makeup/face/posture changes) is not in this tool's scope. Prohibited: face swap/head swap, style transfer/creative effects, outfit swap, video generation, text-only generation without reference images."
+    triggers:
+      - 写真/形象照/艺术照/宠物写真
+      - 发型调整/试发型
+      - 合影/合照/双人合照/多人写真/团体照
+    prefer_over:
+      - tool: text-to-image
+        when: 需要高精度人像保真的写真效果
+      - tool: image-edit
+        when: 目标是写真生成而非通用编辑
+    input:
+      - type: image
+        count: "1+"
+        note: 人像/宠物图片URL数组
+      - type: text
+        count: "1"
+        note: 写真描述 prompt
+    output:
+      type: image
+    params:
+      - name: sub_api
+        type: enum
+        values: [image_portrait_generate, image_portrait_generate_fallback, image_portrait_generate_group]
+        default: image_portrait_generate
+        selection_rule: |
+          双人合影信号 + 恰好2张图 → image_portrait_generate_group (image_groupphoto2_edit)
+            ┗ prompt 映射为 instruction；固定参数 lora_key: multi_duorenhezhao_2k, rsp_media_type: url
+          单人/宠物写真 → image_portrait_generate (image_gummy_edit_v45)（失败降级 image_portrait_generate_fallback (image_mint_portrait_edit_2k)）
+          多人(3+)写真 → image_portrait_generate (image_gummy_edit_v45)（失败不降级，直接返回错误）
+          意图不明 + 2张图 → 默认走 image_portrait_generate (image_gummy_edit_v45)（单人写真），不追问
+    constraints:
+      - 双人合影需恰好 2 张人像图
+      - image_portrait_generate_group 非中英文 prompt 自动翻译为中文
+    not_for:
+      - 换脸/换头合成 → image-face-swap
+      - 换装/试穿 → image-outfit-swap
+      - 无参考图纯文字生成 → text-to-image
+      - 风格迁移/创意效果 → image-style-transfer
+    cli:
+      requiredKeys: [image_list, prompt]
+      optionalKeys: [size]
+      arrayKeys: [image_list]
+      commandAliases: [portrait, image-portrait, 写真生成, 形象照, 合影]
+      inputAliases:
+        image: image_list
+        image_url: image_list
+        图片: image_list
+        人像图: image_list
+        照片: image_list
+        参考图: image_list
+        提示词: prompt
+        描述: prompt
+        尺寸: size
+        分辨率: size
+
+
+  # ══════════════════════════════════════════
+  # ── 图片编辑类 ────────────────────────────
+  # ══════════════════════════════════════════
+
+  - id: image-edit
+    name: 图片编辑
+    summary: 对已有图片编辑或基于参考图创作全新图片，支持电商产品出图/人像/多图一致性/通用编辑/参考图创作五类场景。
+    description: "Edits existing images or creates new images based on existing images (must have base image), covering 5 scenarios: e-commerce product imaging (white-background hero/scene/multi-angle/promotional text), portrait editing (face/makeup/hairstyle/pose), multi-image consistency editing (product fine-tuning/multi-image fusion/text content replacement), general editing (replace elements/add elements/adjust composition/background modification), reference-image creation (reference image as primary content source). `image_list` and `prompt` required; when adding/rendering text onto images, text content is kept as user's original wording without translation. In design contexts, \"IP\" refers to character/mascot/brand imagery patterns—`prompt` should preserve \"pattern/character\" semantics."
+    triggers:
+      - 电商主图/白底图/产品展示图/场景图/商品图/多角度展示图
+      - 修改现有图片局部内容（换背景、改颜色、去除/添加元素）
+      - 多张图提取材质/风格/构图融合
+      - 在现有图片上渲染文字
+      - 图片分析或标注
+      - 将人物/宠物照片转为卡通、3D手办、二次元等艺术风格
+      - 人像/宠物写真生成、发型调整
+      - 基于参考图创作全新图片（创意视觉稿等，非海报）
+    prefer_over:
+      - tool: text-to-image
+        when: 用户有明确底图要编辑，非从零生图
+      - tool: image-poster-generate
+        when: 有参考图/底图的海报编辑、电商产品展示页版式设计、已有海报二次修改（改字/换色/换背景）
+    input:
+      - type: image
+        count: "1+"
+        note: 至少一张底图，可追加参考图
+      - type: text
+        count: "1"
+        note: 编辑指令 prompt
+    output:
+      type: image
+    params:
+      - name: model
+        type: enum
+        values: [auto, gummy_pro, praline_pro, praline_lite, mint_edit]
+        default: auto
+        selection_rule: |
+          model 为 sub_api 的外部别名；auto 或不传时按 sub_api selection_rule 路由：
+          gummy_pro    → image_edit_portrait (image_gummy_edit_v45)
+          praline_pro  → image_edit_praline / image_edit (image_praline_edit_v2)
+          praline_lite → image_edit_lite (image_praline_edit_2)
+          mint_edit    → image_edit_fallback (image_mint_edit)
+          指定 model 调用失败时，仍按 sub_api 降级链继续重试。
+      - name: sub_api
+        type: enum
+        values: [image_edit, image_edit_portrait, image_edit_praline, image_edit_lite, image_edit_fallback]
+        default: image_edit
+        selection_rule: |
+          前置判断 0：有产品图 + 电商出图意图（白底图/主图/场景图/产品展示图）→ image_edit_praline (image_praline_edit_v2)（电商产品出图）；含海报/Banner 版式设计意图时让给海报专科工具
+          前置判断 A：有参考图 + 生成全新图片意图（非就地编辑）→ image_edit_praline (image_praline_edit_v2)（参考图创作）；含海报/宣传图/Banner 关键词时让给海报专科工具
+          优先级：电商前置 > 参考图创作前置 > 多图 > 人像 > 高一致性 > 通用
+          人像编辑（人脸/表情/妆容/美颜/发型/姿态/肤色）→ image_edit_portrait (image_gummy_edit_v45)
+          高一致性/多图融合/文字渲染（商品图/IP角色/保持一致/多图融合/加文字）→ image_edit_praline (image_praline_edit_v2)
+          通用编辑 → image_edit (image_praline_edit_v2)
+          image_edit_portrait 失败 → 降级至 image_edit (image_praline_edit_v2)
+          image_edit 失败 → 降级至 image_edit_lite (image_praline_edit_2)
+          image_edit_lite 失败 → 降级至 image_edit_fallback (image_mint_edit)
+    constraints:
+      - ratio 取值因 model 不同：praline_pro/praline_lite/mint_edit 支持 auto/1:1/2:3/3:2/3:4/4:3/4:5/5:4/9:16/16:9/21:9；gummy_pro 支持 auto/1:1/4:3/3:4/16:9/9:16/3:2/2:3/21:9
+    not_for:
+      - 无底图纯文字生图 → text-to-image
+      - 无任何参考图/底图、从零纯文字生成完整海报版面 → 推荐 image-poster-generate
+      - 纯抠图/透明底/前景分离（不涉及生成）→ image-cutout
+      - 仅超清 → image-superres-enhance
+    cli:
+      requiredKeys: [image_list, prompt]
+      optionalKeys: [ratio, size, output_format, model]
+      arrayKeys: [image_list]
+      commandAliases: [edit, image-i2i, 图片编辑, 图生图]
+      inputAliases:
+        image: image_list
+        image_url: image_list
+        图片: image_list
+        图片url: image_list
+        比例: ratio
+        宽高比: ratio
+        分辨率: size
+        格式: output_format
+        图片链接: image_list
+        提示词: prompt
+        描述: prompt
+
+
+  - id: image-face-swap
+    name: AI换头
+    summary: 将图1人物的头部和肤色替换到图2上，保留图2的姿态、服饰和背景。
+    description: "Dual-image face/head swap compositing, replacing source face onto target scene image. `head_image_url` (face source), `sence_image_url` (scene base), and `prompt` required; prompts for supplement if fewer than 2 images, takes first 2 if more. \"Use B's face on A\" semantically assigns B=head, A=scene. Prohibited: video face swap, multi-person simultaneous face swap, outfit swap, portrait generation/hairstyle adjustment."
+    triggers:
+      - 提供两张人像图，要求换脸/换头
+      - 把A的脸放到B的身体/场景上
+    prefer_over:
+      - tool: image-edit
+        when: 需求明确是人脸替换，非通用编辑
+      - tool: image-outfit-swap
+        when: 目标是换脸而非换装
+    input:
+      - type: image
+        count: "2"
+        note: 图1=源脸(head_image_url)，图2=目标姿态/场景(sence_image_url)
+    output:
+      type: image
+      note: 图2构图不变，头部肤色换为图1
+    params:
+      - name: sub_api
+        type: enum
+        values: [image_face_swap]
+        default: image_face_swap
+        selection_rule: |
+          默认 → image_face_swap (image_head_change)
+          用户明确指定 → 按指定分配 head/sence
+          未区分 → 第1张=head（源脸），第2张=sence（场景底图）
+          不足2张 → 提示"请提供两张图片"
+          >2张 → 取前2张，告知用户
+    not_for:
+      - 替换背景 → image-edit
+      - 仅换发型不换脸 → image-edit
+      - 虚拟试衣 → image-outfit-swap
+    cli:
+      requiredKeys: [head_image_url, sence_image_url, prompt]
+      optionalKeys: []
+      arrayKeys: []
+      commandAliases: [face-swap, image-faceswap, AI换头, 换脸]
+      inputAliases:
+        head_url: head_image_url
+        头像图: head_image_url
+        头图: head_image_url
+        源脸图: head_image_url
+        scene_image_url: sence_image_url
+        目标图: sence_image_url
+        场景图: sence_image_url
+        底图: sence_image_url
+        提示词: prompt
+        描述: prompt
+
+
+  - id: image-outfit-swap
+    name: 图片换装
+    summary: AI换装，支持文字描述目标服装或上传参考服装图，保留人物形象只替换衣物，主力模型失败自动降级。
+    description: "AI outfit swap preserving person's face/body while replacing clothing only. `image_url` and `prompt` (target outfit description) required; `clothes_image_url` (outfit reference image) optional. Simple color changes (e.g. \"change the skirt to red\") also belong to this tool. Prohibited: hairstyle changes, video outfit swap, full-body appearance overhaul, face/head swap."
+    triggers:
+      - 换装/换衣服/试穿/穿上
+      - 改成xxx裙/衬衫/西装/外套
+      - 虚拟试穿/虚拟试衣/服装替换
+    prefer_over:
+      - tool: image-face-swap
+        when: 目标是换装而非换脸
+      - tool: image-edit
+        when: 需求明确是服装替换
+    input:
+      - type: image
+        count: "1+"
+        note: 人物图片（必填）；可选服装参考图
+      - type: text
+        count: "1"
+        note: 目标服装描述
+    output:
+      type: image
+    params:
+      - name: sub_api
+        type: enum
+        values: [image_outfit_swap, image_outfit_swap_lite, image_outfit_swap_fallback]
+        default: image_outfit_swap
+        selection_rule: |
+          默认 → image_outfit_swap (image_praline_edit_v2)，有服装参考图时人物图+服装图通过 image_list 传入，prompt 自动扩写为英文换装指令
+          失败 → image_outfit_swap_lite (image_praline_edit_2)
+          仍失败 → image_outfit_swap_fallback (image_mint_edit)，prompt 直接传入
+    not_for:
+      - 换脸/换头 → image-face-swap
+      - 换发型 → image-portrait-generate
+      - 全身外观改变 → image-edit
+    cli:
+      requiredKeys: [image_url, prompt]
+      optionalKeys: [clothes_image_url]
+      arrayKeys: []
+      commandAliases: [outfit, image-outfit, 换装, 图片换装, 换衣服, 虚拟试衣]
+      inputAliases:
+        image: image_url
+        图片: image_url
+        图片url: image_url
+        图片链接: image_url
+        人物图: image_url
+        提示词: prompt
+        描述: prompt
+        服装: prompt
+        衣服: prompt
+        服装图: clothes_image_url
+        衣服图: clothes_image_url
+        服装图片: clothes_image_url
+
+
+  - id: image-style-transfer
+    name: 图片风格转换
+    summary: 图片风格化处理，预设效果仅 chibi(Q版)/emoji/snoopy/molly/动森 5 种，其他风格走通用风格化。
+    description: "Applies stylistic transformations to existing images (anime/oil-painting/watercolor/chibi/cartoon/3D/pixel/emoji and other explicit style keywords all belong to this tool), supporting single-image stylization and dual-image reference style transfer. `image_url` (1 image = original only, 2 images = [original, style reference]) and `prompt` required. Preset effects include chibi/emoji/Snoopy/Molly/Animal Crossing, single-image only; other single-image styles use general stylization; 2 images processed by illustration/non-illustration type. Creative portrait stylization belongs to this tool. Prohibited: non-stylistic image modification, realistic portrait generation, video creative generation, generating from scratch without source image."
+    triggers:
+      - 风格转换/风格迁移/变成xxx风格
+      - chibi/Q版/emoji/snoopy/molly/动森
+      - 油画风/水彩风/动漫风/3D风格/卡通/像素/表情包
+    prefer_over:
+      - tool: image-edit
+        when: 核心需求是整体风格转换而非内容修改
+    input:
+      - type: image
+        count: "1+"
+        note: 原图；若有风格参考图则传2张（原图+风格图）
+    output:
+      type: image
+    params:
+      - name: sub_api
+        type: enum
+        values: [formula_group_creative_play, image_praline_edit_v2, image_praline_edit_2, image_mint_styletransfer, image_mint_edit]
+        selection_rule: |
+          1 张图 + prompt 含 chibi(Q版)/emoji/snoopy/molly/动森 → formula_group_creative_play
+          1 张图 + 其他风格 → image_praline_edit_v2
+          2 张图 + 插画类风格迁移 → image_mint_styletransfer
+          2 张图 + 非插画类风格 → image_praline_edit_v2
+          formula_group_creative_play 失败 → 降级至 image_praline_edit_v2
+          image_praline_edit_v2 失败 → 降级至 image_praline_edit_2
+          image_praline_edit_2 失败 → 降级至 image_mint_edit
+          image_mint_styletransfer 失败 → 降级至 image_praline_edit_v2
+    constraints:
+      - 预设效果仅 chibi(Q版)/emoji/snoopy/molly/动森 5 种，其他单图风格走 image_praline_edit_v2
+      - image_mint_styletransfer 仅支持插画类风格（水彩/油画/动漫/3D等）
+    not_for:
+      - 生成写实人像写真 → image-portrait-generate（注意：动漫/油画等创意风格化人像属于本工具）
+      - 非风格化的图片修改 → image-edit
+      - 视频创意生成 → video-effect-apply
+    cli:
+      requiredKeys: [image_url, prompt]
+      optionalKeys: [style_image_url]
+      arrayKeys: [image_url]
+      commandAliases: [style, image-style, 风格转换, 图片风格转换, 表情包]
+      inputAliases:
+        image: image_url
+        图片: image_url
+        图片url: image_url
+        图片链接: image_url
+        原图: image_url
+        提示词: prompt
+        描述: prompt
+        风格描述: prompt
+        风格参考图: style_image_url
+        风格图: style_image_url
+        参考图: style_image_url
+
+
+  - id: image-background-replace
+    name: 图片换背景
+    summary: 替换图片背景/换场景，保留前景主体不变，支持文字描述目标背景。
+    description: "Replaces image background/scene while preserving foreground subject, covering product scene swap, portrait background change, ID photo background color (white/blue/red), AI-generated target scenes. `image_url` required; `prompt` (target background description) optional, defaults to \"white background\" when omitted. This tool cannot output transparent backgrounds. Prohibited: transparent background output, removing specific objects from background, canvas expansion/outpainting, video background replacement, foreground content editing."
+    triggers:
+      - 换背景/替换背景/换成白色背景
+      - 商品换场景/人像换背景/放到另一个场景
+      - 证件照换底色（白/蓝/红）/背景替换
+    prefer_over:
+      - tool: image-cutout
+        when: 需要替换为新背景而非仅去除背景输出透明底
+      - tool: image-edit
+        when: 核心需求是整体背景替换
+    input:
+      - type: image
+        count: "1"
+        note: 需要换背景的图片
+      - type: text
+        count: "1"
+        note: 目标背景描述，缺失时默认"白色背景"
+    output:
+      type: image
+    constraints:
+      - 本工具不能输出透明背景；prompt 含"透明/透明底/透明背景"时前置拦截，不调用本工具
+    not_for:
+      - 去背景输出透明底 → image-cutout
+      - 换成透明背景/替换为透明底 → image-cutout
+      - 去除背景中某个物体 → image-element-remove
+      - 画布扩展/outpainting → image-transform
+      - 图片内容编辑 → image-edit
+    cli:
+      requiredKeys: [image_url]
+      optionalKeys: [prompt]
+      arrayKeys: []
+      commandAliases: [background, image-background, 换背景, 图片换背景, 背景替换]
+      inputAliases:
+        image: image_url
+        图片: image_url
+        图片url: image_url
+        图片链接: image_url
+        提示词: prompt
+        描述: prompt
+        背景: prompt
+        目标背景: prompt
+        场景: prompt
+
+
+  - id: image-text-replace
+    name: 图片改字
+    summary: 图片上的文字内容替换，支持标准印刷体简单改字和花字/手写/风格化复杂改字。
+    description: "Replaces existing text content on images (A → B), supporting simple precise replacement (standard print/single location/≤6 chars/same char count) and complex replacement (decorative/handwritten fonts/multiple locations/char count changes). `image_url` required; `source_words`/`target_words` conditionally required (required for simple replacement, can be auto-extracted from `prompt` for complex). Target text containing Chinese kept as-is without translation. Prohibited: removing/clearing text, adding new text to blank areas, video text editing, batch multi-image text editing."
+    triggers:
+      - 改字/替换文字/把A改成B
+      - 修改文字/换个字/文字替换
+      - 改标题/改价格/改名字
+    prefer_over:
+      - tool: image-element-remove
+        when: 目标是替换文字内容（改成新的）而非删除文字
+      - tool: image-edit
+        when: 需求明确是文字替换
+    input:
+      - type: image
+        count: "1"
+        note: 含文字的图片
+      - type: text
+        count: "2"
+        note: 原文字 source_words + 目标文字 target_words
+    output:
+      type: image
+    params:
+      - name: sub_api
+        type: enum
+        values: [image_text_replace, image_text_replace_adv, image_text_replace_lite, image_text_replace_fallback]
+        selection_rule: |
+          简单改字四条件全满足 → image_text_replace (workflow_image_update_words)（精准保留原字体）
+            1. 标准印刷体 2. 仅修改一处 3. 字符数<=6 4. 原文与目标字符数相同
+          任一条件不满足 → image_text_replace_adv (image_praline_edit_v2) → 失败降级 image_text_replace_lite (image_praline_edit_2) → 失败降级 image_text_replace_fallback (image_mint_edit)
+    not_for:
+      - 去除/清除所有文字 → image-element-remove
+      - 添加全新文字到空白区域 → image-edit
+      - 视频改字 → 不支持
+    cli:
+      requiredKeys: [image_url]
+      optionalKeys: [source_words, target_words, prompt]
+      arrayKeys: []
+      commandAliases: [textreplace, image-textreplace, 改字, 图片改字, 文字替换]
+      inputAliases:
+        image: image_url
+        图片: image_url
+        图片url: image_url
+        图片链接: image_url
+        原文: source_words
+        原文字: source_words
+        旧文字: source_words
+        新文字: target_words
+        目标文字: target_words
+        改成: target_words
+        提示词: prompt
+        描述: prompt
+
+
+  - id: image-element-remove
+    name: 图片消除
+    summary: 去水印/去文字/去局部物体，支持批量文字清除和指定对象消除。
+    description: "Removes watermarks/text/local objects, covering general watermark removal, semi-transparent document watermark removal, local object/element removal, specified text removal. `image_url` required; use `target` (watermark/text, default `watermark`) for general watermarks, `prompt` needed for specific objects/text. When user references specific text content, removes that specified text rather than all text. Prohibited: text replacement/modification, video watermark removal, mosaic/blurring, background replacement, cutout/removing entire background."
+    triggers:
+      - 去水印/去掉水印/去全部文字/清除所有文字
+      - 去路人/消除杂物/去Logo/去掉这个东西
+      - 消除/去半透明水印/去角标
+    prefer_over:
+      - tool: image-text-replace
+        when: 目标是消除/删除文字而非替换为新文字
+    input:
+      - type: image
+        count: "1"
+      - type: text
+        count: "0..1"
+        note: 消除对象描述（局部物体消除时使用）
+    output:
+      type: image
+    params:
+      - name: sub_api
+        type: enum
+        values: [image_element_remove_watermark, image_element_remove_docwatermark, image_element_remove_object, image_element_remove_object_lite, image_element_remove_object_fallback]
+        selection_rule: |
+          去水印/去全部文字 → image_element_remove_watermark (image_watermark_text_remove)（target=watermark|text）——通用优先，即使图片看起来是文档/扫描件也走此路径
+          文档场景半透明水印 → image_element_remove_docwatermark (image_saomiaowatermark_remove)——仅限用户原话含"文档水印/扫描件水印/小说水印"，禁止仅凭图片内容自行判断
+          局部指定物体/指定某段文字消除 → image_element_remove_object (image_praline_edit_v2) → 失败降级 image_element_remove_object_lite (image_praline_edit_2) → 失败降级 image_element_remove_object_fallback (image_mint_edit)
+    constraints:
+      - praline/mint 消除 prompt 须使用四段式模板（SCOPE+PRESERVE+REFLOW+NEGATIVE），显式锁定剩余元素的视觉属性并对部分文字删除场景强制文字重流
+    not_for:
+      - 改字/替换文字内容 → image-text-replace
+      - 打码/马赛克 → 当前版本暂未开放专用 CLI 命令
+      - 视频去水印 → video-element-remove
+      - 背景替换 → image-background-replace
+    cli:
+      requiredKeys: [image_url]
+      optionalKeys: [target, prompt]
+      arrayKeys: []
+      commandAliases: [remove, image-remove, 去水印, 图片消除, 消除]
+      inputAliases:
+        image: image_url
+        图片: image_url
+        图片url: image_url
+        图片链接: image_url
+        消除目标: target
+        类型: target
+        提示词: prompt
+        描述: prompt
+        消除对象: prompt
+
+
+  - id: image-cutout
+    name: 抠图
+    summary: 分离前景与背景，提取主体或人物，输出透明背景图。
+    description: "Precise foreground-background separation, covering standard 4-type subject cutout (person/pet/product/graphic stamp, outputs transparent PNG) and non-standard subject white-background cutout (buildings/plants/vehicles etc., outputs white-background image RGB 255,255,255). `image_url` and `prompt` (subject description) required. Requests involving \"remove background/transparent background/transparent base/keep subject only\" all belong to this tool. Prohibited: replacing background with new scene, removing specific objects, image cropping, video matting, cutout + background-replace combo."
+    triggers:
+      - 抠图/去背景/提取主体
+      - 获得透明背景的人物/物体图
+    input:
+      - type: image
+        count: "1"
+    output:
+      type: image
+      note: 透明背景的主体图
+    params:
+      - name: sub_api
+        type: enum
+        values: [image_cutout, image_cutout_whitebg, image_cutout_whitebg_lite, image_cutout_whitebg_fallback]
+        default: image_cutout
+        selection_rule: |
+          标准4类主体（人物/宠物/商品/图形印章）→ image_cutout (api_v1_sod_async)（透明PNG）
+          非标准主体或明确要求白色背景 → image_cutout_whitebg (image_praline_edit_v2)（白底 RGB 255,255,255）
+          image_cutout_whitebg 失败 → 降级至 image_cutout_whitebg_lite (image_praline_edit_2)
+          image_cutout_whitebg_lite 失败 → 降级至 image_cutout_whitebg_fallback (image_mint_edit)
+    constraints:
+      - 任何涉及"透明背景/透明底"的需求，无论用户说"去除""替换""换成"，都属于本工具，不走 image-background-replace
+    not_for:
+      - 抠图后换背景 → 先 image-cutout 再 image-edit
+      - 宫格拆分 → image-grid-split
+    cli:
+      requiredKeys: [image_url, prompt]
+      optionalKeys: []
+      arrayKeys: []
+      commandAliases: [cutout, 抠图, 去背景]
+      inputAliases:
+        image: image_url
+        图片: image_url
+        图片url: image_url
+        图片链接: image_url
+        提示词: prompt
+        描述: prompt
+
+
+  - id: image-grid-split
+    name: 宫格拆分
+    summary: 将单张宫格拼接图拆分为多张独立图片。当前支持四宫格(2x2)。
+    description: "Auto-detects grid dividing lines and splits single multi-grid image into separate images. `image_url` required, no need to specify grid count. Non-grid images processed with equal-split and notified. Prohibited: multi-image merging, freeform splitting, custom area cropping, image content editing."
+    triggers:
+      - 四宫格/九宫格/田字格拼接图要求拆分成单张
+      - 将一张图按宫格等分切割
+    prefer_over:
+      - tool: image-edit
+        when: 按宫格等分拆图，非任意裁切
+      - tool: image-cutout
+        when: 网格切割整张图，非分离前景主体
+    input:
+      - type: image
+        count: "1"
+        note: 标准宫格布局的拼接图
+    output:
+      type: image
+      note: 4张独立图片（四宫格模式）
+    params:
+      - name: sub_api
+        type: enum
+        values: [image_grid_split]
+        default: image_grid_split
+        selection_rule: |
+          默认 → image_grid_split (image_dividing_line_detect)
+          检测到分割线 → 按分割线拆分
+          未检测到分割线 → 按等分切割
+          失败 → 降级至 image-edit
+    constraints:
+      - 当前仅支持四宫格(2x2)
+      - 非宫格图片拆分结果可能不符合预期
+    not_for:
+      - 任意比例裁切 → image-edit
+      - 提取前景主体 → image-cutout
+    cli:
+      requiredKeys: [image_url]
+      optionalKeys: []
+      arrayKeys: []
+      commandAliases: [grid-split, image-split, 宫格拆分, 拆图]
+      inputAliases:
+        image: image_url
+        图片: image_url
+        图片url: image_url
+        图片链接: image_url
+
+
+  # ══════════════════════════════════════════
+  # ── 图片增强类 ────────────────────────────
+  # ══════════════════════════════════════════
+
+  - id: image-superres-enhance
+    name: 图片超清（分场景）
+    summary: 按内容类型（通用/商品/文档）自动选择最优超清算法，提升图片清晰度。
+    description: "Image clarity enhancement/super-resolution upscaling with auto algorithm selection by content type, covering general superres, e-commerce product superres, text/document superres. `image_url` and `prompt` (image content description, e.g. \"e-commerce white-background product\" or \"scanned text document\") required. Key distinction: \"make clearer/HD\" → this tool; \"enlarge 2/4/8x\" → geometric transform. Prohibited: denoising, color optimization, low-light enhancement, video superres, geometric scaling."
+    triggers:
+      - 变清晰/超清/高清修复/画质提升/超分
+      - 老照片修复/商品图超清/文档超清
+      - 扫描件变清晰/放大到4K/放大到2K/放大到1080P
+    prefer_over:
+      - tool: image-transform
+        when: 目标是画质清晰度提升（分辨率目标）而非等比几何放大（2x/4x/8x）
+    input:
+      - type: image
+        count: "1"
+    output:
+      type: image
+      note: 更高清的图片
+    params:
+      - name: sub_api
+        type: enum
+        values: [image_superres_enhance, image_superres_enhance_product, image_superres_enhance_document]
+        default: image_superres_enhance
+        selection_rule: |
+          电商商品图 → image_superres_enhance_product (api_v1_dlbeautygoodsimagesr_async)
+          文字文档/扫描件 → image_superres_enhance_document (api_v1_dlbeautytextimagesr_async)
+          其他/未指定 → image_superres_enhance (api_v2_image_restoration_async)（默认）
+          失败 → 重试1次 → 降级至 image_superres_enhance (api_v2_image_restoration_async) → 仍失败降级至 image-edit
+    not_for:
+      - 去噪 → image-denoise-enhance
+      - 色彩调优 → 当前版本暂未开放专用 CLI 命令
+      - 暗部增强 → image-lowlight-enhance
+      - 等比倍数放大（2x/4x/8x） → image-transform
+      - 视频超分 → video-resolution-upscale
+    cli:
+      requiredKeys: [image_url, prompt]
+      optionalKeys: []
+      arrayKeys: []
+      commandAliases: [superres, image-superres, 超清, 图片超清分场景, 高清修复]
+      inputAliases:
+        image: image_url
+        图片: image_url
+        图片url: image_url
+        图片链接: image_url
+        提示词: prompt
+        描述: prompt
+        内容描述: prompt
+
+
+  - id: image-lowlight-enhance
+    name: 图片暗部增强
+    summary: 暗光/夜景/曝光不足图片的智能亮度提升与暗部细节恢复。
+    description: "Intelligent brightening and shadow detail recovery for low-light/night/underexposed images. `image_url` required, no `prompt` needed. Normal-exposure images may appear too bright after processing. Prohibited: color adjustment/grading, superres/quality repair, denoising, video low-light enhancement, local brightening."
+    triggers:
+      - 图片太暗/夜景提亮/暗部增强/低照度优化
+      - 曝光不足/黑乎乎的图/暗光修复
+      - 提亮/太黑了/夜拍修复/逆光修复
+    input:
+      - type: image
+        count: "1"
+    output:
+      type: image
+    not_for:
+      - 色彩风格调整/调色 → 当前版本暂未开放专用 CLI 命令
+      - 超清/画质修复 → image-superres-enhance
+      - 去噪专项处理 → image-denoise-enhance
+      - 视频暗部增强 → video-lowlight-enhance
+    cli:
+      requiredKeys: [image_url]
+      optionalKeys: []
+      arrayKeys: []
+      commandAliases: [lowlight, image-lowlight, 暗部增强, 图片暗部增强, 提亮]
+      inputAliases:
+        image: image_url
+        图片: image_url
+        图片url: image_url
+        图片链接: image_url
+
+
+  - id: image-denoise-enhance
+    name: 图片去噪
+    summary: 去除图片颗粒感/噪点/杂色，保留图像细节同时降噪。
+    description: "Removes image grain/noise/color artifacts while preserving detail. `image_url` required, no `prompt` needed. Can be called on images without obvious noise but effect may be minimal. Prohibited: superres/quality repair, color adjustment, low-light brightening, video denoising, local denoising."
+    triggers:
+      - 去噪/降噪/去颗粒/去噪点
+      - 杂色/颗粒感/噪声/画面脏
+      - ISO太高/降低噪点/杂讯
+    input:
+      - type: image
+        count: "1"
+    output:
+      type: image
+    not_for:
+      - 超清/画质修复 → image-superres-enhance
+      - 色彩调整/调色 → 当前版本暂未开放专用 CLI 命令
+      - 暗部提亮/夜景增亮 → image-lowlight-enhance
+      - 视频降噪 → video-denoise-enhance
+    cli:
+      requiredKeys: [image_url]
+      optionalKeys: []
+      arrayKeys: []
+      commandAliases: [denoise, image-denoise, 去噪, 图片去噪, 降噪]
+      inputAliases:
+        image: image_url
+        图片: image_url
+        图片url: image_url
+        图片链接: image_url
+
+
+  - id: image-transform
+    name: 图片变换
+    summary: 图片几何变换（旋转/翻转/等比放大/缩小/画布扩展），不改变图片内容。
+    description: "Image geometric transformation (no content changes), covering rotation/flip (-180°~180°), proportional upscale (2/4/8x), lossless proportional downscale, canvas expansion/outpainting (AI smart fill, can expand portrait-to-landscape or reverse, defaults to 3:4 ratio when unspecified). `image_url` required, per-scenario parameters as needed. Downscale target larger than original auto-converts to upscale, equal returns original; outpaint target smaller than original rejected. Key distinction: \"enlarge Nx/shrink to 800w\" → this tool; \"make clearer/HD/upscale to 4K\" → superres. Prohibited: GIF input, resolution-target superres, superres/quality repair, local rotation, image content editing, video canvas expansion, image cropping."
+    triggers:
+      - 旋转/顺时针/逆时针/翻转/镜像/转正/倒过来
+      - 放大2倍/放大4倍/放大8倍/等比放大
+      - 缩小到xxx/无损缩小/压缩尺寸
+      - 扩图/扩大画布/改成16:9/竖版改横版/横版改竖版/outpaint/外延
+    input:
+      - type: image
+        count: "1"
+      - type: text
+        count: "0..1"
+        note: 扩展区域内容描述（画布扩展时可选）
+    output:
+      type: image
+    params:
+      - name: sub_api
+        type: enum
+        values: [image_transform_rotate, image_transform_upscale, image_transform_downscale, image_transform_extend]
+        selection_rule: |
+          旋转/翻转 → image_transform_rotate (api_v1_layer_flow_edit_rotate)
+          等比放大（2x/4x/8x）→ image_transform_upscale (image_upscale_equal_proportion_edit)
+          缩小 → image_transform_downscale (image_dldownscaling_edit)（目标大于原图时自动切换 upscale）
+          扩图/改比例/outpaint → image_transform_extend (image_extension_layer_flow_filter)
+    constraints:
+      - 不支持 GIF 输入
+      - rotate 范围 -180~180
+      - sr_num 取值 2/4/8，非法值取最近合法值（3→2, 6→8）
+      - canvas_extend 目标需大于原图，未指定尺寸/比例时默认 3:4
+      - downscale 目标=原图 → 直接返回原图
+    not_for:
+      - GIF 动图输入 → 不支持
+      - 超清画质提升 → image-superres-enhance
+      - 放大到4K/2K/1080P（分辨率目标）→ image-superres-enhance
+      - 修改图片内容 → image-edit
+      - 视频画布扩展 → video-canvas-expand
+    cli:
+      requiredKeys: [image_url]
+      optionalKeys: [rotate, flip_x, flip_y, sr_num, target_width, target_height, width, height, prompt]
+      arrayKeys: []
+      commandAliases: [transform, 图片变换, 旋转, 翻转, 镜像, 扩图, 等比放大]
+      inputAliases:
+        image: image_url
+        图片: image_url
+        图片url: image_url
+        图片链接: image_url
+        旋转角度: rotate
+        角度: rotate
+        水平翻转: flip_x
+        垂直翻转: flip_y
+        上下翻转: flip_y
+        放大倍数: sr_num
+        倍数: sr_num
+        目标宽度: target_width
+        目标高度: target_height
+        宽: width
+        宽度: width
+        高: height
+        高度: height
+        提示词: prompt
+        描述: prompt
+
+
+  # ══════════════════════════════════════════
+  # ── 文本/代码类 ────────────────────────────
+  # ══════════════════════════════════════════
+
+  - id: text-code
+    name: 代码生成
+    summary: 从零生成React/TSX页面代码，支持素材参考和prompt扩写。
+    description: "Generates React/TSX page code from scratch with material reference and prompt expansion support. `prompt` required; `model` (pretzel_pro/pretzel_lite, default `pretzel_pro`), `image_list`, `video_list`, `prompt_name` as needed. Prohibited: modifying existing source code, non-React/HTML frameworks, backend code, pixel-perfect design reproduction."
+    triggers:
+      - 生成一个网页/做个页面/界面设计
+      - 写个React页面/做个落地页/生成代码
+      - 做个活动页/写个前端页面/生成组件
+      - 做个数据可视化页面
+    input:
+      - type: text
+        count: "1"
+        note: 页面描述 prompt
+      - type: image
+        count: "0+"
+        note: 可选参考图片
+      - type: video
+        count: "0+"
+        note: 可选参考视频
+    output:
+      type: text
+      note: React/TSX 源码 + 预览链接
+    params:
+      - name: model
+        type: enum
+        values: [auto, pretzel_pro, pretzel_lite]
+        default: pretzel_pro
+        selection_rule: |
+          模型选择：默认 pretzel_pro，失败降级 pretzel_lite；非法值 → pretzel_pro
+    constraints:
+      - prompt < 10 字符且有 prompt_name 时自动扩写
+      - 模型回退链：pretzel_pro → pretzel_lite
+    not_for:
+      - 修改已有源码 → text-code-edit
+      - 非React/HTML框架 → 不支持
+      - 后端代码/Python/Java → 不支持
+    cli:
+      requiredKeys: [prompt]
+      optionalKeys: [model, image_list, video_list, prompt_name]
+      arrayKeys: [image_list, video_list]
+      commandAliases: [codegen, text-codegen, 代码生成, 生成代码, 做页面]
+      inputAliases:
+        提示词: prompt
+        描述: prompt
+        页面描述: prompt
+        模型: model
+        参考图: image_list
+        图片: image_list
+        参考视频: video_list
+        视频: video_list
+        模板: prompt_name
+      requestPaths:
+        video_list: video_urls
+
+
+  - id: text-code-edit
+    name: 代码编辑
+    summary: 对已有TSX/JSX源码进行编辑修改，支持多轮迭代和串联编辑。
+    description: "Edits existing React/TSX/JSX source code with multi-round iteration support. `prompt` and `source_code_url` (auto-takes most recent `code_url` from context when missing) required; `model` (pretzel_pro/pretzel_lite, default `pretzel_pro`) as needed. Prohibited: generating from scratch, non-React/HTML frameworks, backend code modification, pixel-perfect reproduction."
+    triggers:
+      - 改一下这个页面/修改代码/调整样式
+      - 换个颜色/加个按钮/删掉这个组件
+      - 改个布局/调整交互/优化页面
+      - 改一下刚才的代码
+    input:
+      - type: text
+        count: "1"
+        note: 修改描述 prompt
+      - type: text
+        count: "1"
+        note: .tsx/.jsx 源码URL（可从上下文自动提取）
+    output:
+      type: text
+      note: 修改后的 React/TSX 源码
+    params:
+      - name: model
+        type: enum
+        values: [auto, pretzel_pro, pretzel_lite]
+        default: pretzel_pro
+        selection_rule: |
+          模型选择：默认 pretzel_pro，失败降级 pretzel_lite
+    constraints:
+      - source_code_url 缺失时从上下文最近生成的 code_url 自动提取
+      - 模型回退链：pretzel_pro → pretzel_lite
+    not_for:
+      - 从零生成新页面 → text-code
+      - 非React/HTML框架 → 不支持
+      - 后端代码修改 → 不支持
+    cli:
+      requiredKeys: [prompt, source_code_url]
+      optionalKeys: [model, image_list, video_list, prompt_name]
+      arrayKeys: [image_list, video_list]
+      commandAliases: [codeedit, text-codeedit, 代码编辑, 修改代码, 改代码]
+      inputAliases:
+        提示词: prompt
+        描述: prompt
+        修改描述: prompt
+        修改内容: prompt
+        源码: source_code_url
+        源码链接: source_code_url
+        代码链接: source_code_url
+        代码url: source_code_url
+        模型: model
+        参考图: image_list
+        参考视频: video_list
+        模板: prompt_name
+      requestPaths:
+        video_list: video_urls
+
+
+  - id: text-generate
+    name: 文本生成
+    summary: 通用文案生成、文本创作与润色、多语言文案、多模态参考文案生成、分镜脚本/故事板描述生成、视频提示词润色。
+    description: "General copywriting generation/creation/polishing, covering marketing copy, product descriptions, social media copy, video storyboard planning, video prompt optimization, etc. `summary` and `language` required; `image_list`/`video_list` as needed. `model` (scone/pretzel_pro): pass `pretzel_pro` for complex scenarios (video input, long context, complex reasoning, professional domains); omit or pass `auto` for daily scenarios. Prohibited: video/image/audio/code generation, table output."
+    triggers:
+      - 写文案/帮我写/文案/文本生成/写作/润色/改写
+      - 广告语/产品描述/营销文案/社交媒体文案/朋友圈文案/小红书文案
+      - 标题/口号/slogan/文章/博客/内容创作
+      - 分镜/故事板/storyboard/提示词润色/镜头脚本/视频分镜描述
+    input:
+      - type: text
+        count: "1"
+        note: 文案/分镜需求描述（summary）
+      - type: image
+        count: "0+"
+        note: 可选参考图片 URL 数组
+      - type: video
+        count: "0+"
+        note: 可选参考视频 URL 数组
+    output:
+      type: text
+      note: 文案/分镜脚本文本
+    params:
+      - name: model
+        type: enum
+        values: [auto, scone, pretzel_pro]
+        default: auto
+        selection_rule: |
+          语言模型选择：
+          model=pretzel_pro 或有视频输入/长上下文(>2000字)/复杂推理/专业领域 → pretzel_pro (gemini-3.1-pro-preview)
+          model=scone 或 auto/不传/日常场景 → scone (qwen3.6-vl-plus)
+          调用失败 → 切换另一模型重试
+      - name: sub_api
+        type: enum
+        values: [text_generate]
+        default: text_generate
+        selection_rule: |
+          唯一 API；模型由 model 参数路由（见 model 参数 selection_rule）
+    not_for:
+      - 直接生成视频 → text-to-video
+      - 图片生成 → text-to-image
+      - 代码生成 → text-code
+      - 音频/配乐生成 → audio-music-generate / audio-song-generate
+    cli:
+      requiredKeys: [summary, language]
+      optionalKeys: [model, prompt_name, image_list, video_list, output_file]
+      arrayKeys: [image_list, video_list]
+      commandAliases: [text-generate, 文本生成, 文案, 写文案, 分镜, 故事板, storyboard]
+      inputAliases:
+        文案需求: summary
+        需求: summary
+        需求描述: summary
+        描述: summary
+        提示词: summary
+        场景: summary
+        主题: summary
+        脚本: summary
+        语言: language
+        输出语言: language
+        模型: model
+        图片: image_list
+        参考图: image_list
+        视频: video_list
+        参考视频: video_list
+        模板: prompt_name
+        输出文件: output_file
+
+
+  # ══════════════════════════════════════════
+  # ── 视频生成类 ────────────────────────────
+  # ══════════════════════════════════════════
+
+  - id: video-motion-transfer
+    name: 视频动作迁移
+    summary: 将参考视频中的人物动作迁移到目标人物/角色上，驱动目标执行相同动作。
+    description: "Transfers motion poses from reference video onto image person while preserving appearance. `image_list` (1 person image), `reference_video_list` (1 video, ≤15s), and `prompt` required; `video_duration` (3–15s, default `5`), `aspect_ratio` optional. Requires both person image and motion video with action-mimicking intent. Prohibited: text-only video generation, camera/style reference from video, face/character swap, video content editing."
+    triggers:
+      - 用户提供动作参考视频，要求目标人物/角色模仿该动作
+      - 用户要求"动作迁移"、"动作驱动"、"动作复刻"
+    prefer_over:
+      - tool: image-to-video
+        when: 核心需求是复刻特定动作，而非从图片生成视频或对口型
+    input:
+      - type: image
+        count: "1"
+        note: 人物参考图 URL
+      - type: video
+        count: "1"
+        note: 动作参考视频 URL（<=15s）
+      - type: text
+        count: "1"
+        note: 动作/场景描述 prompt
+    output:
+      type: video
+    params:
+      - name: sub_api
+        type: enum
+        values: [video_motion_transfer]
+        default: video_motion_transfer
+        selection_rule: |
+          默认 → video_motion_transfer (video_bonbon_motioncontrol_v26)
+          必须同时提供图片+视频且意图为模仿动作
+    constraints:
+      - 参考视频时长 ≤ 15 秒（超出钳位至15s）
+      - 必须同时提供图片和视频
+      - 参考视频中需有明显人体动作
+    not_for:
+      - 人物说话/对口型 → image-to-video
+      - 纯文字生成视频 → text-to-video
+      - 运镜/风格参考 → video-multimodal-generate
+    cli:
+      requiredKeys: [image_list, reference_video_list, prompt]
+      optionalKeys: [video_duration, aspect_ratio]
+      arrayKeys: [image_list, reference_video_list]
+      commandAliases: [motion-transfer, video-motion, 视频动作迁移, 动作迁移]
+      inputAliases:
+        image: image_list
+        image_url: image_list
+        图片: image_list
+        图片url: image_list
+        图片链接: image_list
+        video: reference_video_list
+        video_url: reference_video_list
+        视频: reference_video_list
+        视频url: reference_video_list
+        视频链接: reference_video_list
+        提示词: prompt
+        描述: prompt
+        时长: video_duration
+        比例: aspect_ratio
+        画幅: aspect_ratio
+
+
+  - id: image-to-video
+    name: 图生视频
+    summary: 基于图片生成高保真视频，支持超大动作幅度与精细运镜，具备极强的人物动态一致性与物理规律模拟。
+    description: "Generates dynamic videos driven by images, covering single-image generation, multi-image reference fusion (1–9 images), first-last frame transition (1–2 images). `image_list` (1–9) and `prompt` required; `mode` (auto/i2v/mi2v/flf, default `auto`; mode takes priority when mode and model conflict), `model` (auto/toffee/bonbon, default `auto`), `video_duration` (4–15, default 5), `sound` (off/on, default `off`), `aspect_ratio` (default `adaptive`), `multi_shot` (default true) optional. Single image defaults to toffee with bonbon fallback (`aspect_ratio` params silently dropped on fallback); single-image reference intent routes to multi-image fusion; two images default to first-last frame. Other parameters (shot_type / resolution / reference_video_list / reference_audio_list, etc.) are managed internally by the combo-tool and not exposed externally. Prohibited: text-only video generation, motion transfer, audio-driven generation, video editing/modification, applying effects to video, image count >9."
+    triggers:
+      - 用户提供图片 + 要求人物说话、唱歌、对口型
+      - 用户提供图片 + 要求声音与画面原生同步
+      - 用户提供图片 + 要求进行复杂的肢体动作（如奔跑、跳舞、大幅度转身等）
+      - 用户提供图片 + 要求中高动态画面与明显的运镜控制
+      - 用户提供图片 + 需要视频时长达 5-10 秒的长序列生成
+    prefer_over:
+      - tool: text-to-video
+        when: 用户已有明确的视觉主体（图片），且希望视频核心需求是对口型、语言表演
+      - tool: video-motion-transfer
+        when: 追求创作的自由度，而非严格限定在某个参考视频的动作轨迹内
+    input:
+      - type: image
+        count: "1..9"
+        note: 输入图片URL列表（1-9张）
+      - type: text
+        count: "1"
+        note: 视频描述 prompt
+    output:
+      type: video
+      note: 默认含原生音轨（sound 默认 on）
+    params:
+      - name: mode
+        type: enum
+        values: [auto, i2v, mi2v, flf]
+        default: auto
+        selection_rule: |
+          显式指定 mode 时优先级高于图片数量/意图推断，直接走对应路径：
+          mode=i2v → image_to_video (video_toffee_i2v_v20)，失败兜底 image_to_video_adv (video_bonbon_img2vid_v30)
+          mode=mi2v → image_to_video_multi (video_toffee_mi2v_v20)
+          mode=flf → image_to_video_frames (video_toffee_flf_v20)
+          mode=auto 或不传 → 按图片数量+意图自动决策（见 sub_api selection_rule）
+          mode 与 model 同时指定且冲突时，mode 优先
+      - name: model
+        type: enum
+        values: [auto, toffee, bonbon]
+        default: auto
+        selection_rule: |
+          底层模型选择：
+          model=toffee → 走 toffee 系列 API（video_toffee_i2v_v20 / video_toffee_mi2v_v20 / video_toffee_flf_v20）
+          model=bonbon → 走 video_bonbon_img2vid_v30
+          model=auto 或不传 → 按路由规则自动决策
+          与 mode 冲突时 mode 优先
+      - name: sub_api
+        type: enum
+        values: [image_to_video, image_to_video_adv, image_to_video_multi, image_to_video_frames]
+        default: image_to_video
+        selection_rule: |
+          mode 显式指定时直接走对应路径（见 mode 参数）
+          mode=auto 时按图片数量+意图决策：
+          1张图：参考元素/角色/风格 → image_to_video_multi (video_toffee_mi2v_v20)；其他默认 → image_to_video (video_toffee_i2v_v20)，失败兜底 image_to_video_adv (video_bonbon_img2vid_v30)
+          2张图：默认走 image_to_video_frames (首尾帧过渡)；用户直接说了要融合/参考时才走 image_to_video_multi (video_toffee_mi2v_v20)
+          3-9张图 → image_to_video_multi (video_toffee_mi2v_v20)
+          >9张图 → 超出本工具上限
+          0张图 → 转 text-to-video
+    constraints:
+      - combo-tool 对外 sound 默认 off（用户传 on 才开音频）；底层 toffee 通过 generate_audio=BOOL 落库，bonbon 通过 sound=STRING 落库
+      - combo-tool 对外 video_duration 默认 5（与 bonbon 一致）；toffee 内部默认 10
+      - aspect_ratio 仅 toffee 系列（i2v/mi2v/flf）支持；bonbon 兜底时静默丢弃
+      - multi_shot 仅 bonbon 内部生效，对所有路径暴露但 toffee 系列静默忽略
+      - shot_type / resolution / reference_video_list / reference_audio_list 由 combo-tool 内部管理，不对外暴露
+    not_for:
+      - 无首帧图片 → text-to-video
+      - 仅需复刻特定参考动作 → video-motion-transfer
+      - 有音频输入 → video-multimodal-generate
+    cli:
+      requiredKeys: [prompt, image_list]
+      optionalKeys: [mode, model, aspect_ratio, video_duration, sound, multi_shot]
+      arrayKeys: [image_list]
+      commandAliases: [video-i2v, 图生视频, i2v]
+      inputAliases:
+        image: image_list
+        image_url: image_list
+        图片: image_list
+        图片url: image_list
+        图片链接: image_list
+        提示词: prompt
+        描述: prompt
+        时长: video_duration
+        比例: aspect_ratio
+        画幅: aspect_ratio
+        宽高比: aspect_ratio
+        音频: sound
+        音效: sound
+        多镜头: multi_shot
+        模型: model
+        模式: mode
+
+
+  - id: text-to-video
+    name: 文生视频
+    summary: 纯文字驱动，生成电影氛围感强、运镜丰富的视频片段，可含环境音。
+    description: "Generates dynamic videos from pure text, covering high-quality default mode (4–15s, all ratios, 480p/720p, audio default on) and high-dynamic fast mode (3–15s, 16:9/1:1/9:16 only, 720p, audio default off). `prompt` required; `video_duration`, `sound`, `aspect_ratio`, `resolution` as needed. Prohibited: image-driven video generation, audio-driven generation, video editing, applying effects/style changes to video."
+    triggers:
+      - 用户无首帧图片，用文字描述期望的视频画面
+      - 用户强调氛围感、电影感、运镜美感、音乐节奏感
+      - 需求是情绪/展示片段，非完整叙事成片
+    prefer_over:
+      - tool: image-to-video
+        when: 用户未提供首帧图片，且不需要对口型/语音同步
+    input:
+      - type: text
+        count: "1"
+        note: 视频描述 prompt
+    output:
+      type: video
+      note: 可含环境音/氛围音
+    params:
+      - name: sub_api
+        type: enum
+        values: [text_to_video, text_to_video_fast]
+        default: text_to_video
+        selection_rule: |
+          默认（画质优先）→ text_to_video (video_toffee_t2v_v20)
+          切换至 text_to_video_fast (video_bonbon_txt2vid_v30) 条件：
+            - 用户明确追求动态效果/画面生动
+            - 用户指定"豆包"模型
+            - 需要 3s 短时长（toffee 最短 4s）
+          ⚠️ 特殊比例(4:3/3:4/21:9/adaptive)和 480p 分辨率需留在默认 text_to_video (toffee)，bonbon 不支持
+    constraints:
+      - text_to_video 时长 4-15s，默认 10s；比例支持 adaptive/16:9/4:3/1:1/3:4/9:16/21:9；分辨率 480p/720p；音频默认 on
+      - text_to_video_fast 时长 3-15s，默认 5s；仅支持 16:9/1:1/9:16；仅 720p；音频默认 off
+    not_for:
+      - 用户已提供首帧图片 → image-to-video
+      - 需对白口播准确 → image-to-video
+      - 需所有元素逐条落地或完整广告成片
+    cli:
+      requiredKeys: [prompt]
+      optionalKeys: [video_duration, sound, aspect_ratio, resolution]
+      arrayKeys: []
+      commandAliases: [video-t2v, 文生视频, t2v]
+      inputAliases:
+        提示词: prompt
+        描述: prompt
+        时长: video_duration
+        音效: sound
+        音频: sound
+        比例: aspect_ratio
+        画幅: aspect_ratio
+        分辨率: resolution
+
+
+  - id: video-multimodal-generate
+    name: 多模态视频
+    summary: 支持音频/视频/图片/文字任意组合的多模态混合驱动生成视频。
+    description: "Multimodal mixed-driven video generation combining any of audio/video/image/text, suited for music-to-video, camera movement/rhythm reference from video, multi-material mixed generation. `prompt` required; `image_list` (≤9) / `reference_video_list` (≤3, total ≤15s) / `reference_audio_list` (≤3, total ≤15s) at least one multimedia type required (total ≤12); `video_duration` (default `-1` smart), `sound`, `ratio`, `resolution` optional. Prohibited: text-only video generation, image-only video generation (without video or audio), motion transfer."
+    triggers:
+      - 配合这段音乐/根据音频生成/音频驱动视频
+      - 参考这个视频的运镜/模仿运镜/运镜风格参考
+      - 结合这些素材生成/综合生成/多素材生成视频
+      - 参考节奏/按照这个节奏/节奏同步
+    prefer_over:
+      - tool: image-to-video
+        when: 有音频输入，或仅有视频参考无图片，或素材超过4张图片
+      - tool: text-to-video
+        when: 有任何多媒体素材输入（非纯文字）
+    input:
+      - type: text
+        count: "1"
+        note: 视频描述 prompt
+      - type: image
+        count: "0..9"
+        note: 可选参考图片
+      - type: video
+        count: "0..3"
+        note: 可选参考视频，总时长<=15s
+      - type: audio
+        count: "0..3"
+        note: 可选音频驱动，总时长<=15s
+    output:
+      type: video
+    constraints:
+      - 素材总数（图片+视频+音频）合计<=12
+      - 至少提供一类多媒体素材（否则转 text-to-video）
+    not_for:
+      - 纯文字生成视频 → text-to-video
+      - 仅图片1-9张生成视频 → image-to-video
+      - 动作迁移 → video-motion-transfer
+      - 已有视频加特效/改风格 → video-effect-apply
+    cli:
+      requiredKeys: [prompt, video_duration, ratio]
+      optionalKeys: [image_list, reference_video_list, reference_audio_list, sound, resolution]
+      arrayKeys: [image_list, reference_video_list, reference_audio_list]
+      commandAliases: [multimodal, video-multimodal, 多模态视频, 音频驱动视频]
+      inputAliases:
+        提示词: prompt
+        描述: prompt
+        图片: image_list
+        参考图: image_list
+        参考视频: reference_video_list
+        视频: reference_video_list
+        运镜参考: reference_video_list
+        音频: reference_audio_list
+        音乐: reference_audio_list
+        时长: video_duration
+        音效: sound
+        比例: ratio
+        画幅: ratio
+        分辨率: resolution
+      requestPaths:
+        sound: generate_audio
+        reference_video_list: reference_video_urls
+        reference_audio_list: reference_audio_urls
+
+
+  - id: video-effect-apply
+    name: 视频创意生成
+    summary: 对已有视频或图片施加创意处理，3 类场景：预设特效（视频）/ AI 创意（图片）/ 长视频转绘，含 2 个内部兜底通道。
+    description: "Applies creative effects to existing videos or images, covering preset style effects (video input), AI creative effects (image input only), long-video style redrawing (anime/pixel/clay etc.). `prompt` required; `video_url` or `image_url` per scenario. `effect_id` auto-matched internally based on `prompt`, not an external parameter. Prohibited: video content replacement, video element removal, video quality repair, video canvas expansion, text-only video generation, video stitching."
+    triggers:
+      - 视频特效/用这个效果/创意玩法/预设风格/加特效
+      - AI特效/AI视频创意/AI创意视频
+      - 风格转绘/变成动漫风格/像素风格视频/黏土风格视频
+    input:
+      - type: video
+        count: "0..1"
+        note: 原视频 URL（预设特效和长视频转绘场景必填）
+      - type: image
+        count: "0..1"
+        note: 图片 URL（AI 创意效果场景必填，无需视频）
+      - type: text
+        count: "0..1"
+        note: prompt（Agent 对所需特效/风格的描述）
+    output:
+      type: video
+    params:
+      - name: model
+        type: enum
+        values: [auto, molasses, bonbon]
+        default: auto
+        selection_rule: |
+          combo-tool 对外暴露的模型选择字段：
+          auto（默认）按本卡片路由规则决策（按输入类型 + prompt 信号词分发）
+          molasses 显式指定走 video_molasses_edit（视频输入兜底）
+          bonbon 显式指定走 video_bonbon_img2vid_v30（图片输入兜底）
+      - name: sub_api
+        type: enum
+        values: [formula_group_v2v_creative, formula_group_video_creative, aiflow_long_video_redrawn, video_molasses_edit, video_bonbon_img2vid_v30]
+        selection_rule: |
+          【路由铁律】仅图片输入无视频时强制走 formula_group_video_creative；不命中预设 effect_id → 兜底 video_bonbon_img2vid_v30
+          视频输入 + 命中预设 effect_id → formula_group_v2v_creative（默认入口）
+          视频输入 + 不命中预设 + prompt 命中"动漫/像素/黏土/长视频转绘" → aiflow_long_video_redrawn
+          视频输入 + 不命中预设 + 通用特效 → 兜底 video_molasses_edit
+          effect_id 不作为外部入参，由工具内部按 prompt 自动检索
+    not_for:
+      - 视频内容替换 → video-content-replace
+      - 视频消除 → video-element-remove
+      - 视频画质修复 → video-quality-enhance
+      - 视频画布扩展 → video-canvas-expand
+      - 视频拼接 → video-stitch
+      - 纯文字/图片生成视频 → text-to-video / image-to-video
+    cli:
+      requiredKeys: [prompt]
+      optionalKeys: [video_url, image_url, model]
+      arrayKeys: []
+      commandAliases: [video-effect, video-generate, 视频特效, 视频创意生成, 风格转绘]
+      inputAliases:
+        视频: video_url
+        视频url: video_url
+        视频链接: video_url
+        图片: image_url
+        参考图: image_url
+        人物图: image_url
+        提示词: prompt
+        描述: prompt
+        模型: model
+
+
+  # ══════════════════════════════════════════
+  # ── 视频编辑类 ────────────────────────────
+  # ══════════════════════════════════════════
+
+  - id: video-content-replace
+    name: 视频内容替换
+    summary: 基于文本指令或参考图片，替换/修改视频中的人物、场景、服装等内容元素，保留原始运镜和动作。
+    description: "Replaces content elements in videos (characters/scenes/clothing) while preserving original camera work and motion, supporting text-driven and reference-image-driven modes. `video_url` and `prompt` required; `image_url` optional, prioritizes reference-image mode when present. Prohibited: video generation, watermark/subtitle removal, video style transformation, audio modification, video stitching."
+    triggers:
+      - 视频替换/视频修改/改视频内容/替换视频元素
+      - 把视频里的xx改成/把视频背景换成
+      - 参考图替换/用这张图替换视频
+    input:
+      - type: video
+        count: "1"
+        note: 原视频。参考图模式下须满足：mp4/mov 格式、≤100MB、边长 340-3850px、时长 3-30s、一镜到底、1 人清晰全身
+      - type: text
+        count: "1"
+        note: 修改描述 prompt
+      - type: image
+        count: "0..1"
+        note: 可选参考图（有参考图路由到 content_refimg）
+    output:
+      type: video
+    params:
+      - name: sub_api
+        type: enum
+        values: [video_content_replace_instruct, video_content_replace_refimg]
+        selection_rule: |
+          无参考图 → video_content_replace_instruct (video_molasses_edit)（文本指令修改）
+          有参考图 → video_content_replace_refimg (video_molasses_vidimgs2vid)（参考图替换），image_url 不可访问时降级到 instruct
+      - name: model
+        type: enum
+        values: [auto, molasses]
+        default: auto
+        selection_rule: |
+          combo-tool 对外暴露的模型选择字段：
+          auto（默认）按本卡片路由规则决策（按 image_url 是否存在分支到 instruct/refimg）
+          molasses 显式指定走 video_molasses_edit / video_molasses_vidimgs2vid（仍按 image_url 分支）
+    constraints:
+      - video_content_replace_refimg 模式下原视频须满足：mp4/mov、≤100MB、边长 340-3850px、时长 3-30s
+      - 返回错误含 "Video duration can not longer than" 时应识别为参考视频时长超限（非生成时长），提示用户裁剪视频而非重试
+    not_for:
+      - 去水印/字幕 → video-element-remove
+      - 视频风格转换 → video-effect-apply
+      - 从零生成视频 → image-to-video
+      - 给视频换配乐 → video-audio-add
+    cli:
+      requiredKeys: [video_url, prompt]
+      optionalKeys: [image_url, model]
+      arrayKeys: []
+      commandAliases: [video-content-replace, video-replace, 视频替换, 视频内容替换, 视频修改]
+      inputAliases:
+        视频: video_url
+        视频url: video_url
+        视频链接: video_url
+        提示词: prompt
+        描述: prompt
+        修改内容: prompt
+        修改描述: prompt
+        参考图: image_url
+        图片: image_url
+        模型: model
+
+
+  - id: video-element-remove
+    name: 视频消除
+    summary: 消除视频中的路人/字幕/水印/全部文字，支持多类型组合消除。
+    description: "Removes pedestrians/subtitles/watermarks/logos from videos, supports one-click clear-all. `video_url` and `prompt` required. Subtitle and watermark removal can run in parallel; clear-all is mutually exclusive with subtitle/watermark (clear-all includes both); clear-all requires secondary confirmation. Prohibited: adding logos/watermarks, video content replacement, image watermark removal, video quality enhancement."
+    triggers:
+      - 去路人/去行人/消除行人
+      - 去字幕/去台词字幕
+      - 去水印/去角标/去Logo/消除平台标
+      - 清屏/所有文字/全部字/纯净画面
+    input:
+      - type: video
+        count: "1"
+    output:
+      type: video
+    params:
+      - name: sub_api
+        type: enum
+        values: [video_element_remove_people, video_element_remove_subtitle, video_element_remove_watermark, video_element_remove_alltext]
+        selection_rule: |
+          路人/行人 → video_element_remove_people (video_content_remove)
+          字幕（随时间变化）→ video_element_remove_subtitle (video_subtitle_remove)
+          水印/Logo/角标（固定位置）→ video_element_remove_watermark (video_watermark_remove)
+          一键清屏（所有文字）→ video_element_remove_alltext (video_allwords_remove)（强制二次确认）
+          字幕+水印可同时调用；alltext 与其他互斥
+    constraints:
+      - video_element_remove_alltext 执行前必须获得用户二次确认
+      - subtitle_remove 与 video_element_remove_watermark 可同时调用
+    not_for:
+      - 添加Logo/水印 → video-logo-add
+      - 视频内容替换 → video-content-replace
+      - 图片去水印 → image-element-remove
+    cli:
+      requiredKeys: [video_url, prompt]
+      optionalKeys: []
+      arrayKeys: []
+      commandAliases: [video-element-remove, video-remove, 视频消除, 视频去水印, 视频去字幕, 视频去路人]
+      inputAliases:
+        视频: video_url
+        视频url: video_url
+        视频链接: video_url
+        提示词: prompt
+        描述: prompt
+        画面描述: prompt
+
+
+  - id: video-canvas-expand
+    name: 视频扩展
+    summary: 将视频画面按方向 outpainting 扩展，AI 智能补全扩展区域，由 prompt 指引补全内容、expand_ratio 控制扩展幅度、directions 指定扩展方向。
+    description: "Expands video frames outward (outpainting) with AI-filled extended areas. `video_url` and `prompt` required; `expand_ratio` (0~0.5, default 0.3) controls expansion magnitude per side; `directions` (any combo of left/right/up/down, default `left,right,up,down`) controls which sides to expand. Prohibited: video content editing, video duration extension, video cropping/shrinking, image expansion."
+    triggers:
+      - 扩展视频/视频扩图/扩展画面/视频outpainting
+      - 把画面往左/右/上/下扩
+      - 给视频补画面/扩出更多背景
+      - 视频画布扩展/让视频画面更宽
+    input:
+      - type: video
+        count: "1"
+      - type: text
+        count: "1"
+        note: prompt 描述扩展区域要补什么内容
+    output:
+      type: video
+    params:
+      - name: expand_ratio
+        type: string
+        range: "0 ~ 0.5"
+        default: "0.3"
+        selection_rule: |
+          每条边扩展比例（占原边长的比值），值在 0~0.5 之间。默认 0.3。值越大扩展面积越大、AI 补全难度越高
+      - name: directions
+        type: string
+        values: [left, right, up, down]
+        default: "left,right,up,down"
+        selection_rule: |
+          扩展方向，可选 left/right/up/down 任意组合（逗号分隔）。默认四方向全扩。
+          单方向：如 "right"
+          双方向：如 "left,right" / "up,down"
+          四方向：默认 "left,right,up,down"
+    constraints:
+      - 仅扩展画面不延长时长
+      - 不支持裁剪/缩小
+      - expand_ratio 越界（>0.5）→ 截断至 0.5
+      - directions 含非法值 → 回退至默认四方向
+    not_for:
+      - 图片扩展 → image-transform (canvas_extend)
+      - 视频内容编辑 → video-content-replace
+      - 视频裁剪/缩小 → 不支持
+    cli:
+      requiredKeys: [video_url, prompt]
+      optionalKeys: [expand_ratio, directions]
+      arrayKeys: []
+      commandAliases: [video-canvas-expand, video-expand, 视频扩展, 视频扩图, 视频画布扩展]
+      inputAliases:
+        视频: video_url
+        视频url: video_url
+        视频链接: video_url
+        提示词: prompt
+        描述: prompt
+        补全描述: prompt
+        扩展比例: expand_ratio
+        扩展幅度: expand_ratio
+        ratio: expand_ratio
+        方向: directions
+        扩展方向: directions
+
+
+  - id: video-logo-add
+    name: 视频加Logo
+    summary: 为视频四角定位叠加Logo/水印图片，支持透明底PNG。
+    description: "Overlays logo/watermark images at video corners, supports transparent PNG. `video_url` and `logo_url` required; `position` (top-left/top-right/bottom-left/bottom-right, default `top-right`) optional. Prohibited: free positioning, removing watermarks, pure text watermarks, adding watermarks to images, video content replacement."
+    triggers:
+      - 加水印/加Logo/贴标/打Logo/加角标
+      - 合成水印/加图标/叠加Logo
+      - 视频贴牌/品牌标识
+    input:
+      - type: video
+        count: "1"
+      - type: image
+        count: "1"
+        note: Logo/水印图片URL，推荐透明底PNG
+    output:
+      type: video
+    constraints:
+      - 仅支持四角定位（top-left/top-right/bottom-left/bottom-right）
+      - 不支持纯文字水印，需图片形式Logo
+    not_for:
+      - 去除水印/Logo → video-element-remove
+      - 视频内容替换 → video-content-replace
+      - 给图片加水印 → 不支持
+    cli:
+      requiredKeys: [video_url, logo_url]
+      optionalKeys: [position]
+      arrayKeys: []
+      commandAliases: [video-logo-add, video-logo, 视频加logo, 加水印, 加角标]
+      inputAliases:
+        视频: video_url
+        视频url: video_url
+        视频链接: video_url
+        logo: logo_url
+        水印图: logo_url
+        logo图片: logo_url
+        图标: logo_url
+        logo图: logo_url
+        位置: position
+
+
+  # ══════════════════════════════════════════
+  # ── 视频增强类 ────────────────────────────
+  # ══════════════════════════════════════════
+
+  - id: video-quality-enhance
+    name: 视频画质修复
+    summary: 视频画质修复，去模糊+降噪+补帧+暗部提亮，自适配人像/演唱会/动漫/夜景/商品全场景，不处理分辨率。
+    description: "Comprehensive video quality repair (deblur/denoise/frame interpolation/shadow brightening), auto-adapting to portrait/concert/anime/night/product scenes. `video_url` and `prompt` (video content description) required; write \"general video\" when uncertain. Does not accept `target_resolution`, does not handle resolution/superres/upscale requests, does not process images."
+    triggers:
+      - 画质修复/全能修复/视频修复/整体修复
+      - 综合修复/一键修复/变清晰/画面模糊
+      - 老视频修复/画质提升/画质增强/去模糊
+    prefer_over:
+      - tool: video-resolution-upscale
+        when: 用户泛指画质修复而非明确指定分辨率提升（如"提升到4K"）
+      - tool: video-denoise-enhance
+        when: 用户说"变清晰"而非仅针对噪点
+      - tool: video-framerate-enhance
+        when: 用户说"变清晰"而非仅针对帧率
+    input:
+      - type: video
+        count: "1"
+      - type: text
+        count: "1"
+        note: Agent 对视频内容的描述（如"人像自拍视频""演唱会现场录像""动漫片段""夜景拍摄""商品展示视频"），辅助内部场景适配
+    output:
+      type: video
+    constraints:
+      - 多场景自动适配，无需手动选择场景类型
+      - 本工具不接收 target_resolution 参数，不处理任何分辨率提升/超分诉求
+    not_for:
+      - 明确分辨率提升（"提升到4K""超分""1080P/2K/4K"） → video-resolution-upscale
+      - 明确去噪（"去噪""颗粒感"） → video-denoise-enhance
+      - 明确暗部增强（"太暗""提亮"） → video-lowlight-enhance
+      - 明确补帧（"补帧""60fps"） → video-framerate-enhance
+      - 图片变清晰 → image-superres-enhance
+    cli:
+      requiredKeys: [video_url, prompt]
+      optionalKeys: []
+      arrayKeys: []
+      commandAliases: [video-quality-enhance, video-quality, video-hd-enhance, video-hd, 视频修复, 视频画质修复, 一键修复]
+      inputAliases:
+        视频: video_url
+        视频url: video_url
+        视频链接: video_url
+        提示词: prompt
+        描述: prompt
+        画面描述: prompt
+        内容描述: prompt
+
+
+  - id: video-resolution-upscale
+    name: 视频分辨率超分
+    summary: 专项视频分辨率超分，支持目标 720P/1080P/2K/4K，仅做像素级分辨率重建，不修复画质。
+    description: "Dedicated video resolution super-resolution targeting 720P/1080P/2K/4K, pixel-level reconstruction only without quality repair. `video_url` required; `target_resolution` must be explicitly provided by user (no default), must be higher than original resolution; when user doesn't specify exact value (e.g. \"resolution too low\", \"upscale\"), must ask for target resolution (720P/1080P/2K/4K). Does not handle quality repair without resolution intent, does not process image superres."
+    triggers:
+      - 超分/分辨率提升/提分辨率/拉高清/升清
+      - 提升到720P/1080P/2K/4K/超分辨率
+      - 分辨率不够/画面太小/放大变清晰
+    input:
+      - type: video
+        count: "1"
+    output:
+      type: video
+    constraints:
+      - target_resolution 必须由用户显式给出，无默认值
+      - 目标分辨率必须高于原视频，否则不调用并提示"目标分辨率需高于原视频"
+      - 非法值提示"目标分辨率仅支持 720P/1080P/2K/4K"
+    not_for:
+      - 泛指画质修复（无分辨率关键词） → video-quality-enhance
+      - 补帧/流畅度 → video-framerate-enhance
+      - 去噪 → video-denoise-enhance
+      - 夜景增强 → video-lowlight-enhance
+      - 图片超分 → image-superres-enhance
+    cli:
+      requiredKeys: [video_url, target_resolution]
+      optionalKeys: []
+      arrayKeys: []
+      commandAliases: [video-resolution-upscale, video-resolution, video-superres-enhance, video-superres, 视频超分, 视频分辨率提升, 提升分辨率]
+      inputAliases:
+        视频: video_url
+        视频url: video_url
+        视频链接: video_url
+        目标分辨率: target_resolution
+        分辨率: target_resolution
+        目标: target_resolution
+      mediaProfileMappings:
+        target_resolution:
+          mediaInput: video_url
+          profileKey: sr_mode
+          valueMap:
+            720p: 0
+            1080p: 1
+            2k: 2
+            4k: 3
+
+
+  - id: video-denoise-enhance
+    name: 视频去噪
+    summary: 去除视频颗粒感/色块/运动噪声，保留画面细节同时降噪。
+    description: "Removes video grain/color banding/motion noise. `video_url` required, no `prompt` needed. More severe noise yields more visible results; ineffective for non-noise issues. Prohibited: comprehensive quality repair, video superres, low-light brightening, image denoising, frame interpolation."
+    triggers:
+      - 去噪/降噪/去杂色/去颗粒/减少噪点
+      - 噪点很多/颗粒感太重/画面很脏
+      - 噪声/杂讯/ISO太高
+    input:
+      - type: video
+        count: "1"
+    output:
+      type: video
+    not_for:
+      - 综合画质修复 → video-quality-enhance
+      - 超分 → video-resolution-upscale
+      - 夜景暗部提亮 → video-lowlight-enhance
+      - 补帧/流畅度 → video-framerate-enhance
+      - 图片去噪 → image-denoise-enhance
+    cli:
+      requiredKeys: [video_url]
+      optionalKeys: []
+      arrayKeys: []
+      commandAliases: [video-denoise-enhance, video-denoise, 视频去噪, 视频降噪]
+      inputAliases:
+        视频: video_url
+        视频url: video_url
+        视频链接: video_url
+
+
+  - id: video-lowlight-enhance
+    name: 视频暗部增强
+    summary: 视频暗部细节恢复、暗光环境提亮、高光阴影平衡调整。
+    description: "Video shadow detail recovery / low-light brightening. `video_url` required, no `prompt` needed. Normal-lighting video may overexpose after processing. Prohibited: comprehensive quality repair, superres, denoising, image low-light enhancement, video color grading."
+    triggers:
+      - 夜景提升/暗光增强/低照度修复/夜晚提亮
+      - 视频太黑/晚上拍得太暗/暗部看不清
+      - 视频太暗/暗部增强/夜景视频/光线不足
+      - 提亮视频/黑乎乎的视频
+    input:
+      - type: video
+        count: "1"
+    output:
+      type: video
+    constraints:
+      - 仅适用于暗光/低照度环境视频，正常光照视频调用可能导致过曝
+    not_for:
+      - 综合画质修复 → video-quality-enhance
+      - 视频去噪 → video-denoise-enhance
+      - 超分辨率 → video-resolution-upscale
+      - 图片暗部增强 → image-lowlight-enhance
+      - 视频调色 → 不支持
+    cli:
+      requiredKeys: [video_url]
+      optionalKeys: []
+      arrayKeys: []
+      commandAliases: [video-lowlight-enhance, video-lowlight, 视频暗部增强, 视频提亮, 夜景增强]
+      inputAliases:
+        视频: video_url
+        视频url: video_url
+        视频链接: video_url
+
+
+  - id: video-framerate-enhance
+    name: 视频补帧
+    summary: 视频帧率提升/插帧，让低帧率视频运动更流畅，支持目标24/30/60fps。
+    description: "Video frame rate upscaling/interpolation (e.g. 24fps → 60fps). `video_url` required; `frame_rate` (24/30/60, default `60`) optional; illegal values clamped to nearest legal value. Not called when target framerate ≤ original. Prohibited: comprehensive quality repair, superres, denoising, speed change/duration change, editing/stitching."
+    triggers:
+      - 补帧/插帧/加帧/升帧率/提帧率
+      - 让视频更流畅/动作更顺/帧率提升
+      - 帧率不够/视频卡顿/提高帧率
+      - 60帧/120帧/流畅度
+    input:
+      - type: video
+        count: "1"
+    output:
+      type: video
+    constraints:
+      - 目标帧率 24/30/60，默认60，非法值钳位至最近合法值
+      - 目标帧率低于或等于原帧率时不调用
+      - 视频时长不变，仅帧率提升
+    not_for:
+      - 综合画质修复 → video-quality-enhance
+      - 超分辨率 → video-resolution-upscale
+      - 视频去噪 → video-denoise-enhance
+      - 变速/慢放 → 不支持
+    cli:
+      requiredKeys: [video_url]
+      optionalKeys: [frame_rate]
+      arrayKeys: []
+      commandAliases: [video-framerate-enhance, video-framerate, 视频补帧, 补帧, 插帧]
+      inputAliases:
+        视频: video_url
+        视频url: video_url
+        视频链接: video_url
+        帧率: frame_rate
+        目标帧率: frame_rate
+        fps: frame_rate
+
+
+  # ══════════════════════════════════════════
+  # ── 视频工具类 ────────────────────────────
+  # ══════════════════════════════════════════
+
+  - id: video-to-gif
+    name: 视频转GIF
+    summary: 将单个视频转换为GIF动图，支持透明底贴纸。
+    description: "Converts video to GIF, covering standard GIF (long edge ≤480px) and transparent-background GIF (240×240px); size not customizable. `video_url` and `prompt` required. Outputs transparent GIF when user requests transparent/sticker and video has solid/simple background. Prohibited: image-to-GIF, GIF-to-video, GIF editing, video stitching, video dubbing, video style transformation."
+    triggers:
+      - 用户要求将视频转为 GIF/动图
+      - 用户要求提取视频片段生成 GIF
+      - 做表情包/做贴纸/转动图
+    input:
+      - type: video
+        count: "1"
+    output:
+      type: gif
+      note: 等比例，长边最大480px
+    params:
+      - name: sub_api
+        type: enum
+        values: [video_to_gif, video_to_gif_transparent]
+        default: video_to_gif
+        selection_rule: |
+          普通GIF/微信表情包 → video_to_gif (api_video_to_gif)（等比例，长边<=480px）
+          透明底贴纸/浮动表情包 → video_to_gif_transparent (api_convert_video_to_gif)（固定240x240px）
+    constraints:
+      - video_to_gif 长边最大 480 像素
+      - video_to_gif_transparent 固定 240x240px
+      - 仅支持单个视频输入
+    not_for:
+      - 图片序列合成GIF
+      - 视频格式转换（非GIF目标）
+    cli:
+      requiredKeys: [video_url, prompt]
+      optionalKeys: []
+      arrayKeys: []
+      commandAliases: [视频转gif, 转gif, 做表情包]
+      inputAliases:
+        video: video_url
+        视频: video_url
+        提示词: prompt
+        描述: prompt
+        画面描述: prompt
+        内容描述: prompt
+        视频url: video_url
+        视频链接: video_url
+
+
+  - id: video-stitch
+    name: 视频拼接
+    summary: 多段视频顺序拼接，支持纯拼接保留原声或拼接同时自动配乐。
+    description: "Sequential multi-segment video stitching, covering plain stitch with original audio and stitch + auto-music. `video_list` (≥2 segments) and `prompt` required; `video_volume` (0–1, default `1`) optional. Does not support specifying specific music URL (requires upper-level orchestration), does not support custom transitions. Prohibited: single video trimming/speed change, narration voiceover, GIF conversion, video style transformation."
+    triggers:
+      - 拼接视频/合并视频/视频拼在一起
+      - 视频合并/多段拼接/视频合集/视频拼一下
+      - 拼接配乐/合并加音乐
+    input:
+      - type: video
+        count: "2+"
+        note: 至少2段视频URL列表
+    output:
+      type: video
+    params:
+      - name: sub_api
+        type: enum
+        values: [video_stitch, video_stitch_music]
+        selection_rule: |
+          纯拼接（不需要音乐/保留原声）→ video_stitch (video_stitching)
+          拼接+自动配乐（不指定特定音乐）→ video_stitch_music (video_splicing_music)
+          指定特定音乐 → 通过 music_url 传入，由 video_stitch_music 通道处理
+      - name: video_volume
+        type: number
+        range: [0, 2.0]
+        default: 1
+        description: 原视频音量；0 静音、1 原始、>1 增强
+      - name: music_url
+        type: string
+        description: 自定义音乐 URL（可选）；提供时走 video_stitch_music 通道
+      - name: canvas_flag
+        type: number
+        values: [0, 1]
+        default: 0
+        description: 画布方向标志位
+    constraints:
+      - 需要至少 2 段视频
+      - 不支持自定义转场效果，使用默认硬切拼接
+    not_for:
+      - 只加背景音乐不拼接 → video-audio-add
+      - 只加旁白 → video-audio-add
+      - 视频转GIF → video-to-gif
+    cli:
+      requiredKeys: [video_list, prompt]
+      optionalKeys: [video_volume, music_url, canvas_flag]
+      arrayKeys: [video_list]
+      commandAliases: [video-stitch, 视频拼接, 合并视频, 拼接视频]
+      inputAliases:
+        视频: video_list
+        音乐: music_url
+        音频: music_url
+        音乐url: music_url
+        自定义音乐: music_url
+        画布方向: canvas_flag
+        画布: canvas_flag
+        视频列表: video_list
+        视频url: video_list
+        视频链接: video_list
+        原声音量: video_volume
+        音量: video_volume
+        提示词: prompt
+        描述: prompt
+        素材描述: prompt
+
+
+  - id: video-audio-add
+    name: 视频配音
+    summary: 为视频添加背景音乐（BGM）或旁白配音，支持两者串联同时添加。
+    description: "Adds audio tracks to existing videos, covering BGM (matched music or custom `audio_url`) and narration voiceover; both can be added simultaneously. `video_list` and `prompt` required; `audio_url` (BGM only) optional; `music_volume`/`video_volume` (0–1) default per scenario. Prohibited: video stitching, stitching + auto-music combo, pure music/song generation, video frame editing."
+    triggers:
+      - 加背景音乐/配个BGM/加个音乐/添加背景音/换背景音乐
+      - 加旁白/加配音/配个解说/加个画外音/录个旁白
+      - 配音配乐/视频加音频
+    input:
+      - type: video
+        count: "1+"
+        note: 视频地址列表
+      - type: text
+        count: "0..1"
+        note: 旁白文案（narration_add时必填）
+      - type: audio
+        count: "0..1"
+        note: 可选自定义音频URL（覆盖素材库BGM）
+    output:
+      type: video
+    params:
+      - name: sub_api
+        type: enum
+        values: [video_audio_add_bgm, video_audio_add_narration]
+        selection_rule: |
+          添加背景音乐 → video_audio_add_bgm（video_volume默认1，保留原声）
+          添加旁白/配音 → video_audio_add_narration（video_volume默认0，压低原声）
+          两者都需要 → 串联执行：先 bgm_add 再 narration_add
+    constraints:
+      - narration_add 时 prompt（旁白文案）必填
+      - 有 audio_url 时跳过内部素材检索直接使用
+      - BGM 素材 ID 和音色 ID 不作为外部入参，由工具内部根据 prompt 自动检索
+    not_for:
+      - 生成一首歌 → audio-song-generate
+      - 生成纯音乐/背景音乐（不关联视频） → audio-music-generate
+      - 拼接视频同时配乐 → video-stitch
+      - 视频拼接 → video-stitch
+    cli:
+      requiredKeys: [video_list, prompt]
+      optionalKeys: [audio_url, music_volume, video_volume]
+      arrayKeys: [video_list]
+      commandAliases: [video-audio-add, video-audio, 视频配音, 配BGM, 加旁白, 加背景音乐]
+      inputAliases:
+        视频: video_list
+        视频列表: video_list
+        视频url: video_list
+        视频链接: video_list
+        旁白: prompt
+        文案: prompt
+        配音文案: prompt
+        提示词: prompt
+        旁白文案: prompt
+        音频: audio_url
+        音频url: audio_url
+        自定义音频: audio_url
+        音乐音量: music_volume
+        bgm音量: music_volume
+        原声音量: video_volume
+        音量: video_volume
+
+
+  # ══════════════════════════════════════════
+  # ── 证件照类 ──────────────────────────────
+  # ══════════════════════════════════════════
+
+  - id: image-id-photo-generate
+    name: 证件照生成
+    summary: 基于用户照片+证件规格一键生成标准证件照，自动换装换背景，支持合规调整。
+    description: "Generates standard ID photos from user portrait + specification, with auto outfit change + background replacement + compliance adjustment. `image_url` (front-facing portrait) and `spec_type` (1-inch/2-inch/passport/ID card/visa/driver's license etc.) required; `bg_color` (white/blue/red etc.) and `attire` (≤15 chars, default black suit + white shirt) auto-adapted per spec. `face_desc` filled based on 13-item observation of original photo, vague words like \"moderate\" or \"medium\" prohibited; retries with simplified prompt on failure, up to 3 rounds. Prohibited: artistic portraits, general image editing, background-only change without outfit, outfit-only change without background, face swap, poster design, auto-adding superres/exact pixels (degrades quality, only when user explicitly requests post-processing)."
+    triggers:
+      - 证件照/一寸照/二寸照/做个证件照
+      - 护照照片/签证照/身份证照/驾照照片
+      - 入园照/入学照/毕业证照/考研照/考编照
+      - 职业证件照/商务照/形象照/智感证件照
+      - 结婚证照/工牌照
+    prefer_over:
+      - tool: image-portrait-generate
+        when: 明确是证件照用途（有规格/底色/合规要求），非艺术写真
+      - tool: image-edit
+        when: 目标是标准证件照，非通用图片编辑
+      - tool: image-background-replace
+        when: 需要换装+换背景+合规调整的完整证件照，非单纯换背景
+    input:
+      - type: image
+        count: "1"
+        note: 用户正面人像照片
+      - type: text
+        count: "1"
+        note: 证件照规格类型 spec_type
+    output:
+      type: image
+      note: 标准证件照（含换装+换背景+合规调整）
+    params:
+      - name: sub_api
+        type: enum
+        values: [image_id_photo_generate]
+        default: image_id_photo_generate
+        selection_rule: |
+          默认 → image_id_photo_generate（image_praline_edit_2）
+          单一API，内部通过 prompt 模板 + 规格映射驱动不同证件照类型
+    constraints:
+      - spec_type 缺失时展示询问模板让用户选择
+      - 身份证规格不能穿白衣无外套（与白底冲突），自动改为黑西装
+      - 最多迭代 3 轮，超过建议换照片
+      - 超分/精确像素为可选后续步骤，非默认执行
+    not_for:
+      - 艺术写真/非证件照用途 → image-portrait-generate
+      - 通用图片编辑 → image-edit
+      - 仅换背景不换装 → image-background-replace
+      - 仅换装不换背景 → image-outfit-swap
+      - 换脸合成 → image-face-swap
+      - 海报设计 → image-poster-generate
+    cli:
+      requiredKeys: [image_url, spec_type]
+      optionalKeys: [bg_color, attire]
+      arrayKeys: []
+      commandAliases: [id-photo, 证件照, 证件照生成, 一寸照, 二寸照]
+      inputAliases:
+        image: image_url
+        图片: image_url
+        图片url: image_url
+        图片链接: image_url
+        照片: image_url
+        人像图: image_url
+        规格: spec_type
+        用途: spec_type
+        类型: spec_type
+        证件类型: spec_type
+        背景色: bg_color
+        底色: bg_color
+        背景: bg_color
+        服装: attire
+        衣服: attire
+        着装: attire
+
+

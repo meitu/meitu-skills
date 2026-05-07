@@ -26,11 +26,11 @@ requirements:
 
 ## Overview
 
-一键 AI 美颜：磨皮、美白、精修五官。调用 `meitu image-beauty-enhance`，仅支持单人人像照片。
+一键 AI 人像精修：磨皮、美白、面部细节优化。基于 `meitu image-edit --model gummy_pro` 做写实人像修饰，仅支持单人人像照片。
 
 ## Dependencies
 
-- **meitu-cli** ≥ 0.1.9 — `npm install -g meitu-cli`
+- **meitu-cli** ≥ 2.0.6 — `npm install -g meitu-cli@latest`
 - **凭证配置**: `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."` 或环境变量 `MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
 
 > **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
@@ -43,7 +43,7 @@ Preflight → [Context: 跳过（工具型美颜，无创意自由度）] → Ex
 
 ### Preflight
 
-1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
+1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli@latest`
 2. `meitu auth verify --json` → 凭证无效则引导配置
 3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
    检查 `$VISUAL` 目录 → 确定 capabilities
@@ -56,9 +56,9 @@ Preflight → [Context: 跳过（工具型美颜，无创意自由度）] → Ex
 **输入获取**
 
 用户提供图片，接受以下形式：
-- 本地文件路径 → 使用 `--image <path>`
-- 图片 URL → 使用 `--image <url>`
-- 对话中直接发送的图片 → 保存到临时文件后使用 `--image <path>`
+- 本地文件路径 → 使用 `--image_list <path>`
+- 图片 URL → 使用 `--image_list <url>`
+- 对话中直接发送的图片 → 保存到临时文件后使用 `--image_list <path>`
 
 若用户未提供图片，主动询问："请提供需要美颜的人像照片（文件路径或 URL）。"
 
@@ -75,22 +75,23 @@ Preflight → [Context: 跳过（工具型美颜，无创意自由度）] → Ex
 
 **强度选择**
 
-| 用户意图 | `--beatify_type` | 说明 |
+| 用户意图 | prompt 追加语句 | 说明 |
 |----------|------------------|------|
-| "自然美颜"、"轻微调整"、"稍微美化"、未指定强度 | `0` | 自然效果（默认） |
-| "大力美颜"、"重度磨皮"、"效果强一点"、"狠狠美颜" | `1` | 增强效果 |
+| "自然美颜"、"轻微调整"、"稍微美化"、未指定强度 | `natural portrait retouch, keep facial structure unchanged` | 自然效果（默认） |
+| "大力美颜"、"重度磨皮"、"效果强一点"、"狠狠美颜" | `strong but realistic skin smoothing, brighter complexion, keep facial structure unchanged` | 增强效果 |
 
 **调用命令**
 
 ```bash
-meitu image-beauty-enhance \
-  --image <url_or_path> \
-  --beatify_type <0|1> \
+meitu image-edit \
+  --image_list <url_or_path> \
+  --prompt "<beauty_instruction>" \
+  --model gummy_pro \
   --json \
   --download-dir {output_dir}
 ```
 
-> **注意**: 参数拼写是 `--beatify_type`（非 `--beautify_type`），这是 CLI 的已知拼写。
+> **注意**: `2.0.6` 已无 `image-beauty-enhance`。人像美颜、肤质优化、细节修饰统一通过 `image-edit --model gummy_pro` 完成。
 
 **结果处理**
 
@@ -112,7 +113,7 @@ meitu image-beauty-enhance \
 
 | 级别 | 策略 | 操作 |
 |------|------|------|
-| L1 | 降低强度 | `beatify_type` 1 → 0 重试 |
+| L1 | 降低强度 | 将强修饰 prompt 收敛为 `natural portrait retouch, keep facial structure unchanged` 后重试 |
 | L2 | 检查图片质量 | 提示用户更换更清晰、人脸更大的照片 |
 | L3 | 检查图片格式 | 确认为 JPG/PNG/WEBP，非 GIF/BMP 等不支持格式 |
 | L4 | 停止报错 | 连续 2 次失败 → 报告 code + hint，停止重试 |

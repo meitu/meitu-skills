@@ -6,7 +6,7 @@
 
 | Symptom | Cause | Solution |
 |------|------|------|
-| `meitu: command not found` | CLI not installed or not in PATH | `npm install -g meitu-cli` |
+| `meitu: command not found` | CLI not installed or not in PATH | `npm install -g meitu-cli@latest` |
 | `npm: command not found` | Node.js not installed | Install Node.js (https://nodejs.org/) |
 | Installed but version is outdated | Needs upgrade | `npm update -g meitu-cli` |
 

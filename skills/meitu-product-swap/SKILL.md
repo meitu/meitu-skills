@@ -33,7 +33,7 @@ requirements:
 ## Dependencies
 
 - tools: meitu-cli — AI 图像处理 CLI
-  - Install: `npm install -g meitu-cli`（包名 meitu-cli，非 meitu-ai）
+  - Install: `npm install -g meitu-cli@latest`（包名 meitu-cli，非 meitu-ai）
   - Command: `meitu image-edit`（model: `praline`，默认值，适用于多图融合/商品替换/合成）
 - credentials: 美图 AI 开放平台 API 凭证
   - 环境变量：`MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
@@ -58,7 +58,7 @@ Preflight → [Context] → Execute → Refine → Deliver → [Record]
 
 ### Preflight
 
-1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
+1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli@latest`
 2. `meitu auth verify --json` → 凭证无效则引导配置
 3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
    can_record = cwd 有 openclaw.yaml AND $VISUAL 存在（两者缺一即 false）

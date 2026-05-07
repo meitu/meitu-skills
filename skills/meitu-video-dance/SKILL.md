@@ -28,7 +28,7 @@ requirements:
 
 ## Dependencies
 
-- **meitu-cli**: `npm install -g meitu-cli`
+- **meitu-cli** (>=2.0.6): `npm install -g meitu-cli@latest`
   - 凭证配置: `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`
   - 验证: `meitu auth verify --json`
 
@@ -44,7 +44,7 @@ Preflight → [Context] → Execute → Refine → Deliver → [Record]
 
 ### Preflight
 
-1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
+1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli@latest`
 2. `meitu auth verify --json` → 凭证无效则引导配置
 3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
    检查 `$VISUAL` 目录 → 确定 capabilities
@@ -83,7 +83,7 @@ mode = one-off → 跳过此步，直接到 Execute。
 - 人物轮廓清晰，不与背景融合 → 背景杂乱建议先用 `meitu image-cutout` 抠图换干净背景
 - 手部可见且未遮挡面部 → 手遮脸会导致严重伪影
 - 正面或微侧角度（非纯侧面/背面）→ 极端角度生成质量差
-- 分辨率短边 ≥ 300px → 太小则建议先用 `meitu image-upscale` 放大
+- 分辨率短边 ≥ 300px → 太小则建议先用 `meitu image-superres-enhance` 提升清晰度
 - 紧身衣物优于宽松衣物 → 宽松衣物（长裙、大衣）模糊关节导致畸变
 
 对参考视频检查：
@@ -139,8 +139,8 @@ mode = one-off → 跳过此步，直接到 Execute。
 
 ```bash
 meitu video-motion-transfer \
-  --image_url "{image_url}" \
-  --video_url "{video_url}" \
+  --image_list "{image_url}" \
+  --reference_video_list "{video_url}" \
   --prompt "{composed_prompt}" \
   --download-dir "{output_dir}"
 ```

@@ -30,7 +30,7 @@ requirements:
 
 ## Dependencies
 
-- **meitu-cli**: `npm install -g meitu-cli`
+- **meitu-cli**: `npm install -g meitu-cli@latest`
 - **凭证**: `meitu config set-ak --value "..."` / `meitu config set-sk --value "..."`, 或 env vars `MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
 
 > **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
@@ -43,7 +43,7 @@ Preflight → [Context: 跳过（工具型抠图，无创意自由度）] → Ex
 
 ### Preflight
 
-1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
+1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli@latest`
 2. `meitu auth verify --json` → 凭证无效则引导配置
 3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
    检查 `$VISUAL` 目录 → 确定 capabilities

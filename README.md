@@ -15,8 +15,10 @@ See [SECURITY.md](SECURITY.md) for:
 ## Layout
 
 - Root entry skill: `SKILL.md` (global routing guidance)
-- Tool aggregate skill: `meitu-tools/`
-- Primary scene skills: `skills/` (notably `meitu-poster`, `meitu-stickers`, `meitu-visual-me`, `meitu-product-swap`, `meitu-video-dance`)
+- Tool aggregate skill: `meitu-tools/` — command catalog in `meitu-tools/references/tools.yaml`
+- Scene skills and atomic command skills: `skills/`
+  - Scene skills (e.g. `meitu-poster`, `meitu-stickers`, `meitu-visual-me`, `meitu-product-swap`, `meitu-video-dance`, `meitu-ai-portrait`, `meitu-ecommerce-listing`, `meitu-music-video`, `meitu-short-video-studio`, `meitu-social-campaign`)
+  - Atomic command skills mapped 1:1 to CLI commands (e.g. `image-cutout`, `image-edit`, `image-poster-generate`, `image-to-video`, `video-motion-transfer`, `text-to-image`, `text-to-video`, etc.)
 
 ## Quick Start
 
@@ -49,14 +51,13 @@ npm install -g meitu-cli@latest
 4. Smoke test
 
 ```bash
-node meitu-tools/scripts/run_command.js \
-  --command image-upscale \
-  --input-json '{"image":"https://obs.mtlab.meitu.com/public/resources/aigensource.png"}'
+meitu --version
+meitu image-cutout --image https://example.com/sample.jpg --json
 ```
 
 5. Runtime repair / manual upgrade
 
-- `run_command.js` does not check npm or auto-install `meitu-cli`
+- Skills do not check npm or auto-install `meitu-cli`
 - If runtime is missing/outdated, follow the manual repair commands below
 - Long `action_url` values are preserved as-is; chat UIs may visually truncate them, but clicking still uses the full URL
 

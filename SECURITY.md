@@ -46,7 +46,7 @@ Scene skills declare their own permissions based on their workflows:
 
 - `file_read`: `~/.meitu/credentials.json`, `~/.openclaw/workspace/visual/`
 - `file_write`: `~/.openclaw/workspace/visual/`
-- `exec`: `meitu` (and `node` for `meitu-tools`)
+- `exec`: `meitu`
 
 ### Root Skill Permission Scope
 
@@ -79,14 +79,12 @@ This skill pack writes outputs to `~/.openclaw/workspace/visual/` or project-loc
 | Command | Purpose | When Used |
 |---------|---------|-----------|
 | `meitu` | Execute Meitu CLI commands | Tool execution and generation/edit pipelines |
-| `node` | Execute internal runner script | `meitu-tools/scripts/run_command.js` for CLI command dispatch |
 | `npm install -g meitu-cli@latest` | Manual runtime install or upgrade | Only when the operator explicitly asks for repair or upgrade |
 
 Notes:
 
-- `meitu-tools` executes `scripts/run_command.js` via `node` to dispatch CLI commands.
-- Scene skills call `meitu` CLI directly and do not need `node`.
-- Scene skills use inline path resolution logic (no external helper scripts).
+- `meitu-tools` and scene skills call the `meitu` CLI directly; no helper Node runner is required.
+- Skills use inline path resolution logic and never execute project-local or user-supplied scripts.
 
 ## Prompt and Instruction Handling
 
@@ -119,12 +117,11 @@ meitu --version
 User Request
     │
     ▼
-run_command.js
+meitu-tools (resolves command and inputs from references/tools.yaml)
     │
-    ├── Read credentials (env or file)
+    ├── Read credentials (env or ~/.meitu/credentials.json)
     ├── Validate command name and inputs
-    ├── Execute meitu CLI
-    │   └── spawnSync('meitu', [...args])
+    ├── Execute `meitu <command> ...` CLI
     └── Return result or manual repair hint
 ```
 
