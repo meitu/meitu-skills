@@ -131,13 +131,20 @@ In project mode (when `openclaw.yaml` exists), scene skills may also:
 
 ## Tool Capability Map
 
-All available CLI tools are defined in `meitu-tools/references/tools.yaml`.
+All available CLI tools (40) are defined in `meitu-tools/references/tools.yaml`.
 
 Key commands include:
-- Video: `video-motion-transfer`, `image-to-video`, `text-to-video`, `video-to-gif`
-- Image generation: `image-generate`, `image-poster-generate`
-- Image editing: `image-edit`, `image-upscale`, `image-beauty-enhance`, `image-face-swap`, `image-try-on`, `image-adapt`
-- Image tools: `image-cutout`, `image-grid-split`
+- Audio: `audio-music-generate`, `audio-song-generate`
+- Image search: `image-search`
+- Image generation: `image-poster-generate`, `image-portrait-generate`, `image-id-photo-generate`, `text-to-image`
+- Image editing: `image-edit`, `image-face-swap`, `image-outfit-swap`, `image-style-transfer`, `image-background-replace`, `image-text-replace`, `image-element-remove`
+- Image tools: `image-cutout`, `image-grid-split`, `image-transform`
+- Image enhance: `image-superres-enhance`, `image-lowlight-enhance`, `image-denoise-enhance`
+- Text/Code: `text-code`, `text-code-edit`, `text-generate`
+- Video generation: `text-to-video`, `image-to-video`, `video-motion-transfer`, `video-multimodal-generate`, `video-effect-apply`
+- Video editing: `video-content-replace`, `video-element-remove`, `video-canvas-expand`, `video-logo-add`
+- Video enhance: `video-quality-enhance`, `video-resolution-upscale`, `video-denoise-enhance`, `video-lowlight-enhance`, `video-framerate-enhance`
+- Video tools: `video-to-gif`, `video-stitch`, `video-audio-add`
 
 For detailed command specifications, aliases, and input mappings, see `meitu-tools/SKILL.md` or read `meitu-tools/references/tools.yaml`.
 

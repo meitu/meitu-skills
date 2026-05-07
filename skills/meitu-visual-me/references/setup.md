@@ -11,7 +11,7 @@ Just install the meitu CLI and set up credentials to start generating.
 ### Install meitu CLI
 
 ```bash
-npm install -g meitu-cli
+npm install -g meitu-cli@latest
 # Verify installation
 meitu --version
 ```
@@ -104,5 +104,5 @@ dislike: [styles you don't want]
 ## Dependencies
 
 - Node.js (for npx/npm to install meitu-cli)
-- meitu-cli (`npm install -g meitu-cli`)
+- meitu-cli (`npm install -g meitu-cli@latest`)
 - meitu API credentials (accessKey + secretKey)

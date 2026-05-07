@@ -50,7 +50,7 @@ Memory-driven AI visual assistant. Reads user profiles and daily memories to gen
 
 ## Dependencies
 
-- tools: meitu-cli (`npm install -g meitu-cli`)
+- tools: meitu-cli (`npm install -g meitu-cli@latest`)
 - credentials: `meitu config set-ak --value <AK>` + `meitu config set-sk --value <SK>`
 - user knowledge (optional): `./visual/` (created on demand; if absent, all knowledge reads are skipped)
 - project files: `./` (cwd, containing `openclaw.yaml`, `DESIGN.md`, etc.)
@@ -71,7 +71,7 @@ Memory-driven AI visual assistant. Reads user profiles and daily memories to gen
 
 Must pass before every generation; if it fails, **stop generation**:
 
-1. `meitu --version` — if not installed, prompt: `npm install -g meitu-cli`
+1. `meitu --version` — if not installed, prompt: `npm install -g meitu-cli@latest`
 2. Verify credentials: `meitu auth verify --json` — if credentials are invalid, this will return an auth error. For credential setup, read [references/setup.md](references/setup.md)
 3. Check whether the `./visual/` directory exists (if not, prompt first-time user; do not block)
 4. Did the user send an image or a video? — Videos are not supported; prompt user to send a screenshot
@@ -111,7 +111,7 @@ Preflight → [Context] → Execute → [Refine] → Deliver → [Record]
 Compare the user's input against the trigger words in the Workflows section below to match a specific workflow. Read [references/workflows.md](references/workflows.md) for scenario details.
 
 When no match is found, there are three cases:
-- **Clear description** (e.g., "帮我画一只猫在月球上") — no workflow match needed; determine the style per prompt building rules, then generate directly with `image-generate`
+- **Clear description** (e.g., "帮我画一只猫在月球上") — no workflow match needed; determine the style per prompt building rules, then generate directly with `text-to-image`
 - **Only sent an image without text** — recommend 4 suitable options based on image content (e.g., swap background, style remix, make ID card, image-to-video), let user choose
 - **Vague instruction** (e.g., "帮我画", "帮我生张图") — recommend scenarios:
   1. Check `./visual/memory/global.md` for preferred scenarios — if found, prioritize those
@@ -137,7 +137,7 @@ Each workflow's corresponding CLI command is listed in the Workflows section tab
 ```json
 {
   "workflow": "persona-diorama",
-  "command": "image-generate",
+  "command": "text-to-image",
   "read_level": "standard",
   "has_reference_image": true,
   "style": "微缩世界",
@@ -198,33 +198,33 @@ Formula: `[composition/camera angle] + [subject] + [action/expression] + [scene/
 
 | Task type | Command | Key parameters | Notes |
 |---------|------|---------|------|
-| Text-to-image | `meitu image-generate` | `--prompt --size --ratio` | No reference image; `--size` accepts `2k`/`3k`/`WIDTHxHEIGHT` |
-| Generation with reference image | `meitu image-generate` | `--image --prompt --size` | Stylization / group photo |
-| Background swap / content editing | `meitu image-edit` | `--image --prompt --model` | See model selection table |
+| Text-to-image | `meitu text-to-image` | `--prompt --size --ratio` | No reference image |
+| Generation with reference image | `meitu text-to-image` | `--image_list --prompt --size` | Stylization / group photo |
+| Background swap / content editing | `meitu image-edit` | `--image_list --prompt --model` | See model selection table |
 | Face swap | `meitu image-face-swap` | `--head_image_url --sence_image_url --prompt` | Avatar series |
-| Beauty enhance | `meitu image-beauty-enhance` | `--image --beatify_type` | Single-person photo |
-| Image-to-video | `meitu image-to-video` | `--image --prompt --video_duration` | Async task |
-| Motion transfer | `meitu video-motion-transfer` | `--image_url --video_url --prompt` | Async task |
-| Virtual try-on | `meitu image-try-on` | `--clothes_image_url --person_image_url --replace` | |
+| Beauty enhance | `meitu image-edit --model gummy_pro` | `--image_list --prompt --model gummy_pro` | Single-person portrait retouch |
+| Image-to-video | `meitu image-to-video` | `--image_list --prompt --video_duration` | Async task |
+| Motion transfer | `meitu video-motion-transfer` | `--image_list --reference_video_list --prompt` | Async task |
+| Virtual try-on | `meitu image-outfit-swap` | `--image_url --prompt [--clothes_image_url]` | |
 
 **image-edit model selection:**
 
 | Priority | Model | Use case | Output style |
 |--------|-------|---------|---------|
-| 1 | nougat | Stylization: cartoon, 3D figure, anime, sketch, artistic recreation | Artistic (NOT realistic face) |
-| 2 | gummy | Portrait/pet photography, hairstyle adjustment | Realistic portrait |
-| 3 | praline (default) | Everything else: text manipulation, background swap, color grading, add/remove elements, multi-image fusion | General editing |
+| 1 | `text-to-image --image_list` | Stylization: cartoon, 3D figure, anime, sketch, artistic recreation | Artistic (NOT realistic face) |
+| 2 | gummy_pro | Portrait/pet photography, hairstyle adjustment | Realistic portrait |
+| 3 | praline_pro (default) | Everything else: text manipulation, background swap, color grading, add/remove elements, multi-image fusion | General editing |
 
-> Quick rule: "变画风" (style change, output doesn't look like real person) → nougat; "拍写真/换发型" (portrait photo) → gummy; "改内容" (modify content) → praline
+> Quick rule: "变画风" (style change, output doesn't look like real person) → `text-to-image --image_list`; "拍写真/换发型" (portrait photo) → `gummy_pro`; "改内容" (modify content) → `praline_pro`
 
 **Reference image routing:**
 
 | Intent mode | Reference image handling | Command |
 |---------|-----------|------|
-| Stylization (photo → figurine/anime/etc.) | Pass via --image, prompt describes target style | `image-edit --model nougat` (cartoon/anime/3D) or `image-generate --image` (general style transfer) |
-| Background swap | Pass via --image, prompt explicitly says "keep person unchanged" | `image-edit --model praline` |
-| Group photo (multiple references) | Pass multiple via --image, prompt describes group photo scene | `image-generate --image img1 img2` |
-| Analyze reference only (not passed to tool) | Extract composition/style info into prompt | `image-generate` (pure text-to-image) |
+| Stylization (photo → figurine/anime/etc.) | Pass via `--image_list`, prompt describes target style | `text-to-image --image_list` |
+| Background swap | Pass via `--image_list`, prompt explicitly says "keep person unchanged" | `image-edit --model praline_pro` |
+| Group photo (multiple references) | Pass multiple via --image_list, prompt describes group photo scene | `text-to-image --image_list img1 img2` |
+| Analyze reference only (not passed to tool) | Extract composition/style info into prompt | `text-to-image` (pure text-to-image) |
 | Face swap | Pass separately via --head_image_url and --sence_image_url | `image-face-swap` |
 
 **Output directory:** Use `output_dir` resolved in Preflight. Ensure the directory exists (`mkdir -p`). Add `--json --download-dir {output_dir}` to all `meitu` commands.
@@ -239,11 +239,11 @@ Formula: `[composition/camera angle] + [subject] + [action/expression] + [scene/
 **Command examples:**
 ```bash
 # Text-to-image
-meitu image-generate --prompt "..." --size 2k --ratio 1:1 --json --download-dir {output_dir}
+meitu text-to-image --prompt "..." --size 2K --ratio 1:1 --json --download-dir {output_dir}
 # Image editing
-meitu image-edit --image <url> --prompt "..." --model praline --json --download-dir {output_dir}
+meitu image-edit --image_list <url> --prompt "..." --model praline_pro --json --download-dir {output_dir}
 # Image-to-video (async)
-meitu image-to-video --image <url> --prompt "..." --video_duration 5 --json
+meitu image-to-video --image_list <url> --prompt "..." --video_duration 5 --json
 ```
 
 **Error degradation (try each level in order):**
@@ -251,7 +251,7 @@ meitu image-to-video --image <url> --prompt "..." --video_duration 5 --json
 | Level | Action | Example |
 |------|------|------|
 | L1 | Remove low-priority modifiers | Drop lighting/material descriptions, keep subject + scene + style |
-| L2 | Downgrade enum parameters | `--size 3k` → `--size 2k` (image-generate); `--size 2K` → `--size 1K` (image-poster-generate); `--ratio 9:16` → `--ratio 1:1` |
+| L2 | Downgrade enum parameters | `--size 4K` → `--size 2K` (`text-to-image`); `--size 2K` → `--size 1K` (`image-poster-generate`); `--ratio 9:16` → `--ratio 1:1` |
 | L3 | Remove optional inputs | Drop reference image, switch to pure text-to-image |
 | L4 | Minimize to core elements | Keep only subject + style, remove everything else |
 | L5 | Stop and report error | Inform user of the specific error, suggest checking credentials or contacting support |
@@ -260,7 +260,7 @@ Escalate one level after 2 consecutive failures. For other errors, see [referenc
 
 ### Refine (MUST for creative tasks, skip for tool tasks)
 
-Tool tasks (beauty, virtual-tryon, image-upscale) → skip this step and go directly to Deliver.
+Tool tasks (beauty, virtual-tryon, image-superres-enhance) → skip this step and go directly to Deliver.
 
 Iterative refinement loop for creative tasks:
 
@@ -344,25 +344,25 @@ For all workflow details, read [references/workflows.md](references/workflows.md
 
 | Trigger words | Workflow | Command |
 |--------|---------|------|
-| 微缩场景 (miniature scene)、个人场景 (personal scene) | persona-diorama | `image-generate` |
-| 今日卡 (daily card)、城市打卡 (city check-in) | daily-card | `image-generate` |
-| 早安 (good morning)、晨间四宫格 (morning grid) | morning-grid | `image-generate` |
-| OOTD、今天穿什么 (what to wear today) | ootd | `image-generate` |
-| 数据场景 (data scene)、今日数据 (today's data) | data-diorama | `image-generate` |
-| 九宫格 (nine-grid)、情绪九宫格 (emotion grid) | emotion-grid | `image-generate` |
-| 关系板 (relationship board)、关系拼贴 (relationship collage) | relationship-board | `image-generate` |
-| 记忆拼贴 (memory collage) | memory-collage | `image-generate` |
-| 合影 (group photo)、合个影 (take a photo together) | real-toon | `image-generate` |
-| ID 卡 (ID card)、收藏卡 (collectible card) | id-card | `image-generate` |
-| 一键换风格 (one-click style remix)、换风格 (change style)、风格万花筒 (style kaleidoscope) | style-remix | `image-edit --model nougat` (cartoon/anime/3D) / `image-edit --model praline` (general) / `image-generate` |
+| 微缩场景 (miniature scene)、个人场景 (personal scene) | persona-diorama | `text-to-image` |
+| 今日卡 (daily card)、城市打卡 (city check-in) | daily-card | `text-to-image` |
+| 早安 (good morning)、晨间四宫格 (morning grid) | morning-grid | `text-to-image` |
+| OOTD、今天穿什么 (what to wear today) | ootd | `text-to-image` |
+| 数据场景 (data scene)、今日数据 (today's data) | data-diorama | `text-to-image` |
+| 九宫格 (nine-grid)、情绪九宫格 (emotion grid) | emotion-grid | `text-to-image` |
+| 关系板 (relationship board)、关系拼贴 (relationship collage) | relationship-board | `text-to-image` |
+| 记忆拼贴 (memory collage) | memory-collage | `text-to-image` |
+| 合影 (group photo)、合个影 (take a photo together) | real-toon | `text-to-image` |
+| ID 卡 (ID card)、收藏卡 (collectible card) | id-card | `text-to-image` |
+| 一键换风格 (one-click style remix)、换风格 (change style)、风格万花筒 (style kaleidoscope) | style-remix | `text-to-image --image_list`（风格化） / `image-edit --model praline_pro`（保结构编辑） |
 
 ### Editing
 
 | Trigger words | Workflow | Command |
 |--------|---------|------|
-| 换背景 (swap background)、改背景 (change background) | swap-bg | `image-edit --model praline` |
-| 头像系列 (avatar series)、换头像 (change avatar) | avatar-series | `image-generate` → `image-face-swap` |
-| 美颜 (beauty)、磨皮 (skin smoothing) | beauty | `image-beauty-enhance` |
+| 换背景 (swap background)、改背景 (change background) | swap-bg | `image-edit --model praline_pro` |
+| 头像系列 (avatar series)、换头像 (change avatar) | avatar-series | `text-to-image` → `image-face-swap` |
+| 美颜 (beauty)、磨皮 (skin smoothing) | beauty | `image-edit --model gummy_pro` |
 
 ### Video & Try-on
 
@@ -370,7 +370,7 @@ For all workflow details, read [references/workflows.md](references/workflows.md
 |--------|---------|------|
 | 动起来 (bring to life)、图生视频 (image to video) | to-video | `image-to-video` |
 | 做这个动作 (do this motion) | motion-transfer | `video-motion-transfer` |
-| 试穿 (try on)、试衣 (try clothes) | virtual-tryon | `image-try-on` |
+| 试穿 (try on)、试衣 (try clothes) | virtual-tryon | `image-outfit-swap` |
 
 ---
 

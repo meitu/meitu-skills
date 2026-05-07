@@ -1,6 +1,6 @@
 ---
 name: meitu-image-fix
-description: "自动诊断图片的画质、人像、内容问题，按最优顺序串联 image-upscale/beauty-enhance/image-edit/cutout 修复。当用户说修图、变清晰、去水印、去路人、磨皮美颜、修一下这张图、图片模糊、老照片修复时触发。"
+description: "自动诊断图片的画质、人像、内容问题，按最优顺序串联 image-superres-enhance/image-edit/image-cutout 修复。当用户说修图、变清晰、去水印、去路人、磨皮美颜、修一下这张图、图片模糊、老照片修复时触发。"
 version: "1.0.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
 requirements:
@@ -30,7 +30,7 @@ requirements:
 
 ## Dependencies
 
-- **meitu-cli** (>=0.1.9): `npm install -g meitu-cli`
+- **meitu-cli** (>=2.0.6): `npm install -g meitu-cli@latest`
 - **凭证**: `meitu config set-ak` / `meitu config set-sk`，或 env `MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
 
 > **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
@@ -44,7 +44,7 @@ Preflight → [Context: 跳过] → Execute (诊断 → 规划 → 逐步执行)
 
 ### Preflight
 
-1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
+1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli@latest`
 2. `meitu auth verify --json` → 凭证无效则引导配置
 3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
    can_record = cwd 有 openclaw.yaml AND $VISUAL 存在（两者缺一即 false）
@@ -94,23 +94,23 @@ Preflight → [Context: 跳过] → Execute (诊断 → 规划 → 逐步执行)
 **执行顺序（硬约束——顺序错误会严重影响效果）：**
 
 ```
-Phase 1: image-upscale         先提升画质，后续操作在清晰图上效果更好
-Phase 2: image-edit / cutout   内容修复在高清底图上精度更高
-Phase 3: beauty-enhance        美颜放最后，避免被前面步骤的重编码破坏
+Phase 1: image-superres-enhance 先提升画质，后续操作在清晰图上效果更好
+Phase 2: image-edit / cutout    内容修复在高清底图上精度更高
+Phase 3: image-edit(gummy)      人像精修放最后，避免被前面步骤的重编码破坏
 ```
 
 **管线路由表：**
 
 | 问题标签 | Phase | 工具 | 命令 |
 |---------|-------|------|------|
-| `quality:blur` | 1 | image-upscale | `meitu image-upscale` |
-| `content:watermark` | 2 | image-edit | `meitu image-edit --model praline` |
-| `content:unwanted-object` | 2 | image-edit | `meitu image-edit --model praline` |
-| `content:text-error` | 2 | image-edit | `meitu image-edit --model praline` |
-| `content:bg-flaw` | 2 | image-edit | `meitu image-edit --model praline` |
+| `quality:blur` | 1 | image-superres-enhance | `meitu image-superres-enhance` |
+| `content:watermark` | 2 | image-edit | `meitu image-edit --model praline_pro` |
+| `content:unwanted-object` | 2 | image-edit | `meitu image-edit --model praline_pro` |
+| `content:text-error` | 2 | image-edit | `meitu image-edit --model praline_pro` |
+| `content:bg-flaw` | 2 | image-edit | `meitu image-edit --model praline_pro` |
 | `cutout` | 2 | image-cutout | `meitu image-cutout` |
-| `portrait:skin` | 3 | beauty-enhance | `meitu image-beauty-enhance` |
-| `portrait:feature` | 3 | beauty-enhance | `meitu image-beauty-enhance` |
+| `portrait:skin` | 3 | portrait-retouch | `meitu image-edit --model gummy_pro` |
+| `portrait:feature` | 3 | portrait-retouch | `meitu image-edit --model gummy_pro` |
 
 Phase 2 内有多个 edit 操作时，逐条串行执行（每条用上一步输出的 URL）。
 cutout 与其他 Phase 2 操作共存时：先 edit 再 cutout（去背景应在内容修好之后）。
@@ -127,30 +127,30 @@ cutout 与其他 Phase 2 操作共存时：先 edit 再 cutout（去背景应在
 **逐步执行**
 
 **链式调用机制：**
-每步加 `--json`，解析返回 JSON 的 `media_urls[0]` 作为下一步的 `--image` 输入。仅最后一步加 `--download-dir {output_dir}` 保存到本地。加了 `--download-dir` 后，JSON 输出会多一个 `downloaded_files` 数组，直接取 `downloaded_files[0].saved_path` 获取下载文件的完整路径，Deliver 阶段再 rename。
+每步加 `--json`，解析返回 JSON 的 `media_urls[0]` 作为下一步的 `--image_list` 输入。仅最后一步加 `--download-dir {output_dir}` 保存到本地。加了 `--download-dir` 后，JSON 输出会多一个 `downloaded_files` 数组，直接取 `downloaded_files[0].saved_path` 获取下载文件的完整路径，Deliver 阶段再 rename。
 
-**URL 传递 fallback**：如果下一步用 `media_urls[0]` 作为 `--image` 失败（`UPLOAD_ERROR`），先下载到系统临时目录再用本地路径重试：
+**URL 传递 fallback**：如果下一步用 `media_urls[0]` 作为 `--image_list` 输入失败（`UPLOAD_ERROR`），先下载到系统临时目录再用本地路径重试：
 ```bash
 curl -sL -o /tmp/meitu-fix-step{N}.{ext} {url}
-meitu <command> --image /tmp/meitu-fix-step{N}.{ext} ...
+meitu <command> --image_list /tmp/meitu-fix-step{N}.{ext} ...
 ```
 中间文件**必须**存放在 `/tmp/` 或系统临时目录，**禁止**存入 skill 文件夹或源文件所在目录。管线完成后清理：`rm -f /tmp/meitu-fix-step*.{ext}`。
 
 ---
 
-**Phase 1: 超清 — image-upscale**
+**Phase 1: 超清 — image-superres-enhance**
 
-根据图片主体选择 model_type：
+根据图片主体构造 `--prompt` 内容描述：
 
-| 主体类型 | --model_type | 判断依据 |
-|---------|-------------|---------|
-| 人像为主 | 0 | 人脸是视觉焦点 |
-| 商品/物品 | 1 | 产品、食物、实物特写 |
-| 图形/截图 | 2 | UI 截图、文字图、插画、图标 |
-| 不确定 | 省略 | 让服务端自动检测 |
+| 主体类型 | `--prompt` | 判断依据 |
+|---------|------------|---------|
+| 人像为主 | `portrait photo` | 人脸是视觉焦点 |
+| 商品/物品 | `e-commerce product image` | 产品、食物、实物特写 |
+| 图形/截图 | `text document or UI screenshot` | UI 截图、文字图、插画、图标 |
+| 不确定 | `general image` | 无法判断时的默认描述 |
 
 ```bash
-meitu image-upscale --image {input} --model_type {type} --json
+meitu image-superres-enhance --image_url {input} --prompt "{content_description}" --json
 ```
 
 解析：`ok: true` → `media_urls[0]` 传入下一步。
@@ -170,7 +170,7 @@ meitu image-upscale --image {input} --model_type {type} --json
 | 背景瑕疵 | `"修复背景中的破损区域"` | 描述具体区域 |
 
 ```bash
-meitu image-edit --image {prev_url} --prompt "{instruction}" --model praline --json
+meitu image-edit --image_list {prev_url} --prompt "{instruction}" --model praline_pro --json
 ```
 
 每步取 `media_urls[0]` 传给下一步。
@@ -178,31 +178,31 @@ meitu image-edit --image {prev_url} --prompt "{instruction}" --model praline --j
 如果问题是去背景（cutout）：
 
 ```bash
-meitu image-cutout --image {prev_url} --json
+meitu image-cutout --image_url {prev_url} --prompt "foreground subject" --json
 ```
 
 ---
 
-**Phase 3: 美颜 — image-beauty-enhance**
+**Phase 3: 人像精修 — image-edit（gummy_pro）**
 
 ```bash
-meitu image-beauty-enhance --image {prev_url} --beatify_type {type} --json
+meitu image-edit --image_list {prev_url} --prompt "{portrait_retouch_prompt}" --model gummy_pro --json
 ```
 
-| 用户诉求 | --beatify_type |
-|---------|---------------|
-| 自然修饰 / 轻微瑕疵 / 日常照 | 0（自然） |
-| 明确要求强效 / 瑕疵严重 / 商业用途 | 1（强效） |
-| 未明确说明 | 默认 0 |
+| 用户诉求 | `portrait_retouch_prompt` |
+|---------|--------------------------|
+| 自然修饰 / 轻微瑕疵 / 日常照 | `natural portrait retouch, improve skin texture and facial details, keep facial structure unchanged` |
+| 明确要求强效 / 瑕疵严重 / 商业用途 | `strong but realistic portrait retouch, smoother skin and cleaner facial details, keep facial structure unchanged` |
+| 未明确说明 | 默认使用自然修饰 prompt |
 
-**约束**：beauty-enhance **仅支持真实单人肖像**。以下情况跳过此步骤并告知用户：
+**约束**：portrait retouch **仅适用于真实单人肖像**。以下情况跳过此步骤并告知用户：
 - 多人图片
 - 非真实人像（卡通、插画、简笔画、AI 绘图风格）
 - 人脸过小或不清晰
 
-服务端拒绝时返回 `CONTENT_REQUIREMENTS_UNMET`（code 98501），直接跳过即可。
+服务端拒绝时直接跳过即可。
 
-同时有 `portrait:skin` 和 `portrait:feature` → 一次 beauty-enhance 即可覆盖（不需要调两次）。
+同时有 `portrait:skin` 和 `portrait:feature` → 一次 `image-edit --model gummy_pro` 即可覆盖（不需要调两次）。
 
 ---
 
@@ -214,7 +214,7 @@ meitu image-beauty-enhance --image {prev_url} --beatify_type {type} --json
 
 ```
 L1: 简化 prompt — 移除修饰语，保留核心指令（edit 步骤适用）
-L2: 省略可选参数 — 如 model_type 让服务端自动判断
+L2: 省略可选参数 — 如裁剪掉非必要修饰，让服务端按默认路由处理
 L3: 跳过当前步骤 — 用上一步结果继续后续管线
 L4: 连续 2 步失败 → 停止管线，将最后一个成功步骤的结果下载到 {output_dir} 交付，并说明哪些步骤未完成
 L5: 首步即失败 → 检查凭证/余额，报错含 code + hint

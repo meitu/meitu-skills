@@ -16,7 +16,7 @@ meitu <command> [options] --json --download-dir ./output/
 - `--download-dir` → 自动下载生成结果到指定目录
 - 异步命令（`image-to-video`、`text-to-video`、`video-motion-transfer`）CLI 自动轮询等待
 
-**Install:** `npm install -g meitu-cli`（包名 meitu-cli，非 meitu-ai），然后配置凭证：
+**Install:** `npm install -g meitu-cli@latest`（包名 meitu-cli，非 meitu-ai），然后配置凭证：
 - 交互式登录：`meitu login`（推荐，自动写入配置文件）
 - 环境变量：`MEITU_OPENAPI_ACCESS_KEY` + `MEITU_OPENAPI_SECRET_KEY`
 - 或配置文件：`~/.meitu/credentials.json`
@@ -26,7 +26,7 @@ meitu <command> [options] --json --download-dir ./output/
 ## Install (when manual setup needed)
 
 ```bash
-npm install -g meitu-cli
+npm install -g meitu-cli@latest
 meitu --version
 ```
 

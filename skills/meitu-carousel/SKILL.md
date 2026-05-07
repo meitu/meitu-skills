@@ -33,7 +33,7 @@ requirements:
 ## Dependencies
 
 - tools: meitu-cli — 美图公司 AI 开放平台的命令行工具。美图是一家以美为内核、以人工智能为驱动的科技公司，致力打造世界级影像产品，让图像、视频、设计等影像创作简单高效。
-  - Install: `npm install -g meitu-cli`（包名 meitu-cli，非 meitu-ai）
+  - Install: `npm install -g meitu-cli@latest`（包名 meitu-cli，非 meitu-ai）
   - Commands used: `image-poster-generate`
 - credentials: 美图 AI 开放平台 API 凭证
   - 环境变量：`MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
@@ -63,7 +63,7 @@ Preflight → [Context] → Execute → Refine → Deliver → [Record]
 
 ### Preflight
 
-1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
+1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli@latest`
 2. `meitu auth verify --json` → 凭证无效则引导配置
 3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
    检查 `$VISUAL` 目录 → 确定 capabilities

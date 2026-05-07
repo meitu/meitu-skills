@@ -24,11 +24,11 @@ requirements:
 
 ## Overview
 
-接收一张人物照片，按指定证件照规格（尺寸 + 背景色）执行两步管线：自然美颜 → AI 重绘（换正装 + 纯色背景 + 规格裁剪）。无论原图穿什么衣服、戴不戴帽子，都通过 `image-edit` 一步重绘为标准正装证件照。
+接收一张人物照片，按指定证件照规格（尺寸 + 背景色）调用 `image-id-photo-generate` 一步生成标准证件照。无论原图穿什么衣服、戴不戴帽子，都通过 CLI 的证件照专用命令完成换装、换背景和规格裁剪。
 
 ## Dependencies
 
-- **meitu-cli** (>=0.1.9): `npm install -g meitu-cli`
+- **meitu-cli** (>=2.0.6): `npm install -g meitu-cli@latest`
   - 凭证配置：`meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`
   - 验证：`meitu auth verify --json`
 
@@ -44,7 +44,7 @@ Preflight → [Context: 跳过] → Execute (规格确认 → 两步管线) → 
 
 ### Preflight
 
-1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli`
+1. `meitu --version` → 未安装则提示 `npm install -g meitu-cli@latest`
 2. `meitu auth verify --json` → 凭证无效则引导配置
 3. Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
    检查 `$VISUAL` 目录 → 确定 capabilities
@@ -101,109 +101,52 @@ Preflight → [Context: 跳过] → Execute (规格确认 → 两步管线) → 
 
 单一明确需求（如"帮我做一张蓝底二寸照"） → 可跳过确认，直接执行。
 
-**两步管线**
+**单步专用命令**
 
-管线顺序是**硬约束**，不可调换：
-
-```
-Step 1: image-beauty-enhance  自然美颜（可选，用户说"不要美颜"则跳过）
-Step 2: image-edit            AI 重绘：换正装 + 纯色背景 + 构图裁剪（核心步骤）
-```
-
-**链式调用机制：** 中间步骤加 `--json`，解析返回 JSON 的 `media_urls[0]` 作为下一步的 `--image` 输入。最终步骤加 `--download-dir {output_dir}`（使用 Preflight 已解析的路径）。
-
----
-
-**Step 1（可选）: 美颜 — image-beauty-enhance**
+`2.0.6` 中证件照场景已收敛到专用命令 `image-id-photo-generate`，不再依赖旧的“美颜 + image-edit”两步串联。
 
 ```bash
-meitu image-beauty-enhance --image {user_photo_url} --beatify_type 0 --json
-```
-
-- `--beatify_type 0`：自然美颜（**证件照硬约束，绝不使用 1**）
-- 效果：轻度磨皮去瑕疵、均匀肤色、微亮眼。保留皮肤纹理和真实面部结构
-- **禁止操作**：瘦脸、大眼、改变五官 — 证件照必须与本人一致
-- 解析：`ok: true` → `media_urls[0]` 传入下一步
-- `ok: false` → 跳过美颜，用原图继续（美颜失败不阻塞管线）
-- 用户明确说"不要美颜" → 跳过此步
-
----
-
-**Step 2: AI 重绘 — image-edit（核心步骤）**
-
-`image-edit` 使用 praline 模型一步完成：换正装、去帽/墨镜、换背景色、构图裁剪。
-
-```bash
-meitu image-edit \
-  --image {input_url} \
-  --prompt "{prompt}" \
-  --model praline \
-  --ratio {ratio} \
+meitu image-id-photo-generate \
+  --image_url {user_photo_url} \
+  --spec_type "{spec_name}" \
+  [--bg_color "{color_name}"] \
+  [--attire "{attire_desc}"] \
+  --json \
   --download-dir {output_dir}
 ```
 
-**Prompt 构建规则**：
+参数说明：
 
-```
-保持人物面部五官完全不变，免冠，{attire_desc}，
-纯{color_name}色背景（{hex}），人物居中，正面直视镜头，表情自然端庄，
-头部占画面约三分之二高度，头顶留适当空白，标准{spec_name}证件照风格
-```
+| 参数 | 作用 | 说明 |
+|------|------|------|
+| `--image_url` | 输入人像照片 | 必填，正面单人人像 |
+| `--spec_type` | 证件照规格 | 必填，如一寸、二寸、中国护照、美国护照等 |
+| `--bg_color` | 背景色 | 可选，常见取值白色/蓝色/红色 |
+| `--attire` | 服装描述 | 可选，CLI 会在证件照专用流程中执行换装 |
 
-**服装描述 `{attire_desc}` 选择**：
+服装描述 `{attire_desc}` 选择：
 
 | 场景 | attire_desc |
 |------|-------------|
-| 默认 / 未指定性别 | 穿着深色正装外套搭配白色有领衬衫，衣领整洁，肩部贴合自然 |
-| 用户指定男士 | 穿着深蓝色西装外套搭配白色有领衬衫，系深色领带，衣领整洁 |
-| 用户指定女士 | 穿着黑色职业西装外套搭配白色圆领衬衫，衣领整洁，肩部贴合自然 |
-| 用户要求白衬衫（无外套） | 穿着白色有领衬衫，衣领整洁，无外套 |
+| 默认 / 未指定性别 | 深色正装外套搭配白色有领衬衫 |
+| 用户指定男士 | 深蓝色西装外套搭配白色有领衬衫和深色领带 |
+| 用户指定女士 | 黑色职业西装外套搭配白色圆领衬衫 |
+| 用户要求白衬衫（无外套） | 白色有领衬衫，无外套 |
 | 用户自定义服装 | 按用户描述填写 |
 
-> **关键原则：** prompt 必须包含"保持人物面部五官完全不变"以确保人脸一致性。服装描述要具体（颜色+款式+细节），避免泛泛的"正装"一词。
-
-变量替换示例（一寸白底，默认正装）：
-- `{attire_desc}` = 穿着深色正装外套搭配白色有领衬衫，衣领整洁，肩部贴合自然
-- `{color_name}` = 白
-- `{hex}` = #FFFFFF
-- `{spec_name}` = 一寸
-- `{ratio}` = 3:4
-
-完整 prompt 示例：
-```
-保持人物面部五官完全不变，免冠，穿着深色正装外套搭配白色有领衬衫，衣领整洁，肩部贴合自然，
-纯白色背景（#FFFFFF），人物居中，正面直视镜头，表情自然端庄，
-头部占画面约三分之二高度，头顶留适当空白，标准一寸证件照风格
-```
-
-**--ratio 查表**：read [references/spec-database.md](references/spec-database.md) § `--ratio 映射表` 获取当前规格对应的 `--ratio` 值。
-
-常用速查（完整表在 references）：
-
-| 常用规格 | --ratio |
-|---------|---------|
-| 一寸/二寸/大一寸/小二寸/中国护照/欧盟签证 | 3:4 |
-| 大二寸 | 2:3 |
-| 身份证/英国护照 | 4:5 |
-| 美国护照/日本签证 | 1:1 |
-
-**Prompt 禁止语法**（meitu-cli 使用纯自然语言）：
-- 禁止 `--ar`、`--no`、`(keyword:1.5)`、`<lora:xxx>`
-- 比例通过 `--ratio` 参数传递，不写在 prompt 中
-
-**背景色精度说明**：`image-edit` 是生成式模型，prompt 中的 hex 值为近似指导，实际出图颜色可能有偏差（如 #438EDB 可能偏天蓝）。对于需要像素级精准背景色的严格场景（如政府机构电子照片采集），应告知用户此限制，建议使用专业证件照软件做最终调色。
+常用规格和背景色仍然从 [references/spec-database.md](references/spec-database.md) 获取；这里只把执行命令切换为 `image-id-photo-generate`。
 
 ---
 
 **错误降级策略**
 
-每步独立处理，尽量不阻塞管线：
+围绕单个命令做降级：
 
 ```
-L1: 简化 prompt — 移除尺寸像素描述，只保留服装+背景色+居中指令
-L2: 省略可选参数 — ratio 改为 auto
-L3: 跳过美颜 — 美颜失败用原图继续
-L4: 编辑失败 → 简化服装描述重试（只保留"穿着正装"），仍失败则交付原图并说明
+L1: 简化 attire — 将自定义服装收敛为“深色正装外套搭配白色有领衬衫”
+L2: 省略可选参数 — 去掉 `bg_color` / `attire`，仅保留 `image_url + spec_type`
+L3: 切换到规格默认背景色 — 用户给了非常规颜色时回退到该规格默认底色
+L4: 仍失败 → 交付原图并说明证件照专用生成失败
 L5: 首步即失败 → 检查凭证/余额，报错含 code + hint
 ```
 
@@ -222,18 +165,17 @@ L5: 首步即失败 → 检查凭证/余额，报错含 code + hint
 
 | 反馈类型 | 调整方式 | 示例 |
 |----------|----------|------|
-| 背景色不对 | 修改 prompt 中的颜色值，重跑 Step 2 | "要蓝底不是白底" → 改 hex 重新编辑 |
-| 尺寸不对 | 修改规格参数，重跑 Step 2 | "要二寸的" → 更换规格重新编辑 |
-| 服装不满意 | 修改 attire_desc，重跑 Step 2 | "换白衬衫不要外套" → 调整服装描述 |
-| 不像本人 | 在 prompt 中加强面部保留描述，重跑 Step 2 | "不太像我" → 强调面部不变 |
-| 美颜过度/不够 | 跳过美颜或说明限制 | "不要美颜" → 跳过 Step 1 重跑 |
-| 人物位置偏 | 调整 prompt 中的位置描述，重跑 Step 2 | "头太偏上了" → 修改构图指令 |
-| 换张照片 | 从 Step 1 重新开始 | "用另一张" → 全管线重跑 |
+| 背景色不对 | 修改 `bg_color`，重跑专用命令 | "要蓝底不是白底" → 改为蓝底重跑 |
+| 尺寸不对 | 修改 `spec_type`，重跑专用命令 | "要二寸的" → 更换规格重新生成 |
+| 服装不满意 | 修改 `attire`，重跑专用命令 | "换白衬衫不要外套" → 调整服装描述 |
+| 不像本人 | 说明换一张更正面、更清晰的人像照再重跑 | "不太像我" → 建议换图 |
+| 人物位置偏 | 重新生成，并提示证件照专用模型会重新裁剪 | "头太偏上了" → 重新生成 |
+| 换张照片 | 重新从专用命令开始 | "用另一张" → 全流程重跑 |
 | 满意 | 进入 Deliver | "可以" / "不错" |
 
 **迭代节奏**：
-- 每轮只调整用户反馈涉及的步骤，不重跑全管线
-- 背景色/尺寸/服装调整只需重跑 Step 2（最快）
+- 每轮只调整用户反馈涉及的参数，不必恢复旧的两步管线
+- 背景色/尺寸/服装调整都只需重跑 `image-id-photo-generate`
 - 建议最多 3 轮迭代
 - 超过 3 轮 → 建议换一张照片或调整期望
 
