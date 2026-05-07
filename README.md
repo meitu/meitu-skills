@@ -52,7 +52,7 @@ npm install -g meitu-cli@latest
 
 ```bash
 meitu --version
-meitu image-cutout --image https://example.com/sample.jpg --json
+meitu image-cutout --image_url https://example.com/sample.jpg --prompt "person" --json
 ```
 
 5. Runtime repair / manual upgrade

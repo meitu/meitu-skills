@@ -139,9 +139,11 @@ meitu image-style-transfer --image_url "图片URL" --prompt "Japanese anime port
 自动超分，不需要手动指定倍数。**旧名 `image-upscale` 已废弃。**
 
 ```bash
-meitu image-superres-enhance --image_url "图片URL"
+meitu image-superres-enhance --image_url "图片URL" --prompt "general image clarity enhancement"
 
-meitu image-superres-enhance --image_url "图片URL" --json --download-dir ./output
+meitu image-superres-enhance --image_url "图片URL" --prompt "e-commerce white-background product" --json --download-dir ./output
+
+meitu image-superres-enhance --image_url "图片URL" --prompt "scanned text document" --json
 ```
 
 **Parameter table:**
@@ -149,11 +151,11 @@ meitu image-superres-enhance --image_url "图片URL" --json --download-dir ./out
 | Parameter | Required | Description |
 |------|---------|------|
 | `--image_url IMAGE_URL` | Required | 图片 URL（别名 `--image`） |
-| `--prompt PROMPT` | Optional | 可选 prompt |
+| `--prompt PROMPT` | **Required** | 图片内容描述，用于路由到合适的超分算法（如 `"e-commerce white-background product"` / `"scanned text document"` / `"general image clarity enhancement"`） |
 | `--download-dir` | Optional | 下载目录 |
 | `--json` | Optional | JSON 输出 |
 
-> 没有 `--scale` 也没有 `--model_type` 参数。系统自动判定并完成超分。
+> 没有 `--scale` 也没有 `--model_type` 参数。系统自动判定并完成超分。`--prompt` 是 CLI 强制必填项（2.0.6 起），不传会直接报 `error: required option '--prompt <value>' not specified`。
 
 ---
 
@@ -248,25 +250,25 @@ meitu image-outfit-swap \
 ```bash
 # 基础
 meitu image-to-video \
-  --image_url "图片URL" \
+  --image_list "图片URL" \
   --prompt "人物缓缓转头微笑"
 
 # 指定时长与比例
 meitu image-to-video \
-  --image_url "图片URL1" "图片URL2" \
+  --image_list "图片URL1" "图片URL2" \
   --prompt "两个场景切换过渡" \
   --video_duration 8 \
   --aspect_ratio 16:9
 
 # 输出 JSON
-meitu image-to-video --image_url "图片URL" --prompt "花瓣飘落" --json
+meitu image-to-video --image_list "图片URL" --prompt "花瓣飘落" --json
 ```
 
 **Parameter table:**
 
 | Parameter | Required | Description |
 |------|---------|------|
-| `--image_url IMAGE_URL...` | Required | 图片 URL 数组（别名 `--image` / `--image_list`） |
+| `--image_list IMAGE_LIST...` | Required | 图片 URL 数组（**仅接受 `--image_list`，不接受 `--image_url` / `--image` 别名**） |
 | `--prompt PROMPT` | Required | 动作/镜头描述 |
 | `--video_duration VIDEO_DURATION` | Optional | 2–12 秒，默认 5 |
 | `--aspect_ratio ASPECT_RATIO` | Optional | `adaptive` / `16:9` / `4:3` / `1:1` / `3:4` / `9:16` / `21:9`，默认 `adaptive` |
@@ -363,11 +365,11 @@ meitu video-to-gif --video_url "视频URL" --prompt "natural loop" --json --down
 | Parameter | Required | Description |
 |------|---------|------|
 | `--video_url VIDEO_URL` | Required | 视频 URL（别名 `--video`） |
-| `--prompt PROMPT` | Optional | 可选 prompt |
+| `--prompt PROMPT` | **Required** | 视频内容描述（用户要求透明底/表情包且画面背景纯净时输出 240×240 透明 GIF；其他情形输出 ≤480px 标准 GIF） |
 | `--download-dir` | Optional | 下载目录 |
 | `--json` | Optional | JSON 输出 |
 
-> 旧版 `--image` / `--wechat_gif` 已废弃；输入用 `--video_url`，是否微信表情格式由后端按内容自动判定。
+> 旧版 `--image` / `--wechat_gif` 已废弃；输入用 `--video_url`，是否微信表情格式由后端按内容自动判定。`--prompt` 是 CLI 强制必填项（2.0.6 起）。
 
 ---
 
