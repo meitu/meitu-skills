@@ -136,7 +136,7 @@ meitu image-poster-generate \
   --prompt "{product_name} + {selling_point} + e-commerce poster layout" \
   --image_list "{scene_or_hero_image}" \
   --ratio 4:5 \
-  --model praline_lite \
+  --model Praline_2 \
   --json
 ```
 

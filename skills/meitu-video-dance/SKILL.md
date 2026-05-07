@@ -142,7 +142,8 @@ meitu video-motion-transfer \
   --image_list "{image_url}" \
   --reference_video_list "{video_url}" \
   --prompt "{composed_prompt}" \
-  --download-dir "{output_dir}"
+  --download-dir "{output_dir}" \
+  --json
 ```
 
 **异步任务说明：**
