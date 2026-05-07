@@ -68,14 +68,14 @@ Preflight → Execute → Deliver
 | 文生海报（无参考图） | 海报、宣传图、Banner | `image_poster_generate` |
 | 图生海报 / 海报编辑（有 image_list） | 修改这张海报、参考海报 | `image_poster_generate` + `image_list` |
 
-model 选型：默认 `praline_lite`，写实人像 → `gummy_pro`，高创意 → `praline_pro`，通用人像 → `gummy`，特殊风格 → `nougat`。
+model 选型（**首字母大写**，与 image-edit 的 snake_case 命名空间不同）：默认 `Praline_2`（综合），写实人像 → `GummyV4.5`，高创意 → `PralineV2`，通用人像 → `Gummy`，特殊风格 → `Nougat`。
 
 **参数定义**
 
 | 参数 | 类型 | 必填 | 范围 | 默认 | 说明 |
 |------|------|------|------|------|------|
 | `prompt` | STRING | 是 | -- | -- | 海报描述。缺失 → 提示"请描述您想要的海报内容" |
-| `model` | STRING | 是 | gummy / nougat / praline_pro / gummy_pro / praline_lite | praline_lite | 模型选择 |
+| `model` | STRING | 否 | Gummy / Nougat / PralineV2 / GummyV4.5 / Praline_2 | Praline_2 | 模型选择（注意首字母大写，区别于 image-edit） |
 | `image_list` | ARRAY | 否 | -- | -- | 参考图片 URL 数组 |
 | `ratio` | STRING | 否 | auto / 1:1 / 1:3 / 3:1 / 2:1 / 1:2 / 3:2 / 2:3 / 4:3 / 3:4 / 4:5 / 5:4 / 9:16 / 16:9 / 10:16 / 16:10 / 21:9 | auto | 宽高比 |
 | `size` | STRING | 否 | auto / 1K / 2K / 4K / 512 | auto | 分辨率 |
@@ -86,7 +86,7 @@ model 选型：默认 `praline_lite`，写实人像 → `gummy_pro`，高创意 
 **工具调用**
 
 ```bash
-meitu image-poster-generate --prompt "<desc>" [--model praline_lite] [--ratio 9:16] [--size auto] [--image_list <url>] --json
+meitu image-poster-generate --prompt "<desc>" [--model Praline_2] [--ratio 9:16] [--size auto] [--image_list <url>] --json
 ```
 
 **错误降级**

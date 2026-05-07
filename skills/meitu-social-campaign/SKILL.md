@@ -81,7 +81,7 @@ meitu image-poster-generate \
   --prompt "{campaign_topic} + {brand_tone} + 主视觉海报" \
   --image_list "{optional_ref}" \
   --ratio 3:4 \
-  --model praline_lite \
+  --model Praline_2 \
   --json
 ```
 
