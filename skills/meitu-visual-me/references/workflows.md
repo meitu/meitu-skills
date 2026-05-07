@@ -29,7 +29,7 @@ Each workflow lists the data sources it needs to read. Check whether the file ex
 **Trigger:** 微缩场景 (miniature scene)、个人场景 (personal scene)、生成我的形象卡 (generate my character card)
 **Reads:** USER.md, MEMORY.md, memory/今日.md
 **Ratio:** 1:1 | **Reference image:** Auto-included
-**Command:** `meitu image-generate`
+**Command:** `meitu text-to-image`
 **Recommended styles:** 微缩世界、盒装手办、黏土动画、田园水彩动画
 
 Turn this person's current state into a toy scene. Elements must come from the user's profile; no generic content.
@@ -45,7 +45,7 @@ Turn this person's current state into a toy scene. Elements must come from the u
 **Trigger:** 今日卡 (daily card)、今日信息卡 (daily info card)、城市打卡 (city check-in)
 **Reads:** Weather API, USER.md (city), memory/今日.md
 **Ratio:** 1:1 or 9:16 | **Must include:** City name, date, temperature
-**Command:** `meitu image-generate`
+**Command:** `meitu text-to-image`
 **Recommended styles:** 信息卡、明信片、扁平插画
 
 Today x this city x this person = what does it feel like?
@@ -61,7 +61,7 @@ Today x this city x this person = what does it feel like?
 **Trigger:** 晨间卡 (morning card)、早安 (good morning)、晨间四宫格 (morning four-panel grid)
 **Reads:** Weather API, USER.md, memory/今日.md
 **Ratio:** 1:1 | **Reference image:** Style A auto-included
-**Command:** `meitu image-generate`
+**Command:** `meitu text-to-image`
 **Recommended styles:** 胶片生活、扁平插画、Q版手办
 
 Four panels representing the same morning mood, not four random scenes.
@@ -77,7 +77,7 @@ Four panels representing the same morning mood, not four random scenes.
 **Trigger:** 今天穿什么 (what to wear today)、OOTD、穿搭推荐 (outfit recommendation)
 **Reads:** Weather API, ./visual/config/defaults.yaml
 **Ratio:** 9:16 | **Required:** Outfit must match today's weather
-**Command:** `meitu image-generate`
+**Command:** `meitu text-to-image`
 **Recommended styles:** 街头抓拍、商品摄影、Q版手办
 
 - **A. 3D cartoon character** — Matte texture, with reference image character
@@ -91,7 +91,7 @@ Four panels representing the same morning mood, not four random scenes.
 **Trigger:** 今日数据 (today's data)、数据场景 (data scene)、生成今天的数据场景 (generate today's data scene)
 **Reads:** memory/今日.md, Weather API, MEMORY.md
 **Ratio:** 1:1 | **Reference image:** Sometimes auto-included
-**Command:** `meitu image-generate`
+**Command:** `meitu text-to-image`
 **Recommended styles:** 微缩世界、信息卡、扁平插画
 
 Express today's "energy level" through a miniature scene; don't list numbers.
@@ -107,7 +107,7 @@ Express today's "energy level" through a miniature scene; don't list numbers.
 **Trigger:** 情绪九宫格 (emotion nine-grid)、多面体 (polyhedron)、九宫格 (nine-grid)
 **Reads:** USER.md, MEMORY.md, SOUL.md
 **Ratio:** 1:1 | **Required:** Nine labels derived from user profile, username at bottom
-**Command:** `meitu image-generate`
+**Command:** `meitu text-to-image`
 **Recommended styles:** 动漫肖像、纪实人像、波普艺术
 
 - **A. Black & white cinematic** — High contrast, like nine movie stills
@@ -121,7 +121,7 @@ Express today's "energy level" through a miniature scene; don't list numbers.
 **Trigger:** 软木板 (cork board)、关系板 (relationship board)、关系拼贴 (relationship collage)
 **Reads:** MEMORY.md, memory/今日.md, SOUL.md
 **Ratio:** 1:1 | **Required:** Each item must correspond to a real event; bottom reads: username x OpenClaw · date
-**Command:** `meitu image-generate`
+**Command:** `meitu text-to-image`
 **Recommended styles:** 复古拍立得、胶片生活、纪实人像
 
 - **A. Detective board** — Red strings connecting polaroid photos, handwritten notes, tension feel
@@ -135,7 +135,7 @@ Express today's "energy level" through a miniature scene; don't list numbers.
 **Trigger:** 记忆拼贴 (memory collage)、把今天拼成一张图 (collage today into one image)、今天拼图 (today's collage)
 **Reads:** memory/今日.md, SOUL.md (today's quote), Weather API
 **Ratio:** 9:16 | **Required:** OpenClaw's daily quote appears in the image; date stamp at bottom
-**Command:** `meitu image-generate`
+**Command:** `meitu text-to-image`
 **Recommended styles:** 胶片生活、复古拍立得、扁平插画
 
 - **A. Creative studio collage** — Photos, sticky notes, tape marks, coffee stains
@@ -149,7 +149,7 @@ Express today's "energy level" through a miniature scene; don't list numbers.
 **Trigger:** 合影 (group photo)、我和 OpenClaw (me and OpenClaw)、合个影 (take a photo together)
 **Reads:** USER.md, SOUL.md, memory/今日.md
 **Ratio:** 1:1 or 9:16 | **Reference image:** Both included (user + OpenClaw)
-**Command:** `meitu image-generate`
+**Command:** `meitu text-to-image`
 **Recommended styles:** 动漫肖像、赛博朋克、微缩世界
 
 The emotional tone between the two is determined by today's state. Use `eye level` to describe height differences, not `smaller`.
@@ -164,7 +164,7 @@ The emotional tone between the two is determined by today's state. Use `eye leve
 
 **Trigger:** ID 卡 (ID card)、身份卡 (identity card)、帮我做一张卡 (make me a card)、收藏卡 (collectible card)
 **Ratio:** 9:16
-**Command:** `meitu image-generate` (works with or without reference image)
+**Command:** `meitu text-to-image` (works with or without reference image)
 
 **Determining who the card is for:**
 - Explicit subject → generate directly ("帮我生" = user card / "生你的" = OpenClaw card)
@@ -208,7 +208,7 @@ Do not infer and generate directly; **guide the user through choices first**:
 
 **Flow:**
 1. Check if `./visual/assets/references/openclaw.jpg` exists
-   - Found → `meitu image-generate` + reference image
+   - Found → `meitu text-to-image` + reference image
    - Not found → text-to-image only (use generic description: `a friendly AI assistant character in tech-wear style`)
 2. Read IDENTITY.md for character name, role, visual features; if missing, use defaults: OpenClaw, Creative AI
 3. Let user choose a style (same 4 options as above)
@@ -274,7 +274,7 @@ Style presets provide only **tonal anchors**; let AI freely generate specific de
 1. User sends photo + describes target background (e.g., "change to cyberpunk city")
 2. Use `image-edit` directly, passing the original image + prompt describing the background swap:
    ```bash
-   meitu image-edit --image [user photo] --prompt "Keep the person exactly the same, change only the background to [user's described background]" --json
+   meitu image-edit --image_list [user photo] --prompt "Keep the person exactly the same, change only the background to [user's described background]" --json
    ```
 3. Prompt key requirement: **must explicitly say "keep the person exactly the same"**, otherwise the person will also be modified
 
@@ -307,8 +307,8 @@ Style presets provide only **tonal anchors**; let AI freely generate specific de
 5. Label each image with its style name when delivering
 
 **Command selection:**
-- Stylization (cartoon/figure/anime/art) → `meitu image-edit --model nougat --image [source] --prompt "..."`
-- Scene replacement (cyberpunk/neon rain/starscape etc.) → `meitu image-generate --image [source] --prompt "..."`
+- Stylization (cartoon/figure/anime/art) → `meitu image-style-transfer --image_url [source] --prompt "..."`
+- Scene replacement (cyberpunk/neon rain/starscape etc.) → `meitu image-edit --image_list [source] --prompt "Keep the person the same, change scene to ..."`（保人换景）
 
 **Prompt assembly:** Get the corresponding style keywords from `references/style-library.md` (pick 1-2), embed into narrative:
 ```
@@ -319,10 +319,10 @@ Style presets provide only **tonal anchors**; let AI freely generate specific de
 
 | # | Style | Category | Command |
 |------|------|------|------|
-| 1 | 盒装手办 | Toy/collectible | `image-edit --model nougat` |
-| 2 | 动漫肖像 | Illustration | `image-edit --model nougat` |
-| 3 | 水墨动画 | Art | `image-edit --model nougat` |
-| 4 | 赛博朋克 | Scene | `image-generate` |
+| 1 | 盒装手办 | Toy/collectible | `image-style-transfer` |
+| 2 | 动漫肖像 | Illustration | `image-style-transfer` |
+| 3 | 水墨动画 | Art | `image-style-transfer` |
+| 4 | 赛博朋克 | Scene | `image-edit` (保人换景) 或 `image-style-transfer` |
 
 Users can choose any combination from the 20+ styles in style-library.md.
 
@@ -336,7 +336,7 @@ Users can choose any combination from the 20+ styles in style-library.md.
 **Trigger:** 头像系列 (avatar series)、换头像 (change avatar)、帮我换个头像 (help me change avatar)、做一套头像 (make a set of avatars)
 **Reads:** ./visual/assets/references/user.jpg (if exists), ./visual/config/defaults.yaml
 **Ratio:** 1:1 | **Reference image:** Include if available; text-to-image if not
-**Command:** `meitu image-generate` + `meitu image-face-swap`
+**Command:** `meitu text-to-image` + `meitu image-face-swap`
 **Recommended styles:** 潮玩公仔、动漫肖像、杂志封面、田园水彩动画、黏土动画
 
 **Core value:** One face, N styles — user picks one as their avatar.
@@ -350,11 +350,11 @@ Users can choose any combination from the 20+ styles in style-library.md.
 
 | Style | Method | Description |
 |------|------|------|
-| Trendy blind box | `image-generate` | 3D trendy character, IP feel |
-| Anime avatar | `image-generate` + `image-face-swap --head_image_url [user's real face photo] --sence_image_url [generated styled avatar] --prompt "description" --json` | Japanese anime style, preserving facial features |
-| Magazine portrait | `image-generate` | Realistic texture, magazine cover lighting |
-| Pastoral watercolor animation | `image-generate` | Hand-painted watercolor animation, warm tones, fresh and natural |
-| Clay animation | `image-generate` | Stop-motion clay texture, fingerprint details, handcrafted warmth |
+| Trendy blind box | `text-to-image` | 3D trendy character, IP feel |
+| Anime avatar | `text-to-image` + `image-face-swap --head_image_url [user's real face photo] --sence_image_url [generated styled avatar] --prompt "description" --json` | Japanese anime style, preserving facial features |
+| Magazine portrait | `text-to-image` | Realistic texture, magazine cover lighting |
+| Pastoral watercolor animation | `text-to-image` | Hand-painted watercolor animation, warm tones, fresh and natural |
+| Clay animation | `text-to-image` | Stop-motion clay texture, fingerprint details, handcrafted warmth |
 
 **Prompt template with reference image:**
 ```
@@ -387,10 +387,10 @@ Using reference image, [style description]. Portrait composition, 1:1 square for
    - Mood: "A gentle zoom out revealing the full scene, warm light gradually intensifies"
    ```
    **The prompt focuses on motion and changes; no need to re-describe the image content (the image already has it).**
-4. Execute `meitu image-to-video --image [image path] --prompt "motion description" --video_duration [seconds] --json`
+4. Execute `meitu image-to-video --image_list [image path] --prompt "motion description" --video_duration [seconds] --json`
    - `--prompt`: Describe desired motion effects (required)
    - `--video_duration`: Video duration, 2-12 seconds (optional, default 5)
-   - `--ratio`: Video aspect ratio (optional)
+   - `--aspect_ratio`: Video aspect ratio (optional, e.g. `16:9` / `9:16` / `1:1`)
 5. Poll and wait for task completion
 6. Deliver video file
 
@@ -413,7 +413,7 @@ Using reference image, [style description]. Portrait composition, 1:1 square for
 1. User provides source video (containing the motion to transfer)
 2. Confirm target image (user's photo or `./visual/assets/references/user.jpg`)
 3. Inform user: "Generating, this may take 1-2 minutes..."
-4. Execute `meitu video-motion-transfer --image_url [target image] --video_url [source video] --prompt "description" --json`
+4. Execute `meitu video-motion-transfer --image_list [target image] --reference_video_list [source video] --prompt "description" --json`
 5. Poll and wait for task completion
 6. Deliver video
 
@@ -424,14 +424,16 @@ Using reference image, [style description]. Portrait composition, 1:1 square for
 ## 16. virtual-tryon · Virtual Try-On
 
 **Trigger:** 试穿 (try on)、试衣 (try clothes)、穿上这件 (put this on)、这件衣服穿上什么样 (what would this look like on me)
-**Command:** `meitu image-try-on`
+**Command:** `meitu image-outfit-swap`
 **Input:** Person photo + clothing photo
 
 **Flow:**
 1. Confirm person photo (user's or `./visual/assets/references/user.jpg`)
 2. Confirm clothing photo (user must provide)
-3. Execute `meitu image-try-on --clothes_image_url [clothing image] --person_image_url [person image] --replace [body part] --json`
-   - `--replace` options: `upper` (top) / `lower` (bottom) / `dress` (dress) / `coat` (coat) / `jumpsuit` (jumpsuit) / `full` (full body) / `unknown` (auto-detect)
+3. Execute `meitu image-outfit-swap --image_url [person image] --clothes_image_url [clothing image] --prompt "[target outfit description]" --json`
+   - `--image_url`：人物图（必填）
+   - `--clothes_image_url`：服装参考图（可选）
+   - `--prompt`：目标穿搭描述（覆盖部位/风格/版型，例如 `"穿上参考图中的米白色羊绒大衣"`）
 4. Deliver try-on result image
 
 **When user sends only a clothing image:** Automatically use `./visual/assets/references/user.jpg` as the person image; if unavailable, ask user to send a full-body photo.
@@ -445,18 +447,18 @@ Using reference image, [style description]. Portrait composition, 1:1 square for
 
 **Trigger:** 美颜 (beauty enhance)、磨皮 (skin smoothing)、帮我修一下 (touch me up)、皮肤好一点 (better skin)
 **Reads:** None (zero read)
-**Command:** `meitu image-beauty-enhance`
+**Command:** `meitu image-edit --model gummy_pro`
 **Input:** User's photo (required, single person only)
 
 **Zero-barrier entry point:** Send a selfie + "touch up my photo", instant result.
 
 **Flow:**
 1. Confirm source image (user's; must be a single-person photo)
-2. Determine beauty intensity:
-   - User says "keep it natural" / "light" → `--beatify_type 0` (natural, default)
-   - User says "go heavy" / "max it out" → `--beatify_type 1` (heavy)
-   - User says nothing → default to natural (0)
-3. Execute `meitu image-beauty-enhance --image [image path] --beatify_type [0/1] --json`
+2. Determine beauty intensity (旧版 `--beatify_type` 已合并到 prompt)：
+   - User says "keep it natural" / "light" → prompt: `"natural skin smoothing, light tone-up, preserve real texture and pores"`（默认）
+   - User says "go heavy" / "max it out" → prompt: `"重度磨皮提亮，皮肤光滑通透"`
+   - User says nothing → 默认走 natural
+3. Execute `meitu image-edit --image_list [image path] --prompt "<beauty prompt>" --model gummy_pro --json`
 4. Deliver the enhanced photo
 
 **Note:** Single-person photos only. Multi-person group photos will fail; prompt user to send a single-person photo.
@@ -465,4 +467,4 @@ Using reference image, [style description]. Portrait composition, 1:1 square for
 > "Beauty enhancement complete. Want to try a different style?"
 
 **Common combinations:**
-- Beauty enhance → `image-edit --model nougat` → stylize after enhancing
+- Beauty enhance → `image-style-transfer` → stylize after enhancing

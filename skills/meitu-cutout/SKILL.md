@@ -61,27 +61,26 @@ Preflight → [Context: 跳过（工具型抠图，无创意自由度）] → Ex
 
 如果用户只说"帮我抠图"但没给图片 → 问："请提供需要抠图的图片（本地路径或 URL）"。
 
-**model_type 路由**
+**prompt 路由**
 
-| 用户意图 / 图片内容 | model_type | 说明 |
-|---------------------|-----------|------|
-| 人像、证件照、半身照 | `0` (portrait) | 人像优化，保留发丝细节 |
-| 商品、产品、电商图 | `1` (product) | 产品边缘优化 |
-| 设计素材、图标、插画 | `2` (graphic) | 图形/非照片类 |
-| 不确定 / 未说明 | 不传 | 自动检测（推荐默认） |
+服务端按 `--prompt` 中的主体描述自动路由到合适算法（标准四类主体走 `api_v1_sod_async` 输出透明底 PNG；非标准主体或用户要求白底走 `image_praline_edit_v2` 输出白底图）。
 
-规则：用户未指定类型时，不传 `--model_type`，让服务端自动检测。仅当用户明确说"这是人像/商品/图标"或图片来源明确（如"电商主图"）时才指定。
+| 用户意图 / 图片内容 | 推荐 prompt | 输出 |
+|---------------------|------------|------|
+| 人像、证件照、半身照 | `"person"` / `"portrait"` | 透明底 PNG，保留发丝细节 |
+| 商品、产品、电商图 | `"product"` / `"sneakers"` 等具体品类 | 透明底 PNG，产品边缘优化 |
+| 设计素材、图标、印章 | `"graphic stamp"` / `"icon"` | 透明底 PNG |
+| 建筑、植物、车辆、食物 | `"building"` / `"car"` 等具体描述 | **白底** RGB(255,255,255) |
+| 用户明确要求白底 | 在 prompt 里加 `"white background"` | 白底 |
+| 不确定 / 未说明 | `"subject"` 或省略由 Agent 判断后填入 | 默认走标准抠图（透明底） |
+
+规则：Agent 先识别图片主体并生成 prompt（具体品类词比"subject"更精准）。用户明确要白底时，在 prompt 里加 `white background` 即可。
 
 **工具调用**
 
 单张抠图：
 ```bash
-meitu image-cutout --image {image_url_or_path} --json --download-dir {output_dir}
-```
-
-指定 model_type：
-```bash
-meitu image-cutout --image {image_url_or_path} --model_type {0|1|2} --json --download-dir {output_dir}
+meitu image-cutout --image_url {image_url} --prompt "{subject_description}" --json --download-dir {output_dir}
 ```
 
 **批量处理**
@@ -89,11 +88,11 @@ meitu image-cutout --image {image_url_or_path} --model_type {0|1|2} --json --dow
 用户提供多张图片时，逐张调用：
 ```bash
 for img in {image_list}; do
-  meitu image-cutout --image "$img" --json --download-dir {output_dir}
+  meitu image-cutout --image_url "$img" --prompt "{subject_description}" --json --download-dir {output_dir}
 done
 ```
 
-注意：`image-cutout` 每次只处理一张图，不支持 `--image_list`。
+注意：`image-cutout` 每次只处理一张图，不支持 `--image_list`；输入参数只接 `--image_url`（别名 `--image`）。
 
 **结果检查**
 
@@ -105,7 +104,7 @@ done
 
 | 级别 | 动作 | 说明 |
 |------|------|------|
-| L1 | 切换 model_type | 自动检测失败时，依次尝试 0→1→2 |
+| L1 | 调整 prompt | 自动检测不准时，将 prompt 改为更具体的主体描述（如 `"running shoe"` 替代 `"product"`），或追加 `"white background"` 强制白底 |
 | L2 | 检查图片格式/大小 | 确保图片可访问且非损坏 |
 | L3 | 停止并报错 | 2 次连续失败后，输出 `code` + `hint` |
 
