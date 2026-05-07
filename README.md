@@ -174,3 +174,51 @@ Triggers: carousel set, multi-image post, carousel, knowledge card set, product 
 One-click AI beauty enhancement: skin smoothing, brightening, and facial feature refinement. Supports natural and enhanced intensity levels. Single-person portrait photos only.
 
 Triggers: beauty enhance, skin smoothing, brighten, retouch, beautify, beauty enhance, make photo look better
+
+---
+
+### meitu-image-adapt
+
+Intelligently adapts an image to a target aspect ratio or platform spec while preserving the subject and naturally extending the background. Supports portrait → landscape conversion, outpainting, and platform-aware reshaping (Xiaohongshu, Douyin, WeChat, etc.).
+
+Triggers: image adapt, outpaint, expand image, ratio change, portrait to landscape, adapt for Xiaohongshu, adapt for Douyin
+
+---
+
+### meitu-ai-portrait
+
+Expands one or a few portraits into a complete AI portrait experience — signature portrait shots, business headshots, outfit/face-consistent variants, and final portrait retouching.
+
+Triggers: AI portrait, business headshot, professional portrait, multi-look portrait, portrait set, 形象照, AI 写真
+
+---
+
+### meitu-ecommerce-listing
+
+Quickly composes the asset pack needed to launch a new e-commerce SKU: white-background hero image, scene shot, selling-point poster, with optional super-resolution.
+
+Triggers: ecommerce listing, listing pack, hero image, white-background product, launch assets, 上新图, 主图, 卖点图
+
+---
+
+### meitu-music-video
+
+Turns music or BGM into a short video with matching ambient visuals. Generates pure music first, then a multimodal video, optionally stitched into a longer music short.
+
+Triggers: music video, BGM video, music visualizer, ambient MV, audio-driven short, 氛围 MV
+
+---
+
+### meitu-short-video-studio
+
+Quickly composes a finished short video from a theme, selling point, or key visual. Covers script/storyboard generation, single-segment video generation, BGM or narration overlay, and multi-segment stitching.
+
+Triggers: short video, ad spot, reels, shorts, product video, promo video, teaser, 种草视频, 广告片
+
+---
+
+### meitu-social-campaign
+
+Turns one campaign idea into a multi-platform social asset pack: campaign copy, hero poster, multi-aspect extensions, and platform-specific reskins.
+
+Triggers: social campaign, campaign assets, multi-platform asset pack, Xiaohongshu cover set, Douyin assets, 多平台素材包

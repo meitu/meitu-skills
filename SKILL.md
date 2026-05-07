@@ -35,6 +35,11 @@ This is the top-level routing skill:
 - Use `meitu-carousel` for generating cohesive carousel sets (cover + inner pages).
 - Use `meitu-beauty` for AI beauty enhancement on portrait photos.
 - Use `meitu-image-adapt` for intelligently adapting images to a target aspect ratio or platform size, extending backgrounds without distorting the subject.
+- Use `meitu-ai-portrait` for AI portrait shoots, business headshots, multi-look portrait sets, and consistent face/outfit variants.
+- Use `meitu-ecommerce-listing` for end-to-end e-commerce listing asset packs (white-background hero, scene shot, selling-point poster, optional super-resolution).
+- Use `meitu-music-video` for music or BGM driven short videos with matching ambient visuals.
+- Use `meitu-short-video-studio` for short-video production: script/storyboard, single-segment generation, audio overlay, and stitching.
+- Use `meitu-social-campaign` for multi-platform social campaign asset packs (copy, hero poster, multi-aspect adaptations, platform reskins).
 - Use `meitu-tools` for direct tool execution with the Meitu CLI.
 
 ## Permission Scope
@@ -118,7 +123,28 @@ In project mode (when `openclaw.yaml` exists), scene skills may also:
 - The user wants to convert a portrait image to landscape, or vice versa.
 - The user mentions 图片适配, 图片延展, 外扩, outpaint, or adapting an image to a specific platform (小红书, 抖音, 公众号, etc.).
 
-14. Use `meitu-tools` when:
+14. Use `meitu-ai-portrait` when:
+- The user wants an AI portrait set, business headshot, professional formal portrait, or multi-look portrait series.
+- The user provides one or several portraits and wants face-consistent outfit/scene variants plus final retouching.
+- The user mentions AI 写真, 商务头像, 形象照, portrait set, or multi-look portrait.
+
+15. Use `meitu-ecommerce-listing` when:
+- The user wants e-commerce listing assets: white-background hero image, scene shot, selling-point poster, with optional super-resolution.
+- The user mentions 上新图, 主图, 卖点图, listing pack, hero image, or ecommerce launch assets.
+
+16. Use `meitu-music-video` when:
+- The user wants a music-driven or BGM-driven short video with matching visuals.
+- The user mentions music video, BGM 视频, music visualizer, 氛围 MV, or audio-driven short videos.
+
+17. Use `meitu-short-video-studio` when:
+- The user wants short-video production: script/storyboard, single-segment generation, audio overlay, and multi-segment stitching.
+- The user mentions 短视频, 广告片, reels, shorts, 产品视频, 种草视频, promo video, or teaser video.
+
+18. Use `meitu-social-campaign` when:
+- The user wants multi-platform social campaign asset packs: campaign copy, hero poster, multi-aspect adaptations, platform-specific reskins.
+- The user mentions social campaign, campaign assets, 多平台素材包, 小红书封面套图, or Douyin assets.
+
+19. Use `meitu-tools` when:
 - The user wants direct generation/editing execution.
 - The user already provides command-like parameters.
 
