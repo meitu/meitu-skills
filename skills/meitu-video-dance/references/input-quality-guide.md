@@ -30,8 +30,8 @@
 
 当用户图片不理想时，按以下顺序建议预处理：
 
-1. **背景杂乱** → `meitu image-cutout --image {url} --json` 抠图，然后 `meitu image-edit --image {cutout_url} --prompt "place person on a clean white studio background" --json` 换背景
-2. **分辨率低** → `meitu image-superres-enhance --image_url {url} --json` 超分
+1. **背景杂乱** → `meitu image-cutout --image_url {url} --prompt "person" --json` 抠图，然后 `meitu image-edit --image_list {cutout_url} --prompt "place person on a clean white studio background" --json` 换背景
+2. **分辨率低** → `meitu image-superres-enhance --image_url {url} --prompt "person, dance pose, full body" --json` 超分
 3. **半身图** → 坦诚告知用户：半身图做全身舞蹈效果差，建议提供全身图；如果只做上半身动作（手势、表情）可以尝试
 4. **多人合照** → 建议用户裁剪出单人区域
 
