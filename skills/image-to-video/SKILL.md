@@ -104,7 +104,7 @@ API 映射关键点：
 **工具调用**
 
 ```bash
-meitu image-to-video --image_list <img1>[,<img2>,...] --prompt "<desc>" [--mode auto] [--video_duration 5] [--sound off] [--aspect_ratio adaptive] --json
+meitu image-to-video --image_list <img1>[,<img2>,...] --prompt "<desc>" [--mode auto] [--video_duration 5] [--sound off] [--aspect_ratio adaptive] --json   --skill_name skill_image-to-video
 ```
 
 **错误降级**

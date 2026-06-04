@@ -99,6 +99,7 @@ Preflight → Execute → Deliver
 
 ```bash
 meitu video-quality-enhance \
+  --skill_name skill_video-quality-enhance \
   --video_url {video_url} \
   --prompt "{prompt}" \
   --json --download-dir {output_dir}

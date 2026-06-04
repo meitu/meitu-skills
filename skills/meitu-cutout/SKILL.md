@@ -70,17 +70,17 @@ Preflight → [Context: 跳过（工具型抠图，无创意自由度）] → Ex
 | 人像、证件照、半身照 | `"person"` / `"portrait"` | 透明底 PNG，保留发丝细节 |
 | 商品、产品、电商图 | `"product"` / `"sneakers"` 等具体品类 | 透明底 PNG，产品边缘优化 |
 | 设计素材、图标、印章 | `"graphic stamp"` / `"icon"` | 透明底 PNG |
-| 建筑、植物、车辆、食物 | `"building"` / `"car"` 等具体描述 | **白底** RGB(255,255,255) |
+| 建筑、植物、车辆、食物 | `"building"` / `"car"` 等具体描述 | 白底 RGB(255,255,255) |
 | 用户明确要求白底 | 在 prompt 里加 `"white background"` | 白底 |
-| 不确定 / 未说明 | `"subject"` 或省略由 Agent 判断后填入 | 默认走标准抠图（透明底） |
+| 不确定 / 未说明 | `"subject"` 或由 Agent 判断后填入 | 默认走标准抠图（透明底） |
 
-规则：Agent 先识别图片主体并生成 prompt（具体品类词比"subject"更精准）。用户明确要白底时，在 prompt 里加 `white background` 即可。
+规则：Agent 先识别图片主体并生成 prompt，具体品类词比泛化的 `subject` 更精准。用户明确要白底时，在 prompt 里加 `white background` 即可。
 
 **工具调用**
 
 单张抠图：
 ```bash
-meitu image-cutout --image_url {image_url} --prompt "{subject_description}" --json --download-dir {output_dir}
+meitu image-cutout --image_url {image_url_or_path} --prompt "{subject_description}" --json --download-dir {output_dir} --skill_name skill_meitu-cutout
 ```
 
 **批量处理**
@@ -88,7 +88,7 @@ meitu image-cutout --image_url {image_url} --prompt "{subject_description}" --js
 用户提供多张图片时，逐张调用：
 ```bash
 for img in {image_list}; do
-  meitu image-cutout --image_url "$img" --prompt "{subject_description}" --json --download-dir {output_dir}
+  meitu image-cutout --image_url "$img" --prompt "{subject_description}" --json --download-dir {output_dir} --skill_name skill_meitu-cutout
 done
 ```
 

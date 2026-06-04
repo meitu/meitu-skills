@@ -103,6 +103,7 @@ Preflight → Execute → Deliver
 
 ```bash
 meitu image-transform \
+  --skill_name skill_meitu-image-adapt \
   --image_url "{image}" \
   --target_width {width} \
   --target_height {height} \

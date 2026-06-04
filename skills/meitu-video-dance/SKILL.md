@@ -139,11 +139,11 @@ mode = one-off → 跳过此步，直接到 Execute。
 
 ```bash
 meitu video-motion-transfer \
+  --skill_name skill_meitu-video-dance \
   --image_list "{image_url}" \
   --reference_video_list "{video_url}" \
   --prompt "{composed_prompt}" \
-  --download-dir "{output_dir}" \
-  --json
+  --download-dir "{output_dir}"
 ```
 
 **异步任务说明：**

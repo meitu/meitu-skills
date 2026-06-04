@@ -80,7 +80,7 @@ Preflight → Execute → Deliver
 **工具调用**
 
 ```bash
-meitu audio-music-generate --prompt "<style/scene/mood>" [--duration 30] --json
+meitu audio-music-generate --prompt "<style/scene/mood>" [--duration 30] --json   --skill_name skill_audio-music-generate
 ```
 
 **错误降级**

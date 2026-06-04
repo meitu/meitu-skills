@@ -92,6 +92,7 @@ Preflight → Execute → Deliver
 日常文案：
 ```bash
 meitu text-generate \
+  --skill_name skill_text-generate \
   --summary "{需求描述}" \
   --language "简体中文" \
   --json
@@ -100,6 +101,7 @@ meitu text-generate \
 高难度 / 视频分镜：
 ```bash
 meitu text-generate \
+  --skill_name skill_text-generate \
   --summary "{分镜需求}" \
   --language "简体中文" \
   --model pretzel_pro \
@@ -110,6 +112,7 @@ meitu text-generate \
 英文文案：
 ```bash
 meitu text-generate \
+  --skill_name skill_text-generate \
   --summary "Write a product description for ..." \
   --language "English" \
   --json

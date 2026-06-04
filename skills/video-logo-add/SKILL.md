@@ -81,6 +81,7 @@ Preflight → Execute → Deliver
 
 ```bash
 meitu video-logo-add \
+  --skill_name skill_video-logo-add \
   --video_url {url} \
   --logo_url {logo} \
   [--position top-right] \

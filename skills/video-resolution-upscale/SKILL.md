@@ -91,6 +91,7 @@ Preflight → Execute → Deliver
 
 ```bash
 meitu video-resolution-upscale \
+  --skill_name skill_video-resolution-upscale \
   --video_url {video_url} \
   --target_resolution {720p|1080p|2K|4K} \
   --json --download-dir {output_dir}

@@ -29,7 +29,7 @@ requirements:
 
 ## Overview
 
-关键词搜图 / 以图搜图，内部图库 + Pinterest 联合检索。用于找参考图、找素材、搜灵感、以图找相似图片；支持多关键词拆分提升召回率。
+关键词搜图 / 以图搜图，内部图库 + Pinterest + 花瓣联合检索。用于找参考图、找素材、搜灵感、以图找相似图片；支持多关键词拆分提升召回率。
 
 ## API Mapping
 
@@ -77,17 +77,20 @@ Preflight → Execute → Deliver
 | `prompt` | ARRAY | 条件必填 | -- | -- | 搜索词数组。复杂意图拆多个关键词。`search` 模式必填 |
 | `image_ids` | ARRAY | 条件必填 | -- | -- | 图片 ID 数组。用户给 URL 时自动提取 ID。`retrieve` 模式必填 |
 | `query_mode` | STRING | 是 | search / retrieve | search | search=关键词搜索；retrieve=以图召回 |
-| `size` | NUMBER | 是 | 1–20 | 4 | 返回图片数量。"多找几张"可调大到 8–12 |
-| `source_type` | STRING | 是 | auto / internal / pinterest | auto | auto=内部优先不足回退外部 |
+| `size` | NUMBER | 是 | 1–8 | 4 | 返回图片数量，最大 8 |
+| `source_type` | STRING | 是 | auto / internal / pinterest / huaban | auto | auto=内部优先不足回退外部 |
 
 缺省策略：`prompt` 和 `image_ids` 至少提供一项；都缺失 → 提示"请描述搜索内容或提供参考图"。
 
 **工具调用**
 
 ```bash
-meitu image-search --prompt "<kw1>,<kw2>" [--query_mode search] [--size 4] [--source_type auto] --json
+meitu image-search --prompt "<kw1>,<kw2>" [--query_mode search] [--size 4] [--source_type auto] --json   --skill_name skill_image-search
+```
+
+```bash
 # 以图搜图
-meitu image-search --image_ids <id1>,<id2> --query_mode retrieve --json
+meitu image-search --image_ids <id1>,<id2> --query_mode retrieve --json   --skill_name skill_image-search
 ```
 
 **错误降级**
@@ -96,7 +99,7 @@ meitu image-search --image_ids <id1>,<id2> --query_mode retrieve --json
 |------|------|
 | `prompt` 和 `image_ids` 都缺失 | 提示"请描述搜索内容或提供参考图" |
 | 说"搜这张图类似的"但未提供图片 | 提示"请提供参考图片" |
-| 说"多搜点"但 `size` 已为 20 | 告知最多返回 20 张 |
+| 说"多搜点"但 `size` 已为 8 | 告知最多返回 8 张 |
 | `source_type=pinterest` 但外部源不可用 | 降级为 `auto` 重试 |
 | 返回空结果 | 换同义词重试 1 次，仍空：告知未找到，建议换关键词 |
 | 接口超时 | `size` 缩至 2 重试，仍超时：告知服务暂不可用 |
@@ -117,3 +120,4 @@ meitu image-search --image_ids <id1>,<id2> --query_mode retrieve --json
 ## 基线 Task ID
 
 见 `references/task-id-baseline.md` 中对应行。
+

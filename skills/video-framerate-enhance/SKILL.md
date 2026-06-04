@@ -84,7 +84,7 @@ Preflight → Execute → Deliver
 **工具调用**
 
 ```bash
-meitu video-framerate-enhance --video_url {url} [--frame_rate 60] --json --download-dir {output_dir}
+meitu video-framerate-enhance --video_url {url} [--frame_rate 60] --json --download-dir {output_dir}  --skill_name skill_video-framerate-enhance
 ```
 
 **错误降级**

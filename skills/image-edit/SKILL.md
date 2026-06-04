@@ -37,8 +37,9 @@ requirements:
 - 多图/一致性/通用/电商/参考图创作（主）：`image_praline_edit_v2`
 - 通用编辑（降级）：`image_praline_edit_2`
 - 工具内兜底：`image_mint_edit`
+- Nougat 高质量（外部显式指定）：`image_nougat_edit`（路由不识别；image_list 最多 10 张；不支持 output_format；size 内部常量 2K；quality 由 API 内部默认 Medium 不对外暴露）
 
-model 映射：`auto`（默认按路由）/`gummy_pro`→gummy/`praline_pro`→v2/`praline_lite`→2/`mint_edit`→mint
+model 映射：`auto`（默认按路由）/`gummy_pro`→gummy/`praline_pro`→v2/`praline_lite`→2/`mint_edit`→mint/`nougat`→nougat_edit（外部显式指定触发）
 
 ## Dependencies
 
@@ -56,7 +57,7 @@ Preflight → Execute → Deliver
 
 ### Preflight
 
-1. `meitu --version` ≥ 2.0.6（否则 `npm install -g meitu-cli@latest ...`）
+1. `meitu --version` ≥ 2.0.6（否则 `npm install -g meitu-cli@latest`）
 2. 确认已跑过 `meitu tools update`（用 CONFIG AKSK）
 3. 当前 AKSK = EXEC，且 `MEITU_OPENAPI_TOOL_TASK_MODE=command`
 4. 解析 output_dir：openclaw.yaml → `./output/` ｜else → `$VISUAL/output/image-edit/`；`mkdir -p`
@@ -93,14 +94,15 @@ Preflight → Execute → Deliver
 | `size` | STRING | 否 | 1K/2K/4K | -- | 输出分辨率 |
 | `output_format` | STRING | 否 | jpeg/png/webp | jpeg | 输出格式 |
 
-model 参数（可显式指定绕过 auto 路由）：`gummy_pro`（人像）/`praline_pro`（通用）/`praline_lite`（降级）/`mint_edit`（兜底）。
+model 参数（可显式指定绕过 auto 路由）：`gummy_pro`（人像）/`praline_pro`（通用）/`praline_lite`（降级）/`mint_edit`（兜底）/`nougat`（高质量，外部显式指定触发，路由不识别）。
 
 **工具调用**
 
 ```bash
-meitu image-edit \
-  --image_list <url1,url2> \
-  --prompt "<edit_description>" \
+meitu image-edit \\
+  --skill_name skill_image-edit \\
+  --image_list <url1,url2> \\
+  --prompt "<edit_description>" \\
   --json
 ```
 
@@ -133,3 +135,4 @@ meitu image-edit \
 ## 基线 Task ID
 
 见 `references/task-id-baseline.md` 中对应行。
+

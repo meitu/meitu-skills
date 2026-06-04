@@ -51,7 +51,7 @@ Preflight → Execute → Deliver
 
 ### Preflight
 
-1. `meitu --version` ≥ 2.0.6（否则 `npm install -g meitu-cli@latest ...`）
+1. `meitu --version` ≥ 2.0.6（否则 `npm install -g meitu-cli@latest`）
 2. 确认已跑过 `meitu tools update`（用 CONFIG AKSK）
 3. 当前 AKSK = EXEC，且 `MEITU_OPENAPI_TOOL_TASK_MODE=command`
 4. 解析 output_dir：openclaw.yaml → `./output/` ｜else → `$VISUAL/output/image-face-swap/`；`mkdir -p`
@@ -88,6 +88,7 @@ Preflight → Execute → Deliver
 
 ```bash
 meitu image-face-swap \
+  --skill_name skill_image-face-swap \
   --head_image_url <head_url> \
   --sence_image_url <sence_url> \
   --prompt "<effect_description>" \

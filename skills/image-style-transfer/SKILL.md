@@ -39,7 +39,10 @@ requirements:
 - 参考图风格迁移：`image_mint_styletransfer`
 - 双图兜底：`image_praline_edit_v2`
 - 工具内兜底：`image_mint_edit`
-- model 映射：`auto`（默认）/`praline_pro`→v2 / `praline_lite`→edit_2 / `mint_style`→styletransfer / `mint_edit`→mint
+- Nougat 高质量（外部显式指定）：`image_nougat_edit`（路由不识别；ratio 原生 11 枚举；size 内部常量 2K；quality 由 API 内部默认 Medium 不对外暴露）
+- model 映射：`auto`（默认）/`praline_pro`→v2 / `praline_lite`→edit_2 / `mint_style`→styletransfer（必须同时提供 style_image_url，单图禁止指定）/ `mint_edit`→mint / `nougat`→nougat_edit（外部显式指定触发）
+
+可选参数：`--model <auto|praline_pro|praline_lite|mint_style|mint_edit|nougat>`、`--ratio <auto|1:1|...|21:9>`（仅 `model=nougat` 路径生效，其他静默忽略）
 
 ## Dependencies
 
@@ -83,6 +86,8 @@ Preflight → Execute → Deliver
 |------|------|------|------|
 | `image_url` | ARRAY[STRING] | 是 | 图片地址列表。1 张=原图；2 张=`[原图, 风格参考图]`，顺序固定 |
 | `prompt` | STRING | 是 | 用户目标风格描述，用于效果检索和兜底处理 |
+| `model` | STRING | 否 | `auto` / `praline_pro` / `praline_lite` / `mint_style` / `mint_edit` / `nougat` |
+| `ratio` | STRING | 否 | 仅 `model=nougat` 路径生效；其他 model 静默忽略 |
 
 API 映射说明：
 
@@ -93,7 +98,7 @@ API 映射说明：
 **工具调用**
 
 ```bash
-meitu image-style-transfer --image_url <origin>[,<style_ref>] --prompt "<style desc>" --json
+meitu image-style-transfer --image_url <origin>[,<style_ref>] --prompt "<style desc>" --json   --skill_name skil_image-style-transfer
 ```
 
 **错误降级**
@@ -127,3 +132,4 @@ meitu image-style-transfer --image_url <origin>[,<style_ref>] --prompt "<style d
 ## 基线 Task ID
 
 见 `references/task-id-baseline.md` 中对应行。
+

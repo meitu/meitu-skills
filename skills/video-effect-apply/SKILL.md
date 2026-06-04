@@ -112,13 +112,17 @@ Preflight → Execute → Deliver
 
 ```bash
 # 视频输入
-meitu video-effect-apply --video_url {url} --prompt "{特效描述}" --json --download-dir {output_dir}
+meitu video-effect-apply --video_url {url} --prompt "{特效描述}" --json --download-dir {output_dir} --skill_name skill_video-effect-apply
+```
 
+```bash
 # 图片输入（铁律）
-meitu video-effect-apply --image_url {url} --prompt "{特效描述}" --json --download-dir {output_dir}
+meitu video-effect-apply --image_url {url} --prompt "{特效描述}" --json --download-dir {output_dir} --skill_name skill_video-effect-apply
+```
 
+```bash
 # 显式指定 model
-meitu video-effect-apply --video_url {url} --prompt "..." --model molasses --json ...
+meitu video-effect-apply --video_url {url} --prompt "..." --model molasses --json --skill_name skill_video-effect-apply ...
 ```
 
 **错误降级**

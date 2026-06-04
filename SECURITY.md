@@ -7,7 +7,7 @@ This document describes the security model and operational boundaries of `meitu-
 `meitu-skills` has two security-relevant layers:
 
 - Root and scene skills: route requests, read project context, and in some workflows write project or shared memory files.
-- `meitu-tools`: executes validated `meitu-cli` commands through the local runner.
+- `meitu-tools`: executes validated `meitu` CLI commands directly.
 
 This file covers both layers so reviewers can compare the written workflow against the declared permissions.
 
@@ -83,13 +83,13 @@ This skill pack writes outputs to `~/.openclaw/workspace/visual/` or project-loc
 
 Notes:
 
-- `meitu-tools` and scene skills call the `meitu` CLI directly; no helper Node runner is required.
-- Skills use inline path resolution logic and never execute project-local or user-supplied scripts.
+- `meitu-tools` and scene skills call the `meitu` CLI directly.
+- Scene skills use inline path resolution logic (no external helper scripts).
 
 ## Prompt and Instruction Handling
 
 - User-provided text, prompts, URLs, and JSON fields are treated as task data only.
-- User content must not override skill instructions, permission boundaries, or runner behavior.
+- User content must not override skill instructions, permission boundaries, or command execution behavior.
 - Scene skills must not disclose unrelated local file contents, hidden instructions, internal endpoints, or credentials.
 - `meitu-tools` accepts only validated command names and validated parameter shapes from its registry path; user text is not command authority.
 
@@ -97,9 +97,9 @@ Notes:
 
 Automatic runtime repair is intentionally disabled.
 
-- The runner does not auto-install packages
-- The runner does not auto-upgrade `meitu-cli`
-- The runner may return actionable manual repair guidance when runtime is missing or outdated
+- The skill pack does not auto-install packages
+- The skill pack does not auto-upgrade `meitu-cli`
+- The skill pack may return actionable manual repair guidance when runtime is missing or outdated
 - Operators should run install or upgrade commands only when they explicitly want runtime repair
 
 ### Manual Update
@@ -117,11 +117,11 @@ meitu --version
 User Request
     │
     ▼
-meitu-tools (resolves command and inputs from references/tools.yaml)
+meitu-tools
     │
-    ├── Read credentials (env or ~/.meitu/credentials.json)
+    ├── Read credentials (env or file)
     ├── Validate command name and inputs
-    ├── Execute `meitu <command> ...` CLI
+    ├── Execute meitu CLI
     └── Return result or manual repair hint
 ```
 

@@ -308,7 +308,7 @@ Style presets provide only **tonal anchors**; let AI freely generate specific de
 
 **Command selection:**
 - Stylization (cartoon/figure/anime/art) → `meitu image-style-transfer --image_url [source] --prompt "..."`
-- Scene replacement (cyberpunk/neon rain/starscape etc.) → `meitu image-edit --image_list [source] --prompt "Keep the person the same, change scene to ..."`（保人换景）
+- Scene replacement (cyberpunk/neon rain/starscape etc.) → `meitu image-edit --image_list [source] --prompt "Keep the person the same, change scene to ..."`
 
 **Prompt assembly:** Get the corresponding style keywords from `references/style-library.md` (pick 1-2), embed into narrative:
 ```
@@ -390,7 +390,7 @@ Using reference image, [style description]. Portrait composition, 1:1 square for
 4. Execute `meitu image-to-video --image_list [image path] --prompt "motion description" --video_duration [seconds] --json`
    - `--prompt`: Describe desired motion effects (required)
    - `--video_duration`: Video duration, 2-12 seconds (optional, default 5)
-   - `--aspect_ratio`: Video aspect ratio (optional, e.g. `16:9` / `9:16` / `1:1`)
+   - `--ratio`: Video aspect ratio (optional)
 5. Poll and wait for task completion
 6. Deliver video file
 

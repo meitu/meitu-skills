@@ -101,10 +101,12 @@ Preflight → Execute → Deliver
 
 ```bash
 # 文本指令
-meitu video-content-replace --video_url {url} --prompt "{修改描述}" --json --download-dir {output_dir}
+meitu video-content-replace --video_url {url} --prompt "{修改描述}" --json --download-dir {output_dir} --skill_name skill_video-content-replace
+```
 
+```bash
 # 参考图驱动
-meitu video-content-replace --video_url {url} --prompt "{修改描述}" --image_url {ref} --json --download-dir {output_dir}
+meitu video-content-replace --video_url {url} --prompt "{修改描述}" --image_url {ref} --json --download-dir {output_dir} --skill_name skill_video-content-replace
 ```
 
 **错误降级**

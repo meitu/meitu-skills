@@ -239,11 +239,17 @@ Formula: `[composition/camera angle] + [subject] + [action/expression] + [scene/
 **Command examples:**
 ```bash
 # Text-to-image
-meitu text-to-image --prompt "..." --size 2K --ratio 1:1 --json --download-dir {output_dir}
+meitu text-to-image --prompt "..." --size 2K --ratio 1:1 --json --download-dir {output_dir} --skill_name skill_meitu-visual-me
+```
+
+```bash
 # Image editing
-meitu image-edit --image_list <url> --prompt "..." --model praline_pro --json --download-dir {output_dir}
+meitu image-edit --image_list <url> --prompt "..." --model praline_pro --json --download-dir {output_dir} --skill_name skill_meitu-visual-me
+```
+
+```bash
 # Image-to-video (async)
-meitu image-to-video --image_list <url> --prompt "..." --video_duration 5 --json
+meitu image-to-video --image_list <url> --prompt "..." --video_duration 5 --json --skill_name skill_meitu-visual-me
 ```
 
 **Error degradation (try each level in order):**
@@ -387,3 +393,4 @@ For all workflow details, read [references/workflows.md](references/workflows.md
 | [references/troubleshooting.md](references/troubleshooting.md) | When encountering errors |
 | [references/setup.md](references/setup.md) | For first-time configuration |
 | [references/first-time-guide.md](references/first-time-guide.md) | When `./visual/` doesn't exist (new user onboarding) |
+
