@@ -2,8 +2,9 @@
 name: meitu-product-swap
 description: "对电商图片中的商品进行智能替换，支持一对一、一对多、多对一映射关系。当用户提到商品替换、换商品、复刻爆款图片、替换商品主体时触发。"
 version: "1.0.0"
-metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/","./openclaw.yaml","./DESIGN.md","./context/","./inputs/","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"],"write":["~/.openclaw/workspace/visual/","./openclaw.yaml","./DESIGN.md","./output/","./drafts/","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY","security":{"dataFlow":"Inputs, selected local context, and generated prompts may be sent to Meitu OpenAPI when used by the workflow.","credentials":"Credentials are used only for CLI authentication and must not be disclosed.","persistence":"Record workflows may access declared project and visual memory/rules files."}}}
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/","./openclaw.yaml","./DESIGN.md","./context/","./inputs/","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml","$VISUAL/projects/{name}/openclaw.yaml","$VISUAL/projects/{name}/DESIGN.md","{OPENCLAW_HOME}/workspace/visual/projects/{name}/openclaw.yaml","{OPENCLAW_HOME}/workspace/visual/projects/{name}/DESIGN.md","~/.openclaw/workspace/visual/projects/{name}/openclaw.yaml","~/.openclaw/workspace/visual/projects/{name}/DESIGN.md"],"write":["~/.openclaw/workspace/visual/","./openclaw.yaml","./DESIGN.md","./output/","./drafts/","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml","$VISUAL/projects/","$VISUAL/projects/{name}/","$VISUAL/projects/{name}/openclaw.yaml","$VISUAL/projects/{name}/DESIGN.md","$VISUAL/projects/{name}/output/","{OPENCLAW_HOME}/workspace/visual/projects/","{OPENCLAW_HOME}/workspace/visual/projects/{name}/","{OPENCLAW_HOME}/workspace/visual/projects/{name}/openclaw.yaml","{OPENCLAW_HOME}/workspace/visual/projects/{name}/DESIGN.md","{OPENCLAW_HOME}/workspace/visual/projects/{name}/output/","~/.openclaw/workspace/visual/projects/","~/.openclaw/workspace/visual/projects/{name}/","~/.openclaw/workspace/visual/projects/{name}/openclaw.yaml","~/.openclaw/workspace/visual/projects/{name}/DESIGN.md","~/.openclaw/workspace/visual/projects/{name}/output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY","security":{"dataFlow":"Inputs, selected local context, and generated prompts may be sent to Meitu OpenAPI when used by the workflow.","credentials":"Credentials are used only for CLI authentication and must not be disclosed.","persistence":"Record workflows may access declared project and visual memory/rules files.","projectScaffolding":"When explicitly requested by the user, project creation may write only to declared visual project paths, including project directory, openclaw.yaml, DESIGN.md, and output/."}}}
 security:
+  project_scaffolding: "When explicitly requested by the user, project creation may write only to declared visual project paths, including project directory, openclaw.yaml, DESIGN.md, and output/."
   credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI calls; credentials must not be echoed, logged, or embedded in prompts."
   remote_processing: "Product images, target reference images, project context, and generated prompts may be sent to Meitu OpenAPI."
   persistence: "Project mode may create/update project files, output files, drafts, observations, visual memory, and quality rules as described in the SKILL workflow."
@@ -30,6 +31,12 @@ requirements:
         - $VISUAL/memory/global.md
         - $VISUAL/memory/scenes/
         - $VISUAL/memory/observations/observations.yaml
+        - $VISUAL/projects/{name}/openclaw.yaml
+        - $VISUAL/projects/{name}/DESIGN.md
+        - {OPENCLAW_HOME}/workspace/visual/projects/{name}/openclaw.yaml
+        - {OPENCLAW_HOME}/workspace/visual/projects/{name}/DESIGN.md
+        - ~/.openclaw/workspace/visual/projects/{name}/openclaw.yaml
+        - ~/.openclaw/workspace/visual/projects/{name}/DESIGN.md
     - type: file_write
       paths:
         - ~/.openclaw/workspace/visual/
@@ -45,6 +52,21 @@ requirements:
         - $VISUAL/memory/global.md
         - $VISUAL/memory/scenes/
         - $VISUAL/memory/observations/observations.yaml
+        - $VISUAL/projects/
+        - $VISUAL/projects/{name}/
+        - $VISUAL/projects/{name}/openclaw.yaml
+        - $VISUAL/projects/{name}/DESIGN.md
+        - $VISUAL/projects/{name}/output/
+        - {OPENCLAW_HOME}/workspace/visual/projects/
+        - {OPENCLAW_HOME}/workspace/visual/projects/{name}/
+        - {OPENCLAW_HOME}/workspace/visual/projects/{name}/openclaw.yaml
+        - {OPENCLAW_HOME}/workspace/visual/projects/{name}/DESIGN.md
+        - {OPENCLAW_HOME}/workspace/visual/projects/{name}/output/
+        - ~/.openclaw/workspace/visual/projects/
+        - ~/.openclaw/workspace/visual/projects/{name}/
+        - ~/.openclaw/workspace/visual/projects/{name}/openclaw.yaml
+        - ~/.openclaw/workspace/visual/projects/{name}/DESIGN.md
+        - ~/.openclaw/workspace/visual/projects/{name}/output/
     - type: exec
       commands:
         - meitu
