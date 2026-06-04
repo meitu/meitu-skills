@@ -1,8 +1,12 @@
 ---
 name: image-face-swap
-description: "双图换脸/换头合成，将源图人脸替换到目标场景图上，保留目标图构图/身体/背景并自动肤色融合光影匹配。当用户说换脸、换头、P 脸、把 A 的脸换到 B 上、face swap、合成人像 时触发。"
+description: "双图换脸/换头合成，将源图人脸替换到目标场景图上，保留目标图构图/身体/背景并自动肤色融合光影匹配。当用户说换脸、换头、P 脸、把 A 的脸换到 B 上、face swap、合成人像 时触发。执行时会使用本地 Meitu OpenAPI 凭证授权，并将源人脸图和目标场景图发送到 Meitu 外部服务处理。"
 version: "1.0.0"
-metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY","security":{"credentialUse":"Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI authentication; credentials must not be echoed, logged, or embedded in prompts.","remoteProcessing":"Source face images and target scene images are transmitted to Meitu OpenAPI for face-swap processing.","biometricNotice":"Face images are sensitive biometric-like personal data; users should understand that provided images are processed by an external Meitu service."}}}
+security:
+  credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI authentication; credentials must not be echoed, logged, or embedded in prompts."
+  remote_processing: "Source face images and target scene images are transmitted to Meitu OpenAPI for face-swap processing."
+  biometric_notice: "Face images are sensitive biometric-like personal data; users should understand that provided images are processed by an external Meitu service."
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
