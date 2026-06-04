@@ -82,7 +82,7 @@ Preflight → Execute → Deliver
 **工具调用**
 
 ```bash
-meitu audio-song-generate --prompt "<style>" --prompt_lyrics "<lyrics>" [--model auto] --json
+meitu audio-song-generate --prompt "<style>" --prompt_lyrics "<lyrics>" [--model auto] --json   --skill_name skill_audio-song-generate
 ```
 
 **错误降级**

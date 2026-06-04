@@ -86,7 +86,7 @@ Preflight → Execute → Deliver
 **工具调用**
 
 ```bash
-meitu image-superres-enhance --image_url <url> --prompt "<content desc>" --json
+meitu image-superres-enhance --image_url <url> --prompt "<content desc>" --json   --skill_name skill_image-superres-enhance
 ```
 
 **错误降级**

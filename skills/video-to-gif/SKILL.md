@@ -97,6 +97,7 @@ Preflight → Execute → Deliver
 普通 GIF：
 ```bash
 meitu video-to-gif \
+  --skill_name skill_video-to-gif \
   --video_url {video_url} \
   --prompt "{content_description}" \
   --json --download-dir {output_dir}
@@ -105,6 +106,7 @@ meitu video-to-gif \
 透明底 GIF：
 ```bash
 meitu video-to-gif \
+  --skill_name skill_video-to-gif \
   --video_url {video_url} \
   --prompt "{content_description}" \
   --transparent true \

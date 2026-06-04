@@ -43,12 +43,14 @@ requirements:
 | 通用文生图 / 多图参考融合 | `image_gummy_generate` |
 | 商业级高品质生成 | `image_praline_create_v2` |
 | 商业级兜底 | `image_praline_create_2`（praline_v2 失败时的降级通道，参数兼容）|
+| Nougat 高质量（外部显式指定） | `image_nougat_create`（不支持 `image_list` / `output_format`；quality 由 API 内部默认 Medium 不对外暴露）|
 
 model 映射：
 
 - `auto`（默认）/ 不传 → 按路由规则决策
 - `gummy` → `image_gummy_generate`
 - `praline_pro` → `image_praline_create_v2`
+- `nougat` → `image_nougat_create`（仅外部显式指定触发；路由不识别）
 - 指定 model 调用失败时，仍按降级链继续重试
 
 ## Dependencies
@@ -114,33 +116,42 @@ Preflight → Execute → Deliver
 |------|------|------|------|--------|------|
 | `ratio` | STRING | 否 | auto / 1:1 / 2:3 / 3:2 / 3:4 / 4:3 / 4:5 / 5:4 / 9:16 / 16:9 / 21:9 | auto | 输出宽高比 |
 
+`image_nougat_create`（显式模型）：
+
+| 参数 | 类型 | 必填 | 范围 | 默认值 | 说明 |
+|------|------|------|------|--------|------|
+| `ratio` | STRING | 否 | 1:1 / 2:3 / 3:2 / 3:4 / 4:3 / 4:5 / 5:4 / 9:16 / 16:9 / 21:9 | -- | 仅 `model=nougat` 时生效；不支持 `image_list` |
+
 说明：`image_list` 与 `ratio` 互斥；`output_format` 由 combo-tool 内部固定为 `jpeg`，不对外暴露。
 
 **工具调用**
 
 创意 / 默认：
 ```bash
-meitu text-to-image \
-  --prompt "{image_description}" \
-  --size 2K \
+meitu text-to-image \\
+  --skill_name skill_text-to-image \\
+  --prompt "{image_description}" \\
+  --size 2K \\
   --json --download-dir {output_dir}
 ```
 
 多图参考融合：
 ```bash
-meitu text-to-image \
-  --prompt "{image_description}" \
-  --model gummy \
-  --image_list "{ref1}" --image_list "{ref2}" \
+meitu text-to-image \\
+  --skill_name skill_text-to-image \\
+  --prompt "{image_description}" \\
+  --model gummy \\
+  --image_list "{ref1}" --image_list "{ref2}" \\
   --json --download-dir {output_dir}
 ```
 
 商业级高品质（带比例）：
 ```bash
-meitu text-to-image \
-  --prompt "{image_description} Aspect ratio 16:9" \
-  --model praline_pro \
-  --ratio 16:9 --size 2K \
+meitu text-to-image \\
+  --skill_name skill_text-to-image \\
+  --prompt "{image_description} Aspect ratio 16:9" \\
+  --model praline_pro \\
+  --ratio 16:9 --size 2K \\
   --json --download-dir {output_dir}
 ```
 
@@ -175,3 +186,4 @@ meitu text-to-image \
 ## 基线 Task ID
 
 见根目录 `references/task-id-baseline.md` 中 `text-to-image` 条目。
+

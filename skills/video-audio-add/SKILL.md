@@ -106,10 +106,12 @@ Preflight → Execute → Deliver
 
 ```bash
 # BGM
-meitu video-audio-add --video_list {urls} --prompt "{风格}" [--audio_url {url}] [--music_volume 1] [--video_volume 1] --json --download-dir {output_dir}
+meitu video-audio-add --video_list {urls} --prompt "{风格}" [--audio_url {url}] [--music_volume 1] [--video_volume 1] --json --download-dir {output_dir} --skill_name skill_video-audio-add
+```
 
+```bash
 # 旁白
-meitu video-audio-add --video_list {urls} --prompt "{旁白文案 + 音色}" [--video_volume 0] --json --download-dir {output_dir}
+meitu video-audio-add --video_list {urls} --prompt "{旁白文案 + 音色}" [--video_volume 0] --json --download-dir {output_dir} --skill_name skill_video-audio-add
 
 # 串联：BGM → 旁白（第一步失败则停止串联）
 ```

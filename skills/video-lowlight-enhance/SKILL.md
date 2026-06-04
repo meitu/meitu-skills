@@ -84,7 +84,7 @@ Preflight → Execute → Deliver
 **工具调用**
 
 ```bash
-meitu video-lowlight-enhance --video_url {video_url} --json --download-dir {output_dir}
+meitu video-lowlight-enhance --video_url {video_url} --json --download-dir {output_dir} --skill_name skill_video-lowlight-enhance
 ```
 
 **错误降级**

@@ -121,13 +121,19 @@ Preflight → Execute → Deliver
 
 ```bash
 # 旋转
-meitu image-transform --image_url <url> --rotate 90 --json
+meitu image-transform --image_url <url> --rotate 90 --json   --skill_name skill_image-transform
+```
+```bash
 # 等比放大
-meitu image-transform --image_url <url> --sr_num 4 --json
+meitu image-transform --image_url <url> --sr_num 4 --json   --skill_name skill_image-transform
+```
+```bash
 # 缩小
-meitu image-transform --image_url <url> --target_width 800 --json
+meitu image-transform --image_url <url> --target_width 800 --json   --skill_name skill_image-transform 
+```
+```bash
 # 扩图
-meitu image-transform --image_url <url> --width 1920 --height 1080 --json
+meitu image-transform --image_url <url> --width 1920 --height 1080 --json   --skill_name skill_image-transform
 ```
 
 **错误降级**

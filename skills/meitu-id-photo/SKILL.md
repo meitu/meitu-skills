@@ -107,6 +107,7 @@ Preflight → [Context: 跳过] → Execute (规格确认 → 两步管线) → 
 
 ```bash
 meitu image-id-photo-generate \
+  --skill_name skill_meitu-id-photo \
   --image_url {user_photo_url} \
   --spec_type "{spec_name}" \
   [--bg_color "{color_name}"] \
@@ -183,7 +184,7 @@ L5: 首步即失败 → 检查凭证/余额，报错含 code + hint
 
 output_dir 已在 Preflight 解析完毕，文件已由 `--download-dir` 下载到 `{output_dir}`。最终步骤返回 JSON 中 `downloaded_files[0].saved_path` 即为本地文件路径。Deliver 只做重命名：
 
-```bash
+```sh
 mv "{downloaded_files[0].saved_path}" "{output_dir}/{date}_{spec_name}_{color_name}.{ext}"
 ```
 

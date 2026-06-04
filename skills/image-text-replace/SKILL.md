@@ -98,7 +98,7 @@ API 映射说明：
 **工具调用**
 
 ```bash
-meitu image-text-replace --image_url <url> --source_words "<原文>" --target_words "<新文>" --json
+meitu image-text-replace --image_url <url> --source_words "<原文>" --target_words "<新文>" --json   --skill_name skill_image-text-replace
 ```
 
 **错误降级**

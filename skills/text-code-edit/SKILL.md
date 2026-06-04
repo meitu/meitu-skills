@@ -93,6 +93,7 @@ Preflight → Execute → Deliver
 基础编辑：
 ```bash
 meitu text-code-edit \
+  --skill_name skill_text-code-edit \
   --prompt "{modification_description}" \
   --source_code_url "{code_url}" \
   --json --download-dir {output_dir}
@@ -101,6 +102,7 @@ meitu text-code-edit \
 带参考图片 + 指定模型：
 ```bash
 meitu text-code-edit \
+  --skill_name skill_text-code-edit \
   --prompt "{modification_description}" \
   --source_code_url "{code_url}" \
   --model pretzel_pro \

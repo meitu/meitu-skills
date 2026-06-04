@@ -85,6 +85,7 @@ Preflight → Execute → Deliver
 
 ```bash
 meitu video-canvas-expand \
+  --skill_name skill_video-canvas-expand \
   --video_url {url} \
   --prompt "{扩展内容描述}" \
   [--expand_ratio 0.3] \

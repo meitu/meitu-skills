@@ -87,12 +87,13 @@ Preflight → Execute → Deliver
 
 基础生成：
 ```bash
-meitu text-code --prompt "{page_description}" --json --download-dir {output_dir}
+meitu text-code --prompt "{page_description}" --json --download-dir {output_dir}  --skill_name skill_text-code
 ```
 
 指定模型 + 参考素材：
 ```bash
 meitu text-code \
+  --skill_name skill_text-code \
   --prompt "{page_description}" \
   --model pretzel_pro \
   --image_list "{url1}" --image_list "{url2}" \
@@ -101,7 +102,7 @@ meitu text-code \
 
 简短 prompt + prompt_name（自动扩写）：
 ```bash
-meitu text-code --prompt "做个页面" --prompt_name "{template_name}" --json --download-dir {output_dir}
+meitu text-code --prompt "做个页面" --prompt_name "{template_name}" --json --download-dir {output_dir} --skill_name skill_text-code
 ```
 
 **错误降级**

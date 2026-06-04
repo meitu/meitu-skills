@@ -130,7 +130,7 @@ cutout 与其他 Phase 2 操作共存时：先 edit 再 cutout（去背景应在
 每步加 `--json`，解析返回 JSON 的 `media_urls[0]` 作为下一步的 `--image_list` 输入。仅最后一步加 `--download-dir {output_dir}` 保存到本地。加了 `--download-dir` 后，JSON 输出会多一个 `downloaded_files` 数组，直接取 `downloaded_files[0].saved_path` 获取下载文件的完整路径，Deliver 阶段再 rename。
 
 **URL 传递 fallback**：如果下一步用 `media_urls[0]` 作为 `--image_list` 输入失败（`UPLOAD_ERROR`），先下载到系统临时目录再用本地路径重试：
-```bash
+```sh
 curl -sL -o /tmp/meitu-fix-step{N}.{ext} {url}
 meitu <command> --image_list /tmp/meitu-fix-step{N}.{ext} ...
 ```
@@ -150,7 +150,7 @@ meitu <command> --image_list /tmp/meitu-fix-step{N}.{ext} ...
 | 不确定 | `general image` | 无法判断时的默认描述 |
 
 ```bash
-meitu image-superres-enhance --image_url {input} --prompt "{content_description}" --json
+meitu image-superres-enhance --image_url {input} --prompt "{content_description}" --json --skill_name skill_meitu-image-fix
 ```
 
 解析：`ok: true` → `media_urls[0]` 传入下一步。
@@ -170,7 +170,7 @@ meitu image-superres-enhance --image_url {input} --prompt "{content_description}
 | 背景瑕疵 | `"修复背景中的破损区域"` | 描述具体区域 |
 
 ```bash
-meitu image-edit --image_list {prev_url} --prompt "{instruction}" --model praline_pro --json
+meitu image-edit --image_list {prev_url} --prompt "{instruction}" --model praline_pro --json --skill_name skill_meitu-image-fix
 ```
 
 每步取 `media_urls[0]` 传给下一步。
@@ -178,7 +178,7 @@ meitu image-edit --image_list {prev_url} --prompt "{instruction}" --model pralin
 如果问题是去背景（cutout）：
 
 ```bash
-meitu image-cutout --image_url {prev_url} --prompt "foreground subject" --json
+meitu image-cutout --image_url {prev_url} --prompt "foreground subject" --json --skill_name skill_meitu-image-fix
 ```
 
 ---
@@ -186,7 +186,7 @@ meitu image-cutout --image_url {prev_url} --prompt "foreground subject" --json
 **Phase 3: 人像精修 — image-edit（gummy_pro）**
 
 ```bash
-meitu image-edit --image_list {prev_url} --prompt "{portrait_retouch_prompt}" --model gummy_pro --json
+meitu image-edit --image_list {prev_url} --prompt "{portrait_retouch_prompt}" --model gummy_pro --json --skill_name skill_meitu-image-fix
 ```
 
 | 用户诉求 | `portrait_retouch_prompt` |

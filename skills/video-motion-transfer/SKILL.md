@@ -86,6 +86,7 @@ Preflight → Execute → Deliver
 
 ```bash
 meitu video-motion-transfer \
+  --skill_name skill_video-motion-transfer \
   --prompt "{prompt}" \
   --image_list '["{person_image_url}"]' \
   --reference_video_list '["{motion_video_url}"]' \

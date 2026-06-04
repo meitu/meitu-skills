@@ -81,7 +81,7 @@ Preflight → Execute → Deliver
 **工具调用**
 
 ```bash
-meitu video-denoise-enhance --video_url {url} --json --download-dir {output_dir}
+meitu video-denoise-enhance --video_url {url} --json --download-dir {output_dir} --skill_name skill_video-denoise-enhance
 ```
 
 **错误降级**

@@ -86,9 +86,12 @@ API 映射说明：
 **工具调用**
 
 ```bash
-meitu image-outfit-swap --image_url <person> --prompt "<target outfit>" --json
+meitu image-outfit-swap --image_url <person> --prompt "<target outfit>" --json   --skill_name skill_image-outfit-swap
+```
+
+```bash
 # 带服装参考图
-meitu image-outfit-swap --image_url <person> --clothes_image_url <clothes> --prompt "<target outfit>" --json
+meitu image-outfit-swap --image_url <person> --clothes_image_url <clothes> --prompt "<target outfit>" --json   --skill_name skill_image-outfit-swap
 ```
 
 **错误降级**

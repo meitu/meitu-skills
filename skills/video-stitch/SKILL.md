@@ -109,6 +109,7 @@ Preflight → Execute → Deliver
 纯拼接：
 ```bash
 meitu video-stitch \
+  --skill_name skill_video-stitch \
   --video_list '["{url1}","{url2}"]' \
   --prompt "通用视频素材" \
   --video_volume 1 \
@@ -118,6 +119,7 @@ meitu video-stitch \
 拼接 + 自动配乐：
 ```bash
 meitu video-stitch \
+  --skill_name skill_video-stitch \
   --video_list '["{url1}","{url2}"]' \
   --prompt "轻快的旅拍背景音乐" \
   --json --download-dir {output_dir}
@@ -126,6 +128,7 @@ meitu video-stitch \
 拼接 + 自定义音乐：
 ```bash
 meitu video-stitch \
+  --skill_name skill_video-stitch \
   --video_list '["{url1}","{url2}"]' \
   --music_url "{music_url}" \
   --canvas_flag 0 \

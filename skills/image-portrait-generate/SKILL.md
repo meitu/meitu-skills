@@ -93,7 +93,7 @@ API 映射说明：
 **工具调用**
 
 ```bash
-meitu image-portrait-generate --image_list <img1>[,<img2>,...] --prompt "<desc>" [--size 2K|4K] --json
+meitu image-portrait-generate --image_list <img1>[,<img2>,...] --prompt "<desc>" [--size 2K|4K] --json   --skill_name skill_image-portrait-generate
 ```
 
 **错误降级**

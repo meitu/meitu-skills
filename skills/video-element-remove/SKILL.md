@@ -103,7 +103,7 @@ Preflight → Execute → Deliver
 **工具调用**
 
 ```bash
-meitu video-element-remove --video_url {url} --prompt "{画面描述}" --json --download-dir {output_dir}
+meitu video-element-remove --video_url {url} --prompt "{画面描述}" --json --download-dir {output_dir} --skill_name skill_video-element-remove
 ```
 
 **错误降级**

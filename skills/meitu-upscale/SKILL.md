@@ -82,6 +82,7 @@ Preflight → [Context: 跳过（工具型超分，无创意自由度）] → Ex
 
 ```bash
 meitu image-superres-enhance \
+  --skill_name skill_meitu-upscale \
   --image_url <url_or_path> \
   --prompt "<content_description>" \
   --json \

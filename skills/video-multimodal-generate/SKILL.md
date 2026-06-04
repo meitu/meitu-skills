@@ -95,6 +95,7 @@ Preflight → Execute → Deliver
 
 ```bash
 meitu video-multimodal-generate \
+  --skill_name skill_video-multimodal-generate \
   --prompt "{prompt}" \
   --video_duration -1 \
   --ratio adaptive \

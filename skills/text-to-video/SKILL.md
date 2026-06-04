@@ -126,6 +126,7 @@ Preflight → Execute → Deliver
 默认高画质：
 ```bash
 meitu text-to-video \
+  --skill_name skill_text-to-video \
   --prompt "{video_description}" \
   --video_duration 10 \
   --aspect_ratio adaptive \
@@ -137,6 +138,7 @@ meitu text-to-video \
 高动态快速（3s）：
 ```bash
 meitu text-to-video \
+  --skill_name skill_text-to-video \
   --prompt "{dynamic_scene}" \
   --model bonbon \
   --video_duration 3 \

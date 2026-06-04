@@ -84,6 +84,7 @@ Preflight → [Context: 跳过（工具型美颜，无创意自由度）] → Ex
 
 ```bash
 meitu image-edit \
+  --skill_name skill_meitu-beauty \
   --image_list <url_or_path> \
   --prompt "<beauty_instruction>" \
   --model gummy_pro \

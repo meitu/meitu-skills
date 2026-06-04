@@ -151,6 +151,7 @@ If user mentions specific e-commerce platform → read [references/ecommerce-spe
 
 ```bash
 meitu image-cutout \
+  --skill_name skill_meitu-product-view \
   --image_url {image_url} \
   --prompt "e-commerce product foreground subject" \
   --json
@@ -166,6 +167,7 @@ meitu image-cutout \
 
 ```bash
 meitu image-edit \
+  --skill_name skill_meitu-product-view \
   --image_list {source_image_url} \
   --prompt "{angle_prompt}" \
   --model praline_pro \
@@ -221,6 +223,7 @@ meitu image-edit \
 
 ```bash
 meitu image-edit \
+  --skill_name skill_meitu-product-view \
   --image_list {source_image_url} \
   --prompt "{combo_three_view_prompt}" \
   --model praline_pro \
@@ -240,15 +243,19 @@ meitu image-edit \
 ```bash
 # 先生成正面场景图
 meitu image-edit \
+  --skill_name skill_meitu-product-view \
   --image_list {original_image_url} \
   --prompt "{front_view_scene_prompt}" \
   --model praline_pro \
   --ratio 1:1 \
   --json \
   --download-dir {output_dir}
+```
 
+```bash
 # 以正面场景图为参考，生成其余角度
 meitu image-edit \
+  --skill_name skill_meitu-product-view \
   --image_list {front_scene_result_url} \
   --prompt "将图中的商品旋转到从右侧面观看的角度，展示商品的侧面轮廓。保持商品直立，不要改变商品外观，保证背景一致性。" \
   --model praline_pro \
@@ -272,6 +279,7 @@ meitu image-edit \
 
 ```bash
 meitu image-superres-enhance \
+  --skill_name skill_meitu-product-view \
   --image_url {generated_url} \
   --prompt "e-commerce product image" \
   --json \
@@ -288,6 +296,7 @@ meitu image-superres-enhance \
 
 ```bash
 meitu image-cutout \
+  --skill_name skill_meitu-product-view \
   --image_url {generated_url} \
   --prompt "e-commerce product foreground subject" \
   --json \
