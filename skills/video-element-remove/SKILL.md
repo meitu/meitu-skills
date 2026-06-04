@@ -2,7 +2,7 @@
 name: video-element-remove
 description: "使用 meitu-cli 从视频中消除路人/字幕/水印/Logo 或一键清屏全部文字。当用户提到去路人、去行人、去字幕、去对白、去水印、去 Logo、去角标、消除抖音号、清屏、纯净画面、不要出现任何字时触发。"
 version: "1.0.0"
-metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -20,6 +20,7 @@ requirements:
     - type: file_write
       paths:
         - ~/.openclaw/workspace/visual/
+        - ./output/
     - type: exec
       commands:
         - meitu

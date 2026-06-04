@@ -2,7 +2,7 @@
 name: video-effect-apply
 description: "使用 meitu-cli 给视频或图片施加创意处理：预设风格特效（视频输入）、AI 创意效果（图片输入）、长视频风格转绘（动漫/像素/黏土等）。当用户提到视频特效、加特效、创意玩法、预设风格、AI 创意视频、风格转绘、变成动漫风格、像素风格视频、黏土风格时触发。"
 version: "1.0.0"
-metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -20,6 +20,7 @@ requirements:
     - type: file_write
       paths:
         - ~/.openclaw/workspace/visual/
+        - ./output/
     - type: exec
       commands:
         - meitu

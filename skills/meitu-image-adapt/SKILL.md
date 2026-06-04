@@ -2,7 +2,7 @@
 name: meitu-image-adapt
 description: "将任意图片智能适配到目标比例，自动重构构图逻辑，保持主体比例不变形、内容完整不丢失，背景自然延展无接缝。当用户提到图片适配、图片延展、图片扩展、外扩、outpaint、将竖图变横图、适配小红书/抖音/公众号尺寸时触发。"
 version: "1.0.0"
-metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -14,9 +14,11 @@ requirements:
       paths:
         - ~/.meitu/credentials.json
         - ~/.openclaw/workspace/visual/
+        - ./openclaw.yaml
     - type: file_write
       paths:
         - ~/.openclaw/workspace/visual/
+        - ./output/
     - type: exec
       commands:
         - meitu

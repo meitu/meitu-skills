@@ -2,7 +2,7 @@
 name: image-text-replace
 description: "图片上已有文字的内容替换（A → B），支持简单精准改字和复杂改字（花字/手写/多处/字符数变化）。当用户提到改字、替换文字、把 A 改成 B、修改文字、换个字、文字替换、改标题、改价格、改名字、改广告语时触发。"
 version: "1.0.0"
-metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -17,9 +17,11 @@ requirements:
         - ~/.meitu/credentials.json
         - ~/.meitu/tool-registry.json
         - ~/.openclaw/workspace/visual/
+        - ./openclaw.yaml
     - type: file_write
       paths:
         - ~/.openclaw/workspace/visual/
+        - ./output/
     - type: exec
       commands:
         - meitu

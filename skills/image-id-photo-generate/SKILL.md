@@ -2,7 +2,7 @@
 name: image-id-photo-generate
 description: "基于用户照片+证件规格一键生成标准证件照，自动换装+换背景+合规调整。当用户说证件照、一寸照、二寸照、护照照片、签证照、身份证照、驾照照片、入园/入学/毕业/考研/考编/教资照、职业证件照、商务照、形象照、结婚证照、工牌照 时触发。"
 version: "1.0.0"
-metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -17,9 +17,11 @@ requirements:
         - ~/.meitu/credentials.json
         - ~/.meitu/tool-registry.json
         - ~/.openclaw/workspace/visual/
+        - ./openclaw.yaml
     - type: file_write
       paths:
         - ~/.openclaw/workspace/visual/
+        - ./output/
     - type: exec
       commands:
         - meitu

@@ -2,7 +2,12 @@
 name: meitu-visual-me
 description: "Memory-driven AI visual assistant. Supports 7 core capabilities (image generation, editing, face swap, virtual try-on, beauty enhance, image-to-video, motion transfer) and 17 scenario workflows. Triggered when user says '帮我画', '换背景', '头像系列', '试穿', '动起来', '微缩场景', '今日卡', '换风格', '美颜', etc. Also applies to any visual content creation need."
 version: "1.1.0"
-metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/","./openclaw.yaml","./DESIGN.md","./visual/","USER.md","MEMORY.md","memory/","SOUL.md","IDENTITY.md","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","./visual/rules/quality.yaml","./visual/memory/global.md","./visual/memory/scenes/","./visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"],"write":["~/.openclaw/workspace/visual/","./DESIGN.md","./drafts/","./output/","./visual/","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","./visual/rules/quality.yaml","./visual/memory/global.md","./visual/memory/scenes/","./visual/memory/observations/observations.yaml","./visual/PROFILE.md","./visual/assets/references/user.jpg","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY","security":{"dataFlow":"Inputs, selected local context, and generated prompts may be sent to Meitu OpenAPI when used by the workflow.","credentials":"Credentials are used only for CLI authentication and must not be disclosed.","persistence":"Record workflows may access declared project and visual memory/rules files."}}}
+security:
+  credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI calls; credentials must not be echoed, logged, or embedded in prompts."
+  remote_processing: "Images, videos, generated prompts, and local profile/memory/project details incorporated into prompts may be sent to Meitu OpenAPI."
+  persistence: "The workflow may read/write ./visual/, ./DESIGN.md, ./output/, drafts, references, observations, visual memory, and quality rules for personalization and feedback recording."
+  privacy_note: "Local files remain stored locally, but excerpts or summaries included in API prompts are transmitted to Meitu OpenAPI."
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -14,9 +19,47 @@ requirements:
       paths:
         - ~/.meitu/credentials.json
         - ~/.openclaw/workspace/visual/
+        - ./openclaw.yaml
+        - ./DESIGN.md
+        - ./visual/
+        - USER.md
+        - MEMORY.md
+        - memory/
+        - SOUL.md
+        - IDENTITY.md
+        - ~/.openclaw/workspace/visual/rules/quality.yaml
+        - ~/.openclaw/workspace/visual/memory/global.md
+        - ~/.openclaw/workspace/visual/memory/scenes/
+        - ~/.openclaw/workspace/visual/memory/observations/observations.yaml
+        - ./visual/rules/quality.yaml
+        - ./visual/memory/global.md
+        - ./visual/memory/scenes/
+        - ./visual/memory/observations/observations.yaml
+        - $VISUAL/rules/quality.yaml
+        - $VISUAL/memory/global.md
+        - $VISUAL/memory/scenes/
+        - $VISUAL/memory/observations/observations.yaml
     - type: file_write
       paths:
         - ~/.openclaw/workspace/visual/
+        - ./DESIGN.md
+        - ./drafts/
+        - ./output/
+        - ./visual/
+        - ~/.openclaw/workspace/visual/rules/quality.yaml
+        - ~/.openclaw/workspace/visual/memory/global.md
+        - ~/.openclaw/workspace/visual/memory/scenes/
+        - ~/.openclaw/workspace/visual/memory/observations/observations.yaml
+        - ./visual/rules/quality.yaml
+        - ./visual/memory/global.md
+        - ./visual/memory/scenes/
+        - ./visual/memory/observations/observations.yaml
+        - ./visual/PROFILE.md
+        - ./visual/assets/references/user.jpg
+        - $VISUAL/rules/quality.yaml
+        - $VISUAL/memory/global.md
+        - $VISUAL/memory/scenes/
+        - $VISUAL/memory/observations/observations.yaml
     - type: exec
       commands:
         - meitu

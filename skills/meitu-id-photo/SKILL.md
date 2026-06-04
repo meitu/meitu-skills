@@ -2,7 +2,11 @@
 name: meitu-id-photo
 description: "生成标准证件照（一寸、二寸、护照、签证等）。自然美颜 + AI 重绘（换正装 + 纯色背景 + 规格裁剪）。当用户提到证件照、一寸照、二寸照、白底照片、蓝底照片、红底照片、passport photo、ID photo、签证照、驾照照片、身份证照、证件照换底色、证件照尺寸时触发。"
 version: "1.1.0"
-metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/","./openclaw.yaml","./DESIGN.md","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"],"write":["~/.openclaw/workspace/visual/","./DESIGN.md","./output/","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY","security":{"dataFlow":"Inputs, selected local context, and generated prompts may be sent to Meitu OpenAPI when used by the workflow.","credentials":"Credentials are used only for CLI authentication and must not be disclosed.","persistence":"Record workflows may access declared project and visual memory/rules files."}}}
+security:
+  credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI calls; credentials must not be echoed, logged, or embedded in prompts."
+  remote_processing: "Portrait photos, ID photo parameters, and generated prompts may be sent to Meitu OpenAPI."
+  persistence: "Project mode may write output files and may update project or visual-memory files according to the Record workflow."
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -14,9 +18,29 @@ requirements:
       paths:
         - ~/.meitu/credentials.json
         - ~/.openclaw/workspace/visual/
+        - ./openclaw.yaml
+        - ./DESIGN.md
+        - ~/.openclaw/workspace/visual/rules/quality.yaml
+        - ~/.openclaw/workspace/visual/memory/global.md
+        - ~/.openclaw/workspace/visual/memory/scenes/
+        - ~/.openclaw/workspace/visual/memory/observations/observations.yaml
+        - $VISUAL/rules/quality.yaml
+        - $VISUAL/memory/global.md
+        - $VISUAL/memory/scenes/
+        - $VISUAL/memory/observations/observations.yaml
     - type: file_write
       paths:
         - ~/.openclaw/workspace/visual/
+        - ./DESIGN.md
+        - ./output/
+        - ~/.openclaw/workspace/visual/rules/quality.yaml
+        - ~/.openclaw/workspace/visual/memory/global.md
+        - ~/.openclaw/workspace/visual/memory/scenes/
+        - ~/.openclaw/workspace/visual/memory/observations/observations.yaml
+        - $VISUAL/rules/quality.yaml
+        - $VISUAL/memory/global.md
+        - $VISUAL/memory/scenes/
+        - $VISUAL/memory/observations/observations.yaml
     - type: exec
       commands:
         - meitu

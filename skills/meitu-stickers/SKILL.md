@@ -2,7 +2,11 @@
 name: meitu-stickers
 description: "从用户上传的照片生成多风格四宫格表情包贴纸（内置 Q版、3D黏土、像素风、Emoji 风格，也支持自定义风格），拆分为 4 张独立贴纸，可选转成动态 GIF。当用户提到 表情包、贴纸、sticker pack、sticker、emoji pack、生成贴纸、做表情包、Q版贴纸、大头贴 时触发。"
 version: "1.1.0"
-metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/"],"write":["~/.openclaw/workspace/visual/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/","./openclaw.yaml","./DESIGN.md","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"],"write":["~/.openclaw/workspace/visual/","./DESIGN.md","./output/","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY","security":{"dataFlow":"Inputs, selected local context, and generated prompts may be sent to Meitu OpenAPI when used by the workflow.","credentials":"Credentials are used only for CLI authentication and must not be disclosed.","persistence":"Record workflows may access declared project and visual memory/rules files."}}}
+security:
+  credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI calls; credentials must not be echoed, logged, or embedded in prompts."
+  remote_processing: "Uploaded photos, style selections, generated prompts, and optional project context may be sent to Meitu OpenAPI."
+  persistence: "Project mode may write output files and may update project or visual-memory files according to the Record workflow."
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -14,9 +18,29 @@ requirements:
       paths:
         - ~/.meitu/credentials.json
         - ~/.openclaw/workspace/visual/
+        - ./openclaw.yaml
+        - ./DESIGN.md
+        - ~/.openclaw/workspace/visual/rules/quality.yaml
+        - ~/.openclaw/workspace/visual/memory/global.md
+        - ~/.openclaw/workspace/visual/memory/scenes/
+        - ~/.openclaw/workspace/visual/memory/observations/observations.yaml
+        - $VISUAL/rules/quality.yaml
+        - $VISUAL/memory/global.md
+        - $VISUAL/memory/scenes/
+        - $VISUAL/memory/observations/observations.yaml
     - type: file_write
       paths:
         - ~/.openclaw/workspace/visual/
+        - ./DESIGN.md
+        - ./output/
+        - ~/.openclaw/workspace/visual/rules/quality.yaml
+        - ~/.openclaw/workspace/visual/memory/global.md
+        - ~/.openclaw/workspace/visual/memory/scenes/
+        - ~/.openclaw/workspace/visual/memory/observations/observations.yaml
+        - $VISUAL/rules/quality.yaml
+        - $VISUAL/memory/global.md
+        - $VISUAL/memory/scenes/
+        - $VISUAL/memory/observations/observations.yaml
     - type: exec
       commands:
         - meitu

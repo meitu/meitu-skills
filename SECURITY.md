@@ -48,6 +48,8 @@ Scene skills declare their own permissions based on their workflows:
 - `file_write`: `~/.openclaw/workspace/visual/`
 - `exec`: `meitu`
 
+Some scene skills declare additional project-local paths in their frontmatter when their written workflow reads or writes project state. These declarations are intentionally skill-specific and are derived from each `SKILL.md` workflow.
+
 ### Root Skill Permission Scope
 
 | Path | Access | Purpose |
@@ -63,7 +65,16 @@ The root skill does not write files or read project directories. It only routes 
 | `~/.meitu/credentials.json` | Read | Load API credentials |
 | `~/.openclaw/workspace/visual/` | Read/Write | Read/write shared visual memory, rules, references, and outputs |
 
-Scene skills may also read/write project-local files (`./`) when operating in project mode (detected by presence of `openclaw.yaml`), but this is not declared in skill metadata—permissions are granted at runtime by the agent based on user context.
+Scene skills may also read/write project-local files when operating in project mode (detected by presence of `openclaw.yaml`). The affected skills declare the concrete project paths they use in frontmatter metadata and `requirements.permissions`, such as:
+
+- `./openclaw.yaml`
+- `./DESIGN.md`
+- `./context/`
+- `./inputs/`
+- `./output/`
+- `./drafts/`
+- `./visual/`
+- platform-injected context files such as `USER.md`, `MEMORY.md`, `memory/`, `SOUL.md`, and `IDENTITY.md` for `meitu-visual-me`
 
 Examples of expected writes in scene workflows:
 
@@ -73,6 +84,17 @@ Examples of expected writes in scene workflows:
 - Shared observation or memory updates under `~/.openclaw/workspace/visual/memory/`
 
 This skill pack writes outputs to `~/.openclaw/workspace/visual/` or project-local `./output/` directories.
+
+### Persistence and Memory Scope
+
+Several scene workflows include persistent project or visual-memory behavior. Depending on the skill and mode, writes may include:
+
+- output files under `./output/` or `~/.openclaw/workspace/visual/output/`
+- project decisions or iteration history in `./DESIGN.md`
+- project archives under `./drafts/`
+- visual memory, observations, rules, references, or profile files under `~/.openclaw/workspace/visual/` or `./visual/`
+
+These paths are declared in the relevant skill frontmatter. One-off mode behavior and confirmation requirements remain defined by the individual `SKILL.md` workflow text.
 
 ### Command Execution Scope
 
@@ -124,6 +146,10 @@ meitu-tools
     ├── Execute meitu CLI
     └── Return result or manual repair hint
 ```
+
+### Remote Processing of Local Context
+
+Meitu API requests can include more than user-uploaded media. If a workflow incorporates local project context, visual memory, profile data, platform-injected context, or weather/contextual data into the generated prompt, that derived prompt content may be transmitted to Meitu OpenAPI for processing. Credentials are used for authentication only and must never be included in prompts, logs, generated files, or responses.
 
 ### Scene Workflow Execution
 

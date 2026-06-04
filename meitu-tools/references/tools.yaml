@@ -80,9 +80,9 @@ tools:
     summary: 歌词驱动的完整歌曲生成（含人声），也支持强节奏/完整编曲感的纯音乐。
     description: "Lyrics-driven complete song generation (with vocals), also supports strong-rhythm/full-arrangement instrumental music. `prompt` (style description) required; `prompt_lyrics` (lyrics) required for vocal songs, can be empty for instrumental; `model` (auto/mureka-6/mureka-7.5/mureka-o1, default `auto`) optional. When `prompt` conflicts with `prompt_lyrics` style, `prompt` takes priority. Prohibited: plain ambient BGM/background music, generating lyrics text only, albums over 5 minutes, dubbing/scoring for existing videos."
     triggers:
-      - 写首歌/创作歌曲/生成一首歌/帮我作曲
-      - 带歌词的音乐/做首歌/歌曲创作
-      - 品牌歌曲/作词作曲/编曲配唱/唱一首
+      - 生成一首歌曲音频/制作完整歌曲成品
+      - 根据歌词生成歌曲/生成带人声音频
+      - 品牌歌曲成品/推广歌曲音频/强节奏成品级音频
     prefer_over:
       - tool: audio-music-generate
         when: 需要人声/歌词/完整歌曲结构，或强节奏/强变化/完整编曲感的纯音乐
@@ -111,7 +111,7 @@ tools:
       requiredKeys: [prompt, prompt_lyrics]
       optionalKeys: [model]
       arrayKeys: []
-      commandAliases: [song, audio-song, 歌曲生成, 写歌, 作曲]
+      commandAliases: [song, audio-song, 歌曲生成, 歌曲音频生成, 完整歌曲生成]
       inputAliases:
         风格: prompt
         提示词: prompt
@@ -133,8 +133,8 @@ tools:
     summary: 关键词搜图/以图搜图，内部图库+Pinterest联合检索，找参考图/素材/灵感。
     description: "Keyword image search / reverse image search with internal library + Pinterest joint retrieval. `prompt` (search term array) and `image_ids` (image ID array) at least one required; `query_mode` (search/retrieve, default `search`), `size` (1–20, default `4`), `source_type` (auto/internal/pinterest, default `auto`) required. Retries with synonyms when empty, returns not-found if still empty. Prohibited: image generation/AI creation, image editing/modification, video search, OCR/image understanding."
     triggers:
-      - 搜图/找参考图/找素材/搜几张
-      - 找类似的图/以图搜图/帮我搜/找图片
+      - 明确搜图/以图搜图/图片检索
+      - 找参考图/找素材图/找类似图片
     input:
       - type: text
         count: "0+"
@@ -1037,10 +1037,9 @@ tools:
     summary: 从零生成React/TSX页面代码，支持素材参考和prompt扩写。
     description: "Generates React/TSX page code from scratch with material reference and prompt expansion support. `prompt` required; `model` (pretzel_pro/pretzel_lite, default `pretzel_pro`), `image_list`, `video_list`, `prompt_name` as needed. Prohibited: modifying existing source code, non-React/HTML frameworks, backend code, pixel-perfect design reproduction."
     triggers:
-      - 生成一个网页/做个页面/界面设计
-      - 写个React页面/做个落地页/生成代码
-      - 做个活动页/写个前端页面/生成组件
-      - 做个数据可视化页面
+      - 生成React页面代码/写TSX组件/生成HTML前端文件
+      - 写落地页代码/写活动页代码/写前端页面代码
+      - 生成数据可视化React页面代码
     input:
       - type: text
         count: "1"
@@ -1072,7 +1071,7 @@ tools:
       requiredKeys: [prompt]
       optionalKeys: [model, image_list, video_list, prompt_name]
       arrayKeys: [image_list, video_list]
-      commandAliases: [codegen, text-codegen, 代码生成, 生成代码, 做页面]
+      commandAliases: [codegen, text-codegen, React代码生成, TSX代码生成, 前端页面代码]
       inputAliases:
         提示词: prompt
         描述: prompt
@@ -1147,7 +1146,7 @@ tools:
     summary: 通用文案生成、文本创作与润色、多语言文案、多模态参考文案生成、分镜脚本/故事板描述生成、视频提示词润色。
     description: "General copywriting generation/creation/polishing, covering marketing copy, product descriptions, social media copy, video storyboard planning, video prompt optimization, etc. `summary` and `language` required; `image_list`/`video_list` as needed. `model` (scone/pretzel_pro): pass `pretzel_pro` for complex scenarios (video input, long context, complex reasoning, professional domains); omit or pass `auto` for daily scenarios. Prohibited: video/image/audio/code generation, table output."
     triggers:
-      - 写文案/帮我写/文案/文本生成/写作/润色/改写
+      - 写营销文案/生成文案/文案润色/文案改写
       - 广告语/产品描述/营销文案/社交媒体文案/朋友圈文案/小红书文案
       - 标题/口号/slogan/文章/博客/内容创作
       - 分镜/故事板/storyboard/提示词润色/镜头脚本/视频分镜描述
@@ -2203,5 +2202,4 @@ tools:
         服装: attire
         衣服: attire
         着装: attire
-
 
