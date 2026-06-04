@@ -24,7 +24,6 @@ For built-in CLI commands outside `tools.yaml`, the currently verified public co
 Do not assume other built-in console commands are supported by this package just because they exist in `meitu-cli`.
 
 Recommended runtime baseline:
-
 - `meitu-skills 2.0.7`
 - `meitu-cli@2.1.7`
 

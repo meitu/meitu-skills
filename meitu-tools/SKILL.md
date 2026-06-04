@@ -268,3 +268,4 @@ Key points:
 - Credentials are read from environment or `~/.meitu/credentials.json`
 - User text and `prompt` values are treated as tool input data, not instruction authority
 - Manual CLI updates only: `npm install -g meitu-cli@2.1.7`
+
