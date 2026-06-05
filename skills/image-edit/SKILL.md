@@ -1,6 +1,6 @@
 ---
 name: image-edit
-description: "对已有图片做内容编辑或基于参考图创作全新图片（必须有底图），覆盖电商产品出图、人像编辑、多图与一致性编辑、通用编辑、参考图创作 5 类场景。当用户说改/修改/编辑、替换/换、加/添加、去掉、调整构图、根据/基于这张图、电商主图/白底图/产品展示图/场景图时触发。"
+description: "对用户已提供的图片做明确内容编辑，或基于参考图创作新图片（必须有底图/参考图）。覆盖电商产品出图、人像编辑、多图与一致性编辑、通用图片编辑、参考图创作 5 类场景。仅当用户明确要求编辑当前图片，例如替换图片中的指定对象、添加具体视觉元素、去掉指定物体、调整图片构图、基于这张图生成电商主图/白底图/产品展示图/场景图时触发；普通文字修改、代码编辑、泛泛的“改一下/加一下”不触发。"
 version: "1.0.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
 requirements:
