@@ -5,9 +5,10 @@ version: "1.1.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/","./openclaw.yaml","./DESIGN.md","./visual/","USER.md","MEMORY.md","memory/","SOUL.md","IDENTITY.md","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","./visual/rules/quality.yaml","./visual/memory/global.md","./visual/memory/scenes/","./visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"],"write":["~/.openclaw/workspace/visual/","./DESIGN.md","./drafts/","./output/","./visual/","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","./visual/rules/quality.yaml","./visual/memory/global.md","./visual/memory/scenes/","./visual/memory/observations/observations.yaml","./visual/PROFILE.md","./visual/assets/references/user.jpg","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY","security":{"dataFlow":"Inputs, selected local context, and generated prompts may be sent to Meitu OpenAPI when used by the workflow.","credentials":"Credentials are used only for CLI authentication and must not be disclosed.","persistence":"Record workflows may access declared project and visual memory/rules files."}}}
 security:
   credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI calls; credentials must not be echoed, logged, or embedded in prompts."
-  remote_processing: "Images, videos, generated prompts, and local profile/memory/project details incorporated into prompts may be sent to Meitu OpenAPI."
+  remote_processing: "Images, videos, generated prompts, and local profile/memory/project details or summaries incorporated into prompts may be sent to Meitu OpenAPI."
   persistence: "The workflow may read/write ./visual/, ./DESIGN.md, ./output/, drafts, references, observations, visual memory, and quality rules for personalization and feedback recording."
-  privacy_note: "Local files remain stored locally, but excerpts or summaries included in API prompts are transmitted to Meitu OpenAPI."
+  privacy_note: "Local files remain stored locally, but excerpts, summaries, or derived details included in API prompts are transmitted to Meitu OpenAPI."
+  consent: "First-use authorization must disclose that profile, memory, and project context may be incorporated into prompts sent to Meitu OpenAPI; users may opt out by not using memory/profile context or not providing photos."
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -70,9 +71,9 @@ requirements:
 > **Always respond in the user's language.**
 
 > **Data Disclaimer:**
-> - **Local reads:** Meitu Visual Me reads local files such as `MEMORY.md`, `USER.md`, and `./visual/PROFILE.md` for personalized generation. This data never leaves your device.
-> - **Uploaded to meitu API:** Images you provide (photos, reference images) and generated prompts are sent to the Meitu OpenAPI for processing, subject to the Meitu privacy policy.
-> - **First-use authorization:** On first use, the skill will explain the above data usage. You can choose not to provide photos (falling back to text-to-image mode).
+> - **Local reads:** Meitu Visual Me may read local files such as `MEMORY.md`, `USER.md`, and `./visual/PROFILE.md` for personalized generation. These files remain stored locally, but excerpts, summaries, or derived details may be incorporated into generated prompts.
+> - **Uploaded to meitu API:** Images you provide (photos, reference images), generated prompts, and any local profile/memory/project details included in those prompts are sent to the Meitu OpenAPI for processing, subject to the Meitu privacy policy.
+> - **First-use authorization:** On first use, the skill will explain the above data usage, including possible prompt inclusion of local profile/memory/project context. You can choose not to provide photos or not to use memory/profile context.
 
 ## Overview
 
