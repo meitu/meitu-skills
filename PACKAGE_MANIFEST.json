@@ -1,0 +1,28 @@
+{
+  "package_name": "meitu-skills",
+  "version": "2.0.7",
+  "purpose": "Public runtime manifest for the meitu-skills package",
+  "included_top_level": [
+    "SKILL.md",
+    "SECURITY.md",
+    "meitu-tools/",
+    "skills/"
+  ],
+  "release_excludes": [
+    "docs/",
+    "examples/",
+    "node_modules/",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "compatibility": {
+    "runtime": "openclaw",
+    "meitu_cli": ">=2.0.6 <3.0.0"
+  },
+  "distribution_notes": [
+    "Describes the public runtime contents of the meitu-skills package",
+    "Includes the root skill, meitu-tools, scene skills, and referenced runtime materials",
+    "Omits non-runtime repository materials from release packaging"
+  ]
+}
+
