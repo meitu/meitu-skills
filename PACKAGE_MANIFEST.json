@@ -1,6 +1,6 @@
 {
   "package_name": "meitu-skills",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "purpose": "Public runtime manifest for the meitu-skills package",
   "included_top_level": [
     "SKILL.md",
