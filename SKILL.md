@@ -1,12 +1,12 @@
 # Meitu Skills Package
 
 - Package: `meitu-skills`
-- Version: `2.0.7`
-- Generated At: `2026-06-02 20:35:21`
+- Version: `2.0.8`
+- Generated At: `2026-06-09 21:20:00`
 
 ## Release Notes
 
-update skill docs for latest Designer-tools params
+align public runtime baseline with meitu-cli 2.1.8
 
 ## Routing Addendum
 
@@ -24,8 +24,8 @@ For built-in CLI commands outside `tools.yaml`, the currently verified public co
 Do not assume other built-in console commands are supported by this package just because they exist in `meitu-cli`.
 
 Recommended runtime baseline:
-- `meitu-skills 2.0.7`
-- `meitu-cli@2.1.7`
+- `meitu-skills 2.0.8`
+- `meitu-cli@2.1.8`
 
 ## Included Skills
 
