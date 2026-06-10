@@ -33,7 +33,7 @@ requirements:
 ## Dependencies
 
 - **meitu-cli** ≥ 2.0.6 — `npm install -g meitu-cli@latest`
-- **凭证配置**: `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."` 或环境变量 `MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
+- **凭证配置**: 首选环境变量 `MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`，或预置 `~/.meitu/credentials.json`；仅在用户明确要求写入本地凭证时，再执行 `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`
 
 > **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
 

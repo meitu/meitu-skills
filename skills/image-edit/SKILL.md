@@ -1,6 +1,6 @@
 ---
 name: image-edit
-description: "对用户已提供的图片做明确内容编辑，或基于参考图创作新图片（必须有底图/参考图）。覆盖电商产品出图、人像编辑、多图与一致性编辑、通用图片编辑、参考图创作 5 类场景。仅当用户明确要求编辑当前图片，例如替换图片中的指定对象、添加具体视觉元素、去掉指定物体、调整图片构图、基于这张图生成电商主图/白底图/产品展示图/场景图时触发；普通文字修改、代码编辑、泛泛的“改一下/加一下”不触发。"
+description: "对用户已提供的图片做明确内容编辑，或基于参考图创作新图片（必须有底图/参考图）。覆盖电商产品出图、人像编辑、多图与一致性编辑、通用图片编辑、参考图创作 5 类场景。仅当用户明确要求编辑当前图片时触发；普通文字修改、代码编辑、泛泛的“改一下/加一下”不触发。执行时会读取 Meitu 凭证、调用本地 `meitu` CLI，并将输入图片与提示词发送到 Meitu OpenAPI，结果写入本地输出目录。"
 version: "1.0.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
 requirements:
@@ -32,6 +32,8 @@ requirements:
 ## Overview
 
 对已有图片施加内容编辑或基于参考图创作全新图片（必须有底图）。覆盖 5 类场景：电商产品出图（白底/场景/多角度/带文字）、人像编辑（人脸/妆容/发型/姿态）、多图与一致性编辑、通用编辑（替换/添加/构图）、参考图创作（创意视觉稿/名片/封面）。涉及文字添加/替换时目标文字内容保持原样不翻译；"IP"指角色图案而非文字。
+
+执行前应让用户清楚知道：本 Skill 会读取本地 Meitu 凭证、调用 `meitu image-edit`，并把输入图片、提示词及生成结果发送到/写回外部服务与本地输出目录。
 
 ## API Mapping
 

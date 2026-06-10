@@ -1,9 +1,9 @@
 # ============================================================
-# cli-tools-all.yaml — 全量工具 CLI 注册表 (SSOT)
+# tools.yaml — Public CLI command catalog (SSOT)
 #
 # 说明：
-#   本文件包含所有 DAG 卡片对应的 CLI 工具定义，共 40 个工具（已忽略 image-color-enhance 与 image-mosaic-apply）。
-#   基于 cli-tools-all0417.yaml，同步当前 CLI 2.0.6 可用命令集。
+#   本文件包含当前公开 skills runtime 使用的 CLI 工具定义，共 40 个工具。
+#   内容与当前公开 meitu-cli 运行时保持同步。
 #   覆盖图片搜索(1)、图片生成(4)、图片创意(1)、图片编辑(10)、
 #   图片工具(2)、图片增强(2)、图片变换(1)、文本/代码(3)、
 #   视频生成(5)、视频编辑(4)、视频增强(5)、视频工具(3)、
@@ -39,9 +39,9 @@ tools:
     summary: 纯音乐/BGM生成，无人声无歌词，支持多种风格和时长控制（30-120秒）。
     description: "Generates vocal-free, lyric-free pure music / BGM for background music, ambient mood, and emotional scoring, duration 30–120 seconds. `prompt` required; `duration` required, defaults to `30` seconds if not provided, auto-clamped to 30–120 seconds with notification. Suited for ambient/mood/background pure music, not for strong-rhythm or full song structures. Prohibited: songs with vocals/lyrics, strong-rhythm/high-variation instrumental music, adding audio to existing videos, structured song creation, audio editing."
     triggers:
-      - 生成BGM/配乐/纯音乐/背景音乐
-      - 做个音乐垫/轻音乐/伴奏/器乐/氛围音乐
-      - 无人声音乐/钢琴曲/电子乐/爵士乐
+      - 明确生成纯音乐/BGM/背景音乐
+      - 明确生成无人声氛围配乐/轻音乐
+      - 为内容项目生成无歌词背景音乐
     prefer_over:
       - tool: audio-song-generate
         when: 明确要求纯音乐/无人声/无歌词，且非强节奏/强变化需求
@@ -63,7 +63,7 @@ tools:
       requiredKeys: [prompt, duration]
       optionalKeys: []
       arrayKeys: []
-      commandAliases: [music, bgm, audio-music, 纯音乐生成, 背景音乐]
+      commandAliases: [audio-music, 纯音乐生成, 背景音乐生成, 无人声背景音乐]
       inputAliases:
         提示词: prompt
         描述: prompt
@@ -130,11 +130,11 @@ tools:
 
   - id: image-search
     name: 文搜图
-    summary: 关键词搜图/以图搜图，内部图库+Pinterest联合检索，找参考图/素材/灵感。
-    description: "Keyword image search / reverse image search with internal library + Pinterest joint retrieval. `prompt` (search term array) and `image_ids` (image ID array) at least one required; `query_mode` (search/retrieve, default `search`), `size` (1–20, default `4`), `source_type` (auto/internal/pinterest, default `auto`) required. Retries with synonyms when empty, returns not-found if still empty. Prohibited: image generation/AI creation, image editing/modification, video search, OCR/image understanding."
+    summary: 关键词搜图/以图搜图，平台图库+Pinterest联合检索，找参考图/素材/灵感。
+    description: "Keyword image search / reverse image search with platform library + Pinterest joint retrieval. `prompt` (search term array) and `image_ids` (image ID array) at least one required; `query_mode` (search/retrieve, default `search`), `size` (1–20, default `4`), `source_type` (auto/internal/pinterest, default `auto`) required. Retries with synonyms when empty, returns not-found if still empty. Prohibited: image generation/AI creation, image editing/modification, video search, OCR/image understanding."
     triggers:
       - 明确搜图/以图搜图/图片检索
-      - 找参考图/找素材图/找类似图片
+      - 明确搜索参考图/素材图/相似图片
     input:
       - type: text
         count: "0+"
@@ -155,7 +155,7 @@ tools:
       requiredKeys: []
       optionalKeys: [prompt, image_ids, query_mode, size, source_type]
       arrayKeys: [prompt, image_ids]
-      commandAliases: [search, 搜图, 文搜图, 找图]
+      commandAliases: [image-search, 搜图, 文搜图, 以图搜图]
       inputAliases:
         关键词: prompt
         搜索词: prompt
@@ -230,7 +230,7 @@ tools:
       requiredKeys: [prompt]
       optionalKeys: [image_list, size, ratio, model]
       arrayKeys: [image_list]
-      commandAliases: [generate, image-generate, 图片生成, 文生图]
+      commandAliases: [image-generate, 图片生成, 文生图, 文本生成图片]
       inputAliases:
         image: image_list
         image_url: image_list
@@ -310,9 +310,9 @@ tools:
     summary: 人像/宠物写真生成、双人合影合成，高精度人像保真，支持形象照/艺术照。
     description: "Generates high-fidelity portraits from reference images (person/pet), covering portrait generation (ID photo/professional headshot/artistic photo/pet portrait/group photo/hairstyle adjustment) and dual-person composite/group photo synthesis. `image_list` (1–N person/pet images) and `prompt` required; `size` (2K/4K, default `2K`) optional. Local editing (makeup/face/posture changes) is not in this tool's scope. Prohibited: face swap/head swap, style transfer/creative effects, outfit swap, video generation, text-only generation without reference images."
     triggers:
-      - 写真/形象照/艺术照/宠物写真
+      - 明确要求写真生成/形象照/艺术照/宠物写真
       - 发型调整/试发型
-      - 合影/合照/双人合照/多人写真/团体照
+      - 明确要求双人合照合成/多人写真合成
     prefer_over:
       - tool: text-to-image
         when: 需要高精度人像保真的写真效果
@@ -350,7 +350,7 @@ tools:
       requiredKeys: [image_list, prompt]
       optionalKeys: [size]
       arrayKeys: [image_list]
-      commandAliases: [portrait, image-portrait, 写真生成, 形象照, 合影]
+      commandAliases: [image-portrait, portrait-generate, 写真生成, 人像写真]
       inputAliases:
         image: image_list
         image_url: image_list
@@ -377,7 +377,6 @@ tools:
       - 修改现有图片局部内容（换背景、改颜色、去除/添加元素）
       - 多张图提取材质/风格/构图融合
       - 在现有图片上渲染文字
-      - 图片分析或标注
       - 将人物/宠物照片转为卡通、3D手办、二次元等艺术风格
       - 人像/宠物写真生成、发型调整
       - 基于参考图创作全新图片（创意视觉稿等，非海报）
@@ -432,7 +431,7 @@ tools:
       requiredKeys: [image_list, prompt]
       optionalKeys: [ratio, size, output_format, model]
       arrayKeys: [image_list]
-      commandAliases: [edit, image-i2i, 图片编辑, 图生图]
+      commandAliases: [image-edit, image-i2i, 图片编辑, 图片内容编辑, 图生图]
       inputAliases:
         image: image_list
         image_url: image_list
@@ -749,7 +748,7 @@ tools:
       requiredKeys: [image_url]
       optionalKeys: [target, prompt]
       arrayKeys: []
-      commandAliases: [remove, image-remove, 去水印, 图片消除, 消除]
+      commandAliases: [image-remove, 去水印, 图片消除, 去除图片元素]
       inputAliases:
         image: image_url
         图片: image_url
@@ -1188,7 +1187,7 @@ tools:
       requiredKeys: [summary, language]
       optionalKeys: [model, prompt_name, image_list, video_list, output_file]
       arrayKeys: [image_list, video_list]
-      commandAliases: [text-generate, 文本生成, 文案, 写文案, 分镜, 故事板, storyboard]
+      commandAliases: [text-generate, 文本生成, 营销文案生成, 分镜脚本生成, storyboard-script]
       inputAliases:
         文案需求: summary
         需求: summary
@@ -1533,7 +1532,7 @@ tools:
       requiredKeys: [prompt]
       optionalKeys: [video_url, image_url, model]
       arrayKeys: []
-      commandAliases: [video-effect, video-generate, 视频特效, 视频创意生成, 风格转绘]
+      commandAliases: [video-effect, 视频特效, 视频创意生成, 风格转绘]
       inputAliases:
         视频: video_url
         视频url: video_url
@@ -2141,7 +2140,7 @@ tools:
       - 证件照/一寸照/二寸照/做个证件照
       - 护照照片/签证照/身份证照/驾照照片
       - 入园照/入学照/毕业证照/考研照/考编照
-      - 职业证件照/商务照/形象照/智感证件照
+      - 职业证件照/商务证件照/智感证件照
       - 结婚证照/工牌照
     prefer_over:
       - tool: image-portrait-generate

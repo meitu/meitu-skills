@@ -1,6 +1,6 @@
 ---
 name: meitu-visual-me
-description: "Memory-driven AI visual assistant. Supports 7 core capabilities (image generation, editing, face swap, virtual try-on, beauty enhance, image-to-video, motion transfer) and 17 scenario workflows. Triggered when user says '帮我画', '换背景', '头像系列', '试穿', '动起来', '微缩场景', '今日卡', '换风格', '美颜', etc. Also applies to any visual content creation need."
+description: "Memory-driven AI visual assistant. Supports 7 core capabilities (image generation, editing, face swap, virtual try-on, beauty enhance, image-to-video, motion transfer) and 17 scenario workflows. Triggered only when the user explicitly asks for a supported personalized visual workflow such as avatar series, background swap, try-on, style remix, daily card, or bring-image-to-life. It reads Meitu credentials, may read local profile/memory files, invokes the local `meitu` CLI, may send selected local context to Meitu OpenAPI, and writes outputs plus optional memory/profile updates locally."
 version: "1.1.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/","./openclaw.yaml","./DESIGN.md","./visual/","USER.md","MEMORY.md","memory/","SOUL.md","IDENTITY.md","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","./visual/rules/quality.yaml","./visual/memory/global.md","./visual/memory/scenes/","./visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"],"write":["~/.openclaw/workspace/visual/","./DESIGN.md","./drafts/","./output/","./visual/","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","./visual/rules/quality.yaml","./visual/memory/global.md","./visual/memory/scenes/","./visual/memory/observations/observations.yaml","./visual/PROFILE.md","./visual/assets/references/user.jpg","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY","security":{"dataFlow":"Inputs, selected local context, and generated prompts may be sent to Meitu OpenAPI when used by the workflow.","credentials":"Credentials are used only for CLI authentication and must not be disclosed.","persistence":"Record workflows may access declared project and visual memory/rules files."}}}
 security:
@@ -79,6 +79,8 @@ requirements:
 
 Memory-driven AI visual assistant. Reads user profiles and daily memories to generate personalized images and videos. Supports 17 scenario workflows and 28 trending styles. Play first, give feedback, and the system automatically learns your preferences.
 
+仅在用户明确要求使用这类个性化视觉工作流时执行；不要把泛化的“任何视觉内容创作需求”都路由到本 Skill。首次使用或涉及 profile/memory 内容时，应先说明哪些本地资料会被读取，以及哪些摘要可能进入发往 Meitu OpenAPI 的 prompt。
+
 | You say | What it does |
 |------|------|
 | "帮我画" (draw something) | Automatically selects a scenario based on your current state and generates |
@@ -95,7 +97,7 @@ Memory-driven AI visual assistant. Reads user profiles and daily memories to gen
 ## Dependencies
 
 - tools: meitu-cli (`npm install -g meitu-cli@latest`)
-- credentials: `meitu config set-ak --value <AK>` + `meitu config set-sk --value <SK>`
+- credentials: prefer environment variables or a pre-provisioned `~/.meitu/credentials.json`; if the operator explicitly wants persistent local setup, run `meitu config set-ak --value <AK>` + `meitu config set-sk --value <SK>`
 - user knowledge (optional): `./visual/` (created on demand; if absent, all knowledge reads are skipped)
 - project files: `./` (cwd, containing `openclaw.yaml`, `DESIGN.md`, etc.)
 - platform context (optional): `USER.md`, `MEMORY.md`, `memory/今日.md`, `SOUL.md`, `IDENTITY.md` (platform-injected; skip if absent)
@@ -122,6 +124,8 @@ Must pass before every generation; if it fails, **stop generation**:
 5. **One-time workspace resolution** (results persist throughout the workflow):
    Detect mode: cwd has `openclaw.yaml` → project mode; else → one-off
    检查 `./visual/` 目录 → 确定 capabilities
+
+6. **Minimization rule:** only read or persist the profile, memory, or project fields needed for the current request. Do not create or update long-lived memory/profile records for name, gender, or identity details unless the user explicitly wants that personalization behavior.
 
    **Variables available after resolution (referenced directly in subsequent steps):**
    ```

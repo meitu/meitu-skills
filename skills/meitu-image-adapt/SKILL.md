@@ -31,7 +31,9 @@ requirements:
 ## Dependencies
 
 - **meitu-cli** (>=2.0.6): `npm install -g meitu-cli@latest`
-  - 凭证配置: `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`
+  - 首选环境变量：`MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
+  - 或预置凭证文件：`~/.meitu/credentials.json`
+  - 如需人工初始化本地凭证，可显式执行 `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`（会写入本地文件）
   - 验证: `meitu auth verify --json`
 
 > **路径别名:** `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
@@ -136,7 +138,7 @@ meitu image-transform \
 
 **常见错误码：**
 - `ORDER_REQUIRED` → 余额不足，告知用户充值，提供 action_url
-- `CREDENTIALS_MISSING` → AK/SK 未配置，引导 `meitu config set-ak/set-sk`
+- `CREDENTIALS_MISSING` → AK/SK 未配置，优先提示使用环境变量或预置 `~/.meitu/credentials.json`；仅在用户明确要求写入本地凭证时，再提示 `meitu config set-ak/set-sk`
 - `INVALID_IMAGE` → 图片无法读取，检查 URL 可访问性或文件格式
 
 ### Deliver

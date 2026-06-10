@@ -1,6 +1,6 @@
 ---
 name: meitu-id-photo
-description: "生成标准证件照（一寸、二寸、护照、签证等）。自然美颜 + AI 重绘（换正装 + 纯色背景 + 规格裁剪）。当用户提到证件照、一寸照、二寸照、白底照片、蓝底照片、红底照片、passport photo、ID photo、签证照、驾照照片、身份证照、证件照换底色、证件照尺寸时触发。"
+description: "生成标准证件照（一寸、二寸、护照、签证等）。自然美颜 + AI 重绘（换正装 + 纯色背景 + 规格裁剪）。当用户明确要求证件照规格、底色或证件照尺寸时触发。执行时会读取 Meitu 凭证、调用本地 `meitu` CLI，把人像照片与证件照参数发送到 Meitu OpenAPI，并把结果写入本地输出目录。"
 version: "1.1.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/","./openclaw.yaml","./DESIGN.md","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"],"write":["~/.openclaw/workspace/visual/","./DESIGN.md","./output/","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY","security":{"dataFlow":"Inputs, selected local context, and generated prompts may be sent to Meitu OpenAPI when used by the workflow.","credentials":"Credentials are used only for CLI authentication and must not be disclosed.","persistence":"Record workflows may access declared project and visual memory/rules files."}}}
 security:
@@ -50,10 +50,14 @@ requirements:
 
 接收一张人物照片，按指定证件照规格（尺寸 + 背景色）调用 `image-id-photo-generate` 一步生成标准证件照。无论原图穿什么衣服、戴不戴帽子，都通过 CLI 的证件照专用命令完成换装、换背景和规格裁剪。
 
+执行前应让用户清楚知道：本 Skill 会读取 Meitu 凭证、调用本地 `meitu` CLI、将人像照片和证件照参数发送到 Meitu OpenAPI，并把生成结果写入 `./output/` 或 `$VISUAL/output/meitu-id-photo/`。证件照场景只收集当前任务必需的信息，非必要不持久化姓名、性别或其他身份字段。
+
 ## Dependencies
 
 - **meitu-cli** (>=2.0.6): `npm install -g meitu-cli@latest`
-  - 凭证配置：`meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`
+  - 首选环境变量：`MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
+  - 或预置凭证文件：`~/.meitu/credentials.json`
+  - 如需人工初始化本地凭证，可显式执行 `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`（会写入本地文件）
   - 验证：`meitu auth verify --json`
 
 > **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
@@ -124,6 +128,8 @@ Preflight → [Context: 跳过] → Execute (规格确认 → 两步管线) → 
 > 开始生成？
 
 单一明确需求（如"帮我做一张蓝底二寸照"） → 可跳过确认，直接执行。
+
+除规格、背景色、服装这类当前任务必需字段外，不额外收集或记录姓名、性别、证件号码等个人信息；若用户主动提供，也不默认写入持久化记录。
 
 **单步专用命令**
 

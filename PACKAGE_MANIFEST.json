@@ -3,9 +3,11 @@
   "version": "2.0.8",
   "purpose": "Public runtime manifest for the meitu-skills package",
   "included_top_level": [
+    "PACKAGE_MANIFEST.json",
     "SKILL.md",
     "SECURITY.md",
     "meitu-tools/",
+    "references/",
     "skills/"
   ],
   "release_excludes": [
@@ -22,6 +24,7 @@
   "distribution_notes": [
     "Describes the public runtime contents of the meitu-skills package",
     "Includes the root skill, meitu-tools, scene skills, and referenced runtime materials",
+    "Recommended runtime baseline is meitu-cli@2.1.8",
     "Omits non-runtime repository materials from release packaging"
   ]
 }

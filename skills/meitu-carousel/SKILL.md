@@ -89,7 +89,9 @@ requirements:
 - credentials: 美图 AI 开放平台 API 凭证
   - 环境变量：`MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
   - 或配置文件：`~/.meitu/credentials.json`
-  - 配置方式：`meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`
+  - 首选环境变量：`MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
+  - 或预置凭证文件：`~/.meitu/credentials.json`
+  - 如需人工初始化本地凭证，可显式执行 `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`（会写入本地文件）
   - 验证：`meitu auth verify --json`
 - workspace (optional): `{OPENCLAW_HOME}/workspace/visual/`
   - Path resolution: `$OPENCLAW_HOME` env var → `~/.openclaw` (macOS/Linux) / `%LOCALAPPDATA%\openclaw` (Windows)
@@ -316,7 +318,7 @@ If DESIGN.md Iteration Log > 5 entries → compact: keep recent 5, archive older
 | L2 | 降级枚举参数：`--size 2K` → `--size 1K`；`--output_format` 保持 jpeg |
 | L3 | 移除可选输入：去掉 `--image_list` 参考图，改为纯文生图模式 |
 | L4 | 最小化到核心要素：仅保留标题文案 + 基础风格关键词 + `--ratio 3:4` |
-| L5 | 停止并报错，向用户展示 JSON 输出中的 `code` 和 `hint`，建议调整需求或检查网络/凭证。若 `error_type` 为 ORDER_REQUIRED → 提示充值；CREDENTIALS_MISSING → 提示运行 `meitu config set-ak` + `meitu config set-sk` 配置凭证 |
+| L5 | 停止并报错，向用户展示 JSON 输出中的 `code` 和 `hint`，建议调整需求或检查网络/凭证。若 `error_type` 为 ORDER_REQUIRED → 提示充值；CREDENTIALS_MISSING → 优先提示使用环境变量或预置 `~/.meitu/credentials.json`，仅在用户明确要求写入本地凭证时再提示 `meitu config set-ak` + `meitu config set-sk` |
 
 每级最多重试 1 次，失败则进入下一级。L3 仅适用于有 `--image_list` 的内页生成步骤（阶段 5a/5b）。
 

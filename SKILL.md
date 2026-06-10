@@ -34,6 +34,7 @@ Recommended runtime baseline:
 - `SKILL` (./SKILL.md)
 - `meitu-tools` (./meitu-tools/SKILL.md)
 - `meitu-tools_tools` (./meitu-tools/references/tools.yaml)
+- `task-id-baseline` (./references/task-id-baseline.md)
 - `audio-music-generate` (./skills/audio-music-generate/SKILL.md)
 - `audio-song-generate` (./skills/audio-song-generate/SKILL.md)
 - `image-background-replace` (./skills/image-background-replace/SKILL.md)

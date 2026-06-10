@@ -1,6 +1,6 @@
 ---
 name: image-portrait-generate
-description: "从参考图（人像/宠物）生成高精度写真，覆盖证件照/形象照/艺术照/宠物写真/多人写真/发型调整以及双人合影合成。当用户提到写真、证件照、形象照、艺术照、发型、宠物写真、合影、合照、双人合照、团体照、多人写真时触发。"
+description: "从参考图（人像/宠物）生成高精度写真，覆盖证件照/形象照/艺术照/宠物写真/多人写真/发型调整以及双人合影合成。仅在用户明确要求写真生成、人像风格化或双人合照合成时触发。"
 version: "1.0.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
 requirements:
@@ -31,7 +31,7 @@ requirements:
 
 ## Overview
 
-从参考图（人像/宠物）生成高精度写真，覆盖单人/宠物/多人写真（证件照/形象照/艺术照/发型调整/场景变换）和双人合影合成。支持 2K/4K 分辨率。
+从参考图（人像/宠物）生成高精度写真，覆盖单人/宠物/多人写真（证件照/形象照/艺术照/发型调整/场景变换）和双人合影合成。支持 2K/4K 分辨率。仅在用户明确要求写真生成或双人合照合成时触发，不用于泛化的“合影”“团体照”闲聊场景。
 
 ## API Mapping
 

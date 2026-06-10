@@ -220,7 +220,7 @@ Use one of the following:
    {"accessKey":"...","secretKey":"..."}
    ```
 
-3. Local config commands:
+3. Optional manual local setup (writes credentials to `~/.meitu/credentials.json` only when the operator explicitly chooses persistent local setup):
    ```bash
    meitu config set-ak --value "<ACCESS_KEY>"
    meitu config set-sk --value "<SECRET_KEY>"
@@ -233,7 +233,7 @@ Use one of the following:
    meitu auth status --json
    ```
 
-When both AK/SK and account login are available, prefer AK/SK.
+When both AK/SK and account login are available, prefer AK/SK. For public or shared environments, prefer environment variables or a pre-provisioned credentials file over interactive local credential writes.
 
 ---
 

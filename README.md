@@ -17,7 +17,7 @@ See [SECURITY.md](SECURITY.md) for:
 - Root entry skill: `SKILL.md` (global routing guidance)
 - Tool aggregate skill: `meitu-tools/` — command catalog in `meitu-tools/references/tools.yaml`
 - Scene skills and atomic command skills: `skills/`
-  - Scene skills (e.g. `meitu-poster`, `meitu-stickers`, `meitu-visual-me`, `meitu-product-swap`, `meitu-video-dance`, `meitu-ai-portrait`, `meitu-ecommerce-listing`, `meitu-music-video`, `meitu-short-video-studio`, `meitu-social-campaign`)
+  - Scene skills (e.g. `meitu-poster`, `meitu-stickers`, `meitu-visual-me`, `meitu-product-swap`, `meitu-video-dance`, `meitu-game-2d-assets`)
   - Atomic command skills mapped 1:1 to CLI commands (e.g. `image-cutout`, `image-edit`, `image-poster-generate`, `image-to-video`, `video-motion-transfer`, `text-to-image`, `text-to-video`, etc.)
 
 ## Quick Start
@@ -46,7 +46,8 @@ npm install -g meitu-cli@latest
 3. Configure credentials
 
 - `MEITU_OPENAPI_ACCESS_KEY` + `MEITU_OPENAPI_SECRET_KEY` (env), or
-- `~/.meitu/credentials.json` (via `meitu config set-ak` / `meitu config set-sk`)
+- `~/.meitu/credentials.json` (pre-provisioned or created by explicit local setup), or
+- manual local setup when you intentionally want credentials written to disk: `meitu config set-ak` / `meitu config set-sk`
 
 4. Smoke test
 
@@ -185,40 +186,10 @@ Triggers: image adapt, outpaint, expand image, ratio change, portrait to landsca
 
 ---
 
-### meitu-ai-portrait
+### meitu-game-2d-assets
 
-Expands one or a few portraits into a complete AI portrait experience — signature portrait shots, business headshots, outfit/face-consistent variants, and final portrait retouching.
+Generates 2D game-ready asset packs from a brief or reference image, covering character concepts, props, icons, environment pieces, and style-consistent variants for mobile and casual game production.
 
-Triggers: AI portrait, business headshot, professional portrait, multi-look portrait, portrait set, 形象照, AI 写真
-
----
-
-### meitu-ecommerce-listing
-
-Quickly composes the asset pack needed to launch a new e-commerce SKU: white-background hero image, scene shot, selling-point poster, with optional super-resolution.
-
-Triggers: ecommerce listing, listing pack, hero image, white-background product, launch assets, 上新图, 主图, 卖点图
+Triggers: 2D game assets, game props, game icons, character concepts, asset pack, 游戏素材, 游戏美术
 
 ---
-
-### meitu-music-video
-
-Turns music or BGM into a short video with matching ambient visuals. Generates pure music first, then a multimodal video, optionally stitched into a longer music short.
-
-Triggers: music video, BGM video, music visualizer, ambient MV, audio-driven short, 氛围 MV
-
----
-
-### meitu-short-video-studio
-
-Quickly composes a finished short video from a theme, selling point, or key visual. Covers script/storyboard generation, single-segment video generation, BGM or narration overlay, and multi-segment stitching.
-
-Triggers: short video, ad spot, reels, shorts, product video, promo video, teaser, 种草视频, 广告片
-
----
-
-### meitu-social-campaign
-
-Turns one campaign idea into a multi-platform social asset pack: campaign copy, hero poster, multi-aspect extensions, and platform-specific reskins.
-
-Triggers: social campaign, campaign assets, multi-platform asset pack, Xiaohongshu cover set, Douyin assets, 多平台素材包

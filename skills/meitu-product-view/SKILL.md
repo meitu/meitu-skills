@@ -57,8 +57,14 @@ requirements:
 ## Dependencies
 
 - **meitu-cli** (≥2.0.6): `npm install -g meitu-cli@latest`
-  - 凭证配置: `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`
+  - 首选环境变量：`MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
+  - 或预置凭证文件：`~/.meitu/credentials.json`
+  - 如需人工初始化本地凭证，可显式执行 `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`（会写入本地文件）
   - 验证: `meitu auth verify --json`
+- package references (bundled with this skill package):
+  - [references/prompts.md](references/prompts.md) — 固定模板与角度 section
+  - [references/ecommerce-specs.md](references/ecommerce-specs.md) — 平台规格与视角建议
+  - 这些都是包内静态材料，不是任意本地文件
 
 > **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
 

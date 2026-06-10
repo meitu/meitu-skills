@@ -1,6 +1,6 @@
 ---
 name: audio-music-generate
-description: "生成无人声、无歌词的纯音乐 / BGM，适合背景音乐、氛围铺垫、情绪渲染，时长 30–120 秒。当用户提到 BGM、背景音乐、纯音乐、无人声、情绪音乐、氛围音乐、轻音乐、伴奏、器乐、钢琴曲、电子乐、爵士、Vlog 配乐时触发。"
+description: "生成无人声、无歌词的纯音乐 / BGM，适合背景音乐、氛围铺垫、情绪渲染，时长 30–120 秒。仅在用户明确要求生成纯音乐/背景音乐时触发。执行时会读取 Meitu 凭证、调用本地 `meitu` CLI，并把音频生成请求发送到 Meitu OpenAPI，结果写入本地输出目录。"
 version: "1.0.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
 requirements:
@@ -32,6 +32,8 @@ requirements:
 ## Overview
 
 纯音乐/BGM 生成（无人声、无歌词），支持多种风格（爵士/古典/电子/钢琴/氛围等）和时长精确控制（30–120 秒）。偏氛围/铺垫/背景类纯音乐，不负责强节奏强变化或完整歌曲结构。
+
+执行前应让用户清楚知道：本 Skill 会使用 Meitu OpenAPI 凭证、调用本地 `meitu` CLI、将生成请求发送到 Meitu OpenAPI，并把生成的音频文件写入 `./output/` 或 `$VISUAL/output/audio-music-generate/`。
 
 ## API Mapping
 
@@ -66,7 +68,7 @@ Preflight → Execute → Deliver
 
 | 场景 | 判定关键词 | 路由 |
 |------|----------|------|
-| 纯音乐 / BGM / 背景音乐 | BGM、纯音乐、无人声、氛围、伴奏、器乐 | `audio_peanut_generate` |
+| 纯音乐 / BGM / 背景音乐 | 明确要求生成 BGM、纯音乐、无人声背景音乐 | `audio_peanut_generate` |
 
 单 API 工具：参数齐全即调用，失败重试 1 次后返回错误；不做跨工具兜底。
 

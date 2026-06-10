@@ -1,6 +1,6 @@
 ---
 name: image-search
-description: "关键词搜图 / 以图搜图，内部图库 + Pinterest 联合检索。当用户提到搜图、找参考图、找素材、搜几张、找类似的图、以图搜图、搜灵感、帮我搜、找图片时触发。"
+description: "关键词搜图 / 以图搜图，平台图库 + Pinterest 联合检索。仅在用户明确要求搜图、以图搜图或检索参考图/素材图时触发。执行时会读取 Meitu 凭证和检索配置，调用本地 `meitu` CLI，并把检索结果与可选下载文件写入本地输出目录。"
 version: "1.0.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
 requirements:
@@ -31,7 +31,9 @@ requirements:
 
 ## Overview
 
-关键词搜图 / 以图搜图，内部图库 + Pinterest + 花瓣联合检索。用于找参考图、找素材、搜灵感、以图找相似图片；支持多关键词拆分提升召回率。
+关键词搜图 / 以图搜图，平台图库 + Pinterest + 花瓣联合检索。用于找参考图、找素材、搜灵感、以图找相似图片；支持多关键词拆分提升召回率。
+
+执行前应让用户清楚知道：本 Skill 会读取本地 Meitu 凭证与检索配置、调用 `meitu image-search`，并可能把检索结果 JSON 和下载图片写入 `./output/` 或 `$VISUAL/output/image-search/`。
 
 ## API Mapping
 
@@ -80,7 +82,7 @@ Preflight → Execute → Deliver
 | `image_ids` | ARRAY | 条件必填 | -- | -- | 图片 ID 数组。用户给 URL 时自动提取 ID。`retrieve` 模式必填 |
 | `query_mode` | STRING | 是 | search / retrieve | search | search=关键词搜索；retrieve=以图召回 |
 | `size` | NUMBER | 是 | 1–8 | 4 | 返回图片数量，最大 8 |
-| `source_type` | STRING | 是 | auto / internal / pinterest / huaban | auto | auto=内部优先不足回退外部 |
+| `source_type` | STRING | 是 | auto / internal / pinterest / huaban | auto | auto=平台图库优先，不足时回退其他来源 |
 
 缺省策略：`prompt` 和 `image_ids` 至少提供一项；都缺失 → 提示"请描述搜索内容或提供参考图"。
 

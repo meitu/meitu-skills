@@ -57,7 +57,9 @@ requirements:
 - credentials: 美图 AI 开放平台 API 凭证
   - 环境变量：`MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
   - 或配置文件：`~/.meitu/credentials.json`
-  - 配置方式：`meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`
+  - 首选环境变量：`MEITU_OPENAPI_ACCESS_KEY` / `MEITU_OPENAPI_SECRET_KEY`
+  - 或预置凭证文件：`~/.meitu/credentials.json`
+  - 如需人工初始化本地凭证，可显式执行 `meitu config set-ak --value "..."` + `meitu config set-sk --value "..."`（会写入本地文件）
   - 验证：`meitu auth verify --json`
 - workspace (optional): `{OPENCLAW_HOME}/workspace/visual/`
   - Not found → skip all knowledge reads, skill works without it

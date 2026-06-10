@@ -37,6 +37,8 @@ requirements:
 
 双图换脸/换头合成，将源图人脸替换到目标场景图上。保留目标图的构图/身体/背景，自动肤色融合光影匹配；用于角色扮演、把自己的脸放到另一张图上、趣味合成。一次只换一张脸。
 
+执行前应让用户清楚知道：本 Skill 会读取 Meitu 凭证、调用本地 `meitu` CLI、将两张人脸相关图片发送到 Meitu OpenAPI 处理，并把结果写入 `./output/` 或 `$VISUAL/output/image-face-swap/`。
+
 ## API Mapping
 
 - 双图换脸/换头合成：`image_face_swap`
