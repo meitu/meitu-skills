@@ -257,3 +257,4 @@ No feedback → skip entirely.
 | 命名 | `{date}_{effect-name}.mp4` |
 | 时长 | 与参考视频一致（通常 3-10 秒） |
 | 路径 | 由 Deliver 步骤确定 |
+

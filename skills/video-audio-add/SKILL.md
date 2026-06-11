@@ -143,3 +143,4 @@ meitu video-audio-add --video_list {urls} --prompt "{旁白文案 + 音色}" [--
 ## 基线 Task ID
 
 `t_mt1a3i5n7b55cdc12e-cdeb-46fd-a95d-28a7546bf033`
+

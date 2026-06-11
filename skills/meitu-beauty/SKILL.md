@@ -137,3 +137,4 @@ meitu image-edit \
 | 数量 | 单张 |
 | 命名 | `{date}_beauty_{original_name}.{ext}` |
 | 位置 | 由 Deliver 步骤解析 |
+

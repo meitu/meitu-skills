@@ -259,3 +259,4 @@ mv "{downloaded_files[0].saved_path}" "{output_dir}/{date}_{spec_name}_{color_na
 | 创意换背景（非纯色） | `meitu-portrait` 或 `meitu-image-fix` |
 
 **边界判断**：用户意图是"做一张标准证件照" → 本 skill。用户意图是"把照片背景换成风景" → 告知不是证件照场景，建议对应 skill。
+

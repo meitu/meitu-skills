@@ -108,3 +108,4 @@ When user says "不要 XX":
 | Reference photo update | Fact | assets/references/user.jpg |
 | Composition/ratio preference | Inference | observations.yaml → promotion → global.md |
 | Platform preference ("默认出竖图") | Fact | quality.yaml |
+

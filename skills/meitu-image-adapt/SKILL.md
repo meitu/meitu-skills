@@ -165,3 +165,4 @@ meitu image-transform \
 | 尺寸 | 用户指定的 width × height |
 | 路径 | 由 Deliver 步骤确定 |
 | 特征 | 主体比例不变形、内容完整不丢失、背景自然延展无接缝 |
+

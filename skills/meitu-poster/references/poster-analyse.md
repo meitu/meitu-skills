@@ -169,3 +169,4 @@ Execute before outputting JSON. If verification fails → roll back and re-plan.
 ### Layout Check (Washing only)
 - Has image layout been re-planned?
 - If not → re-plan layout (e.g., centered → arc layout)
+

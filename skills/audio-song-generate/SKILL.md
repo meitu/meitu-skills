@@ -116,3 +116,4 @@ meitu audio-song-generate --prompt "<style>" --prompt_lyrics "<lyrics>" [--model
 ## 基线 Task ID
 
 见 `references/task-id-baseline.md` 中对应行。
+

@@ -32,11 +32,11 @@
 # 纯文本生图
 meitu text-to-image --prompt "赛博朋克风格的城市夜景"
 
-# 带参考图（融合，仅 model=gummy 支持）
-meitu text-to-image --image_url "参考图URL" --prompt "将照片转为水彩画风格" --size 2k
+# 带参考图
+meitu text-to-image --image_list "参考图URL" --prompt "将照片转为水彩画风格" --size 2k
 
 # 多张参考图
-meitu text-to-image --image_url "图片URL1" "图片URL2" --prompt "合影风格化"
+meitu text-to-image --image_list "图片URL1" "图片URL2" --prompt "合影风格化"
 
 # 指定比例并输出 JSON
 meitu text-to-image --prompt "微缩场景" --ratio 1:1 --json
@@ -50,14 +50,14 @@ meitu text-to-image --prompt "微缩场景" --json --download-dir ./output
 | Parameter | Required | Description |
 |------|---------|------|
 | `--prompt PROMPT` | Required | Prompt 文本 |
-| `--image_list IMAGE_LIST...` | Optional | 参考图 URL 数组（别名 `--image` / `--image_url`），仅 `model=gummy` 支持 |
-| `--model MODEL` | Optional | `auto`(默认) / `gummy`(支持参考图) / `praline_pro`(商业级写实，不支持参考图) |
+| `--image_list IMAGE_LIST...` | Optional | 参考图 URL 数组（别名 `--image` / `--image_url`） |
+| `--model MODEL` | Optional | `auto`(默认) / `gummy` / `praline_pro` / `nougat` |
 | `--size SIZE` | Optional | `2k` / `3k` / `WIDTHxHEIGHT`（如 `1024x768`），默认 `2k`。**注意：** 与 `image-poster-generate` 的 `1K`/`2K`/`4K` 大小写不同 |
 | `--ratio RATIO` | Optional | `1:1` / `4:3` / `3:4` / `16:9` / `9:16` / `3:2` / `2:3` / `21:9` |
 | `--download-dir` | Optional | 下载目录 |
 | `--json` | Optional | JSON 输出 |
 
-> `image_list` 与 `ratio` 互斥：传 `image_list` 时不要再传 `ratio`。
+> `image_list` 与 `ratio` 互斥：传 `image_list` 时不要再传 `ratio`。需要参考图又要改画幅时，先生成，再用 `image-edit` 做比例适配更稳妥。
 
 ---
 
@@ -433,9 +433,9 @@ meitu image-grid-split --image_url "网格图URL" --json
 | Avatar series | `text-to-image` + `image-face-swap` | 生成基底 + 换脸 |
 | Multi-platform adaptation | `image-edit --ratio <target ratio> --prompt "..."` | 通过比例适配 |
 | ID card | `text-to-image --prompt "..."` | 文生证件卡风 |
-| Group photo | `text-to-image --image_url "img1" "img2" --prompt "..."` | 多参考图合影 |
+| Group photo | `text-to-image --image_list "img1" "img2" --prompt "..."` | 多参考图合影 |
 | Virtual outfit swap | `image-outfit-swap --image_url "person" [--clothes_image_url "clothes"] --prompt "..."` | 旧 image-try-on 已重命名 |
-| Image to short video | `image-to-video --image_url "..." --prompt "..."` | 图生视频 |
+| Image to short video | `image-to-video --image_list "..." --prompt "..."` | 图生视频 |
 | Motion transfer | `video-motion-transfer --image_list "person" --reference_video_list "ref" --prompt "..."` | 视频动作迁移 |
 | Portrait beauty | `image-edit --image_list "..." --prompt "natural skin smoothing..." --model gummy_pro` | 旧 image-beauty-enhance 已合并入 image-edit |
 | Text to video | `text-to-video --prompt "..."` | 无图输入 |
@@ -454,7 +454,7 @@ meitu image-grid-split --image_url "网格图URL" --json
 5. **face-swap 拼写** — 是 `sence_image_url` 不是 `scene`
 6. **image-edit 没 `--mode`** — 编辑操作通过 prompt 描述
 7. **image-superres-enhance 没 `--scale`** — 自动超分；旧名 `image-upscale` 已废弃
-8. **参数别名** — 多数命令同时接 `--image` / `--image_list` / `--image_url`；推荐用 `--image_url`
+8. **参数别名** — 多数命令兼容 `--image` / `--image_list` / `--image_url`，但文档与自动化里优先使用各工具的 canonical 参数名（如 `text-to-image` / `image-edit` / `image-to-video` 用 `--image_list`，`image-cutout` / `image-style-transfer` 用 `--image_url`）
 9. **凭证检查** — `meitu auth verify --json` 不耗 API quota
 10. **旧命令对照表（迁移指南）：**
    - `image-generate` → `text-to-image`

@@ -130,30 +130,30 @@ Preflight → Execute → Deliver
 
 创意 / 默认：
 ```bash
-meitu text-to-image \\
-  --skill_name skill_text-to-image \\
-  --prompt "{image_description}" \\
-  --size 2K \\
+meitu text-to-image \
+  --skill_name skill_text-to-image \
+  --prompt "{image_description}" \
+  --size 2K \
   --json --download-dir {output_dir}
 ```
 
 多图参考融合：
 ```bash
-meitu text-to-image \\
-  --skill_name skill_text-to-image \\
-  --prompt "{image_description}" \\
-  --model gummy \\
-  --image_list "{ref1}" --image_list "{ref2}" \\
+meitu text-to-image \
+  --skill_name skill_text-to-image \
+  --prompt "{image_description}" \
+  --model gummy \
+  --image_list "{ref1}" --image_list "{ref2}" \
   --json --download-dir {output_dir}
 ```
 
 商业级高品质（带比例）：
 ```bash
-meitu text-to-image \\
-  --skill_name skill_text-to-image \\
-  --prompt "{image_description} Aspect ratio 16:9" \\
-  --model praline_pro \\
-  --ratio 16:9 --size 2K \\
+meitu text-to-image \
+  --skill_name skill_text-to-image \
+  --prompt "{image_description} Aspect ratio 16:9" \
+  --model praline_pro \
+  --ratio 16:9 --size 2K \
   --json --download-dir {output_dir}
 ```
 

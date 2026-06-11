@@ -141,3 +141,4 @@ Prompt-Part2(严格按照第6部分格式输出包含 Prefix/Suffix 与 User Inp
 - V4. 反变异核查 (Anti-Mutation Check)：核查英文 Prompt 中是否显性包含 [CRITICAL ANTI-MUTATION PROTOCOL] 段落，强制禁止对周围文字/图形进行色彩与样式联想蔓延。
 - V5. 透视合理性：是否要求了匹配底图透视但禁止了主体结构扭曲。
 - V6. 模板完整性 (核心)：核对生成的 Prompt-Part2 是否完整、一字不差地包含了用户提供的 <PREFIX_INSTRUCTION> 和 <SUFFIX_INSTRUCTION> 模板块。
+

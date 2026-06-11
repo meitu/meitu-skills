@@ -100,7 +100,7 @@ API 映射说明：
 **工具调用**
 
 ```bash
-meitu image-style-transfer --image_url <origin>[,<style_ref>] --prompt "<style desc>" --json   --skill_name skil_image-style-transfer
+meitu image-style-transfer --image_url <origin>[,<style_ref>] --prompt "<style desc>" --json   --skill_name skill_image-style-transfer
 ```
 
 **错误降级**

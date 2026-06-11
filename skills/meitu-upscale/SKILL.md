@@ -140,3 +140,4 @@ meitu image-superres-enhance \
 | 风格转换 | `meitu-stylize` |
 | 去背景 | `meitu-cutout` |
 | 综合修图（模糊+水印+美颜） | `meitu-image-fix`（会在管线中自动调用 upscale） |
+

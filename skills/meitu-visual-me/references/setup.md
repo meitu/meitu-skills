@@ -106,3 +106,4 @@ dislike: [styles you don't want]
 - Node.js (for npx/npm to install meitu-cli)
 - meitu-cli (`npm install -g meitu-cli@latest`)
 - meitu API credentials (accessKey + secretKey)
+

@@ -80,3 +80,4 @@ updated_at: 2026-03-22
 | 无反馈 | Nothing | No |
 
 Rejection 完全绕过 observation，直接按 Record 段中的 routing 处理。
+

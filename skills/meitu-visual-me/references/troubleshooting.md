@@ -56,3 +56,4 @@ Follow the 5-level degradation defined in the main workflow (SKILL.md Execute se
 | L5 | Stop and report error | Show specific error message, suggest checking credentials or contacting support |
 
 Escalate one level after 2 consecutive failures at the same level.
+

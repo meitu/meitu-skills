@@ -146,3 +146,4 @@ When the user hasn't specified a style, **automatically match the most suitable 
 | Cluttered background | `clean single-tone backdrop` |
 | Over-saturated | `restrained natural color palette` |
 | Not sharp enough | `fine surface detail visible at full resolution` |
+

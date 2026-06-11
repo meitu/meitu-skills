@@ -118,3 +118,4 @@ meitu image-poster-generate --prompt "<desc>" [--model Praline_2] [--ratio 9:16]
 ## 基线 Task ID
 
 见 `references/task-id-baseline.md` 中对应行。
+

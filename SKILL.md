@@ -1,18 +1,20 @@
 # Meitu Skills Package
 
 - Package: `meitu-skills`
-- Version: `2.0.8`
+- Version: `2.0.10`
 - Generated At: `2026-06-09 21:20:00`
 
 ## Release Notes
 
-align public runtime baseline with meitu-cli 2.1.8
+align public release baseline with meitu-cli 2.1.8
 
 ## Routing Addendum
 
 This package uses `meitu-tools` as the direct execution hub for Meitu CLI commands.
 
 For effect commands, refer to `meitu-tools/references/tools.yaml`.
+
+For root-level routing, fallback, and safety guidance, refer to `references/routing-guide.md`.
 
 For built-in CLI commands outside `tools.yaml`, the currently verified public console command set is also routed to `meitu-tools`:
 
@@ -24,17 +26,20 @@ For built-in CLI commands outside `tools.yaml`, the currently verified public co
 Do not assume other built-in console commands are supported by this package just because they exist in `meitu-cli`.
 
 Recommended runtime baseline:
-- `meitu-skills 2.0.8`
+- `meitu-skills 2.0.10`
 - `meitu-cli@2.1.8`
 
 ## Included Skills
 
 - `PACKAGE_MANIFEST` (./PACKAGE_MANIFEST.json)
+- `README` (./README.md)
+- `LICENSE` (./LICENSE)
 - `SECURITY` (./SECURITY.md)
 - `SKILL` (./SKILL.md)
 - `meitu-tools` (./meitu-tools/SKILL.md)
 - `meitu-tools_tools` (./meitu-tools/references/tools.yaml)
 - `task-id-baseline` (./references/task-id-baseline.md)
+- `routing-guide` (./references/routing-guide.md)
 - `audio-music-generate` (./skills/audio-music-generate/SKILL.md)
 - `audio-song-generate` (./skills/audio-song-generate/SKILL.md)
 - `image-background-replace` (./skills/image-background-replace/SKILL.md)

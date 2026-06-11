@@ -130,8 +130,8 @@ tools:
 
   - id: image-search
     name: 文搜图
-    summary: 关键词搜图/以图搜图，平台图库+Pinterest联合检索，找参考图/素材/灵感。
-    description: "Keyword image search / reverse image search with platform library + Pinterest joint retrieval. `prompt` (search term array) and `image_ids` (image ID array) at least one required; `query_mode` (search/retrieve, default `search`), `size` (1–20, default `4`), `source_type` (auto/internal/pinterest, default `auto`) required. Retries with synonyms when empty, returns not-found if still empty. Prohibited: image generation/AI creation, image editing/modification, video search, OCR/image understanding."
+    summary: 关键词搜图/以图搜图，平台图库+Pinterest+花瓣联合检索，找参考图/素材/灵感。
+    description: "Keyword image search / reverse image search with platform library + Pinterest + Huaban joint retrieval. `prompt` (search term array) and `image_ids` (image ID array) at least one required; `query_mode` (search/retrieve, default `search`), `size` (1–8, default `4`), `source_type` (auto/internal/pinterest/huaban, default `auto`) required. Retries with synonyms when empty, returns not-found if still empty. Prohibited: image generation/AI creation, image editing/modification, video search, OCR/image understanding."
     triggers:
       - 明确搜图/以图搜图/图片检索
       - 明确搜索参考图/素材图/相似图片
@@ -147,7 +147,7 @@ tools:
       note: 图片列表，默认返回4张
     constraints:
       - prompt 和 image_ids 至少提供一项
-      - 最多返回 20 张
+      - 最多返回 8 张
     not_for:
       - 图片生成/AI创作 → text-to-image
       - 图片编辑/修改 → image-edit
@@ -178,7 +178,7 @@ tools:
   - id: text-to-image
     name: 图片生成
     summary: 从文字描述（文字驱动）生成全新图片，支持通用创意生成与商业级高品质生成。
-    description: "Generates brand-new images from text descriptions from scratch (no base image); reference images serve only as style/mood supplements, not as content subjects. Covers general text-to-image/multi-image reference fusion and commercial-grade high-quality generation, supports generating images at specified resolution (e.g. 4K wallpaper). `prompt` required; `model` (auto/gummy/praline_pro, default `auto`), `size` (1K/2K/4K, default `2K`), `ratio` and `image_list` optional. `image_list` and `ratio` are mutually exclusive — `ratio` not supported when `image_list` is provided. `output_format` is managed internally by the combo-tool and not exposed externally. Prohibited: editing existing images, reference-image-driven creation (reference image as primary content source), portraits/pet photos/ID photos, poster/banner layout design, style transfer/preset effects, video generation, image search, quality enhancement/superres of existing images."
+    description: "Generates brand-new images from text descriptions from scratch (no base image); reference images serve only as style/mood supplements, not as content subjects. Covers general text-to-image/multi-image reference fusion and commercial-grade high-quality generation, supports generating images at specified resolution (e.g. 4K wallpaper). `prompt` required; `model` (auto/gummy/praline_pro/nougat, default `auto`), `size` (1K/2K/4K, default `2K`), `ratio` and `image_list` optional. `image_list` and `ratio` are mutually exclusive — `ratio` not supported when `image_list` is provided. `output_format` is managed internally by the combo-tool and not exposed externally. Prohibited: editing existing images, reference-image-driven creation (reference image as primary content source), portraits/pet photos/ID photos, poster/banner layout design, style transfer/preset effects, video generation, image search, quality enhancement/superres of existing images."
     triggers:
       - 无底图，纯文字从零生图
       - 新图中需包含指定文字
@@ -201,12 +201,13 @@ tools:
     params:
       - name: model
         type: enum
-        values: [auto, gummy, praline_pro]
+        values: [auto, gummy, praline_pro, nougat]
         default: auto
         selection_rule: |
           model 为 sub_api 的外部别名；auto 或不传时按 sub_api selection_rule 路由：
           gummy       → text_to_image (image_gummy_generate)
           praline_pro → text_to_image_praline (image_praline_create_v2)
+          nougat      → text_to_image_nougat (image_nougat_create)（仅外部显式指定触发；不支持 image_list/output_format；quality 由 API 内部默认 Medium 不对外暴露）
           指定 model 调用失败时，仍按 sub_api 降级链继续重试
       - name: sub_api
         type: enum
@@ -397,7 +398,7 @@ tools:
     params:
       - name: model
         type: enum
-        values: [auto, gummy_pro, praline_pro, praline_lite, mint_edit]
+        values: [auto, gummy_pro, praline_pro, praline_lite, mint_edit, nougat]
         default: auto
         selection_rule: |
           model 为 sub_api 的外部别名；auto 或不传时按 sub_api selection_rule 路由：
@@ -405,6 +406,7 @@ tools:
           praline_pro  → image_edit_praline / image_edit (image_praline_edit_v2)
           praline_lite → image_edit_lite (image_praline_edit_2)
           mint_edit    → image_edit_fallback (image_mint_edit)
+          nougat       → image_edit_nougat (image_nougat_edit)（仅外部显式指定触发；image_list 最多 10 张；不支持 output_format；size 内部常量 2K；quality 由 API 内部默认 Medium 不对外暴露）
           指定 model 调用失败时，仍按 sub_api 降级链继续重试。
       - name: sub_api
         type: enum

@@ -40,6 +40,7 @@ This package does not ship fixed public `task_id` samples.
 | `text-generate` | Capture locally | Run one successful text generation task |
 | `text-to-image` | Capture locally | Run one successful text-to-image task |
 | `text-to-video` | Capture locally | Run one successful text-to-video task |
+| `video-effect-apply` | Capture locally | Run one successful video effect task with a representative image or video input |
 
 ## Release Validation Note
 

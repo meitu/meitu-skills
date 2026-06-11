@@ -331,3 +331,4 @@ Output path 由 Preflight 解析的 output_dir 决定：
 | 项目模式（有 `openclaw.yaml`） | `./output/{date}_{type}.jpeg` | `./output/2026-03-22_cover.jpeg` |
 | 一次性模式（`$VISUAL` 存在） | `$VISUAL/output/meitu-carousel/{date}_{type}.jpeg` | `~/.openclaw/workspace/visual/output/meitu-carousel/2026-03-22_inner-1.jpeg` |
 文件命名规则：`{date}_{type}.{ext}`，type 为 `cover` 或 `inner-{n}`（n 从 1 开始）。
+

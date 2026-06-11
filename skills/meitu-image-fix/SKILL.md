@@ -120,7 +120,7 @@ Preflight → [Context: 跳过] → Execute (诊断 → 规划 → 逐步执行)
 ```
 Phase 1: image-superres-enhance 先提升画质，后续操作在清晰图上效果更好
 Phase 2: image-edit / cutout    内容修复在高清底图上精度更高
-Phase 3: image-edit(gummy)      人像精修放最后，避免被前面步骤的重编码破坏
+Phase 3: image-edit(gummy_pro)  人像精修放最后，避免被前面步骤的重编码破坏
 ```
 
 **管线路由表：**
@@ -288,3 +288,4 @@ No feedback → skip entirely（不读 observations.yaml，zero overhead）。
 | AI 写真/人像生成 | `meitu-portrait` |
 
 **边界判断**：用户意图是"修好这张图的问题" → 本 skill。用户意图是"把这张图变成另一种东西" → 告知用户并建议对应 skill。
+

@@ -183,3 +183,4 @@ When the identified industry is NOT in the table above, auto-adapt:
 3. **Differentiation** — Design direction must form clear, stable, recognizable characteristics in color, composition, lighting.
 4. **Market adaptation** — Styles must align with target market (Europe → low saturation + minimalist; North America → high contrast + dynamic).
 5. **Quality fallback** — If quality requirements not met after 3 iterations → use universal safe combination: Product Photography Aesthetic + Editorial Minimal + Nordic Minimal + Lifestyle Photography. Label "manual optimization of style adaptation required."
+

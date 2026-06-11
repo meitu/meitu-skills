@@ -138,3 +138,4 @@ JSON schemas and structured templates for both scenarios.
   "negative_prompt": "Negative keywords from content_firewall + design constraints (e.g., '[ignored_ref_objects], simple layout, template, stock photo'). Note: meitu-cli has no --negative-prompt param; at Generate time, convert key negatives into positive phrasing and append to prompt."
 }
 ```
+

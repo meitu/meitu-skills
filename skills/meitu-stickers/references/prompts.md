@@ -42,3 +42,4 @@ Create a 2x2 grid of {user_style_description} style stickers based on the insert
 ```
 
 **变量：** `{user_style_description}` — 用户自定义风格描述（如"水彩"、"赛博朋克"）。
+

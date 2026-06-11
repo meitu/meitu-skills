@@ -144,3 +144,4 @@ meitu image-to-video --image_list <img1>[,<img2>,...] --prompt "<desc>" [--mode 
 ## 基线 Task ID
 
 见 `references/task-id-baseline.md` 中对应行。
+

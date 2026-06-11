@@ -123,3 +123,4 @@ Record medium type internally for quality checks. Do NOT show medium type to use
 > **注意区分：** 以下词汇禁止在 prompt 中用于传达"旧感/老旧"；复合风格流派名（如 "New American Retro"）中的 Retro 作为特定美学流派标识，不受此限。
 
 - vintage, classic, 复古, 怀旧, 老式, 旧式, 传统, 古早, 年代感
+

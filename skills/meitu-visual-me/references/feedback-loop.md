@@ -75,3 +75,4 @@ Write in natural-language Markdown, not structured logs:
 ```
 
 PROFILE.md only stores **confirmed facts**, not inferences.
+

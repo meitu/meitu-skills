@@ -84,3 +84,4 @@ The product is naturally placed in {scene_description}. Realistic integration wi
 ### transparent-bg
 
 > Use `white-bg` suffix for generation, then post-process with `meitu image-cutout`.
+

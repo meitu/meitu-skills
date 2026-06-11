@@ -196,3 +196,4 @@ If you discover a security vulnerability, report it privately to the maintainers
 | 2026-03-23 | Updated security model to reflect root and scene skill permissions, project and visual workspace writes |
 | 2026-03-23 | Removed automatic runtime version checks and automatic updates; manual repair only |
 | 2025-03-21 | Initial security documentation |
+

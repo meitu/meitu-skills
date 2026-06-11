@@ -131,3 +131,4 @@ done
 - **命名**: `{YYYY-MM-DD}_{descriptive-name}_cutout.png`
   - 例: `2026-03-23_product-photo_cutout.png`
 - **位置**: 由 Deliver 步骤决定（项目 → `./output/`，一次性 → `$VISUAL/output/meitu-cutout/`）
+

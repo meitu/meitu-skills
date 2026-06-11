@@ -56,3 +56,4 @@ Users can specify a custom platform combination, e.g., "帮我出小红书和抖
 | WeChat Moments | Natural, lifestyle-oriented | Minimal or no text |
 | Weibo / X | High info density, eye-catching | Can add text captions |
 | Douyin | Portrait impact, sense of motion | Large text, centered |
+

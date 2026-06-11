@@ -471,3 +471,4 @@ First-time setup:
 ```bash
 mkdir -p "${OPENCLAW_HOME:-$HOME/.openclaw}/workspace/visual" && echo "OK"
 ```
+

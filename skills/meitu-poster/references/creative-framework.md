@@ -167,3 +167,4 @@ Must reason through in order:
 3. **Layout and Graphic Direction** — Swiss International Style, typography, auxiliary graphics
 4. **Style Catalysts** — Platform-specialized style keywords
 5. **Copy** — If user specifies copy, do not translate or modify
+

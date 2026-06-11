@@ -179,7 +179,7 @@ For image generation, read [references/style-library.md](references/style-librar
 
 **Third: Determine CLI Command**
 
-Each workflow's corresponding CLI command is listed in the Workflows section table. For detailed command parameters, read [references/models.md](references/models.md). `image-edit` requires selecting a sub-model: praline (general editing) / gummy (portrait/pet photography, hairstyle adjustment).
+Each workflow's corresponding CLI command is listed in the Workflows section table. For detailed command parameters, read [references/models.md](references/models.md). `image-edit` requires selecting a sub-model: `praline_pro` (general editing) / `gummy_pro` (portrait/pet photography, hairstyle adjustment); stylization defaults to `image-style-transfer`, and only explicit high-quality editing paths should use `image-edit --model nougat`.
 
 **Routing decision output (passed from Context to Execute):**
 ```json

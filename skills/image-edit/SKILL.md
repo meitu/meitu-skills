@@ -103,10 +103,10 @@ model 参数（可显式指定绕过 auto 路由）：`gummy_pro`（人像）/`p
 **工具调用**
 
 ```bash
-meitu image-edit \\
-  --skill_name skill_image-edit \\
-  --image_list <url1,url2> \\
-  --prompt "<edit_description>" \\
+meitu image-edit \
+  --skill_name skill_image-edit \
+  --image_list <url1,url2> \
+  --prompt "<edit_description>" \
   --json
 ```
 

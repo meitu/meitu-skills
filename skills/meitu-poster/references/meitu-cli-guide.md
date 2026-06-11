@@ -74,19 +74,19 @@ Credentials (pick one):
 
 | Priority | Model | When to use | Output style |
 |----------|-------|------------|-------------|
-| 1 | `nougat` | Stylization: cartoon, 3D figure, anime, sketch, artistic recreation | Artistic (NOT realistic face) |
-| 2 | `gummy` | Portrait/pet photo generation, hairstyle adjustment | Realistic person/pet |
-| 3 | `praline` (default) | Everything else: text ops, background swap, color change, element add/remove, multi-image fusion, composition, analysis | General editing |
+| 1 | `nougat` | Explicit high-quality stylized editing path | Artistic (NOT realistic face) |
+| 2 | `gummy_pro` | Portrait/pet photo generation, hairstyle adjustment | Realistic person/pet |
+| 3 | `praline_pro` (default) | Everything else: text ops, background swap, color change, element add/remove, multi-image fusion, composition, analysis | General editing |
 
 **Decision guide:**
-- "变画风" (change art style, output doesn't look like real person) → `nougat`
-- "拍写真/换发型" (portrait photo, output looks like real person) → `gummy`
-- "改内容" (modify content, general editing) → `praline`
+- "变画风" (change art style, output doesn't look like real person) → prefer `image-style-transfer`; if you must stay on `image-edit`, use `nougat`
+- "拍写真/换发型" (portrait photo, output looks like real person) → `gummy_pro`
+- "改内容" (modify content, general editing) → `praline_pro`
 
 **Ratio constraints by model:**
-- `praline`: auto/1:1/2:3/3:2/3:4/4:3/4:5/5:4/9:16/16:9/21:9
+- `praline_pro`: auto/1:1/2:3/3:2/3:4/4:3/4:5/5:4/9:16/16:9/21:9
 - `nougat`: auto/1:1/2:3/3:2 (3:4 and 4:3 also work in practice)
-- `gummy`: auto/1:1/4:3/3:4/16:9/9:16/3:2/2:3/21:9
+- `gummy_pro`: auto/1:1/4:3/3:4/16:9/9:16/3:2/2:3/21:9
 
 ---
 
@@ -134,11 +134,11 @@ When a user's intent could map to multiple commands, use these disambiguation ru
 
 | Command | Does NOT have | Common mistake |
 |---------|--------------|---------------|
-| `text-to-image` | `--width`, `--height` | No pixel dimensions — use `size: "2k"/"3k"/WIDTHxHEIGHT` (lowercase) |
+| `text-to-image` | `--width`, `--height` | No separate width/height flags — use `size: "2k"/"3k"/WIDTHxHEIGHT` (lowercase) |
 | `image-superres-enhance` | `--scale` | No scale factor — auto upscale |
 | `image-edit` | `--mode` | No mode param — use `model` for sub-model selection, `prompt` for edit instructions |
 
-`text-to-image` size accepts: `"2k"`, `"3k"`, or `WIDTHxHEIGHT` (lowercase). `image-poster-generate` size accepts: `"auto"`, `"512"`, `"1K"`, `"2K"`, `"4K"` (uppercase). Never use pixel values for either.
+`text-to-image` size accepts: `"2k"`, `"3k"`, or `WIDTHxHEIGHT` (lowercase). `image-poster-generate` size accepts: `"auto"`, `"512"`, `"1K"`, `"2K"`, `"4K"` (uppercase). Do not use separate `--width` / `--height` flags.
 
 ---
 
@@ -169,11 +169,11 @@ When a user's intent could map to multiple commands, use these disambiguation ru
 
 ```
 1. Simplify prompt — remove complex descriptions, keep core subject + style
-2. Reduce size — image-generate: "2k" is lowest enum (use WIDTHxHEIGHT for smaller); image-poster-generate: "2K" → "1K"
+2. Reduce size — text-to-image: "2k" is the common fallback size (or use WIDTHxHEIGHT for smaller); image-poster-generate: "2K" → "1K"
 3. Remove reference image — if image-to-image failed, try pure text-to-image
 4. Stop after 2 consecutive failures — report error with code and hint
 5. ORDER_REQUIRED → tell user to recharge, provide action_url
-6. CREDENTIALS_MISSING → ask user to configure AK/SK
+6. CREDENTIALS_MISSING → ask user to provide env vars or a valid `~/.meitu/credentials.json`; only use local config commands when they explicitly want persistent local setup
 ```
 
 ---
@@ -189,3 +189,4 @@ When a user's intent could map to multiple commands, use these disambiguation ru
 7. `image-outfit-swap` uses `--image_url <person>` + optional `--clothes_image_url <clothes>` + `--prompt`
 8. `image-superres-enhance` requires `--prompt`; it no longer accepts `--model_type`
 9. `video-to-gif` uses `--video_url` + required `--prompt`; `--wechat_gif` has been removed
+
