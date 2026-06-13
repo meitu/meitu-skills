@@ -6,7 +6,7 @@ This package does not ship fixed public `task_id` samples.
 
 ## How To Refresh
 
-1. Install `meitu-cli@2.1.8`.
+1. Install `meitu-cli@2.1.9`.
 2. Configure valid Meitu OpenAPI credentials.
 3. Run the representative command for the target skill with `--json`.
 4. Record one successful `task_id` from your environment for release validation.
