@@ -96,5 +96,5 @@ When execution fails:
 ## Public Runtime Baseline
 
 - Package baseline: `meitu-skills 1.0.16`
-- Recommended runtime: `meitu-cli@2.1.8`
+- Recommended runtime: `meitu-cli@2.1.9`
 - Supported CLI range: `>=2.0.6 <3.0.0`
