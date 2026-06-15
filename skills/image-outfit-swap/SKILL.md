@@ -1,8 +1,13 @@
 ---
 name: image-outfit-swap
-description: "AI 换装，保留人物面部/体型只替换衣物，支持文字描述或服装参考图。当用户提到换装、换衣服、试穿、穿上、改成 xxx 服装、虚拟试穿、服装替换、把裙子改成红色时触发。"
+description: "AI 换装，保留人物面部和体型只替换衣物，支持文字描述或服装参考图。仅在用户明确要求对已有单人人物图片换装、试穿、换衣服或替换服饰，并已提供人物图片时触发。"
 version: "1.0.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+security:
+  credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI calls; credentials must not be echoed, logged, or embedded in prompts."
+  remote_processing: "User-provided person images, optional clothing reference images, and generated outfit prompts are sent to Meitu OpenAPI."
+  biometric_notice: "Portrait photos are sensitive biometric-like personal data. Confirm the depicted person has agreed to this processing before running the workflow."
+  persistence: "Generated try-on or outfit-swap results are written to the resolved local output directory."
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -33,6 +38,8 @@ requirements:
 
 对已有人物图片做 AI 换装，保留人物面部 / 体型 / 形象只替换衣物，支持文字描述目标服装或上传服装参考图（人物图+服装图通过 image_list 传入）。简单颜色修改（如"把裙子改成红色"）也属于本工具。
 
+执行前应让用户清楚知道：本 Skill 会读取 Meitu 凭证、调用本地 `meitu` CLI、将用户提供的人物图片、可选服装参考图与换装描述发送到 Meitu OpenAPI 处理，并把结果写入 `./output/` 或 `$VISUAL/output/image-outfit-swap/`。涉及人像照片时，应确认对照片中人物具备处理授权。
+
 ## API Mapping
 
 - 换装主路径：`image_praline_edit_v2`
@@ -59,7 +66,7 @@ Preflight → Execute → Deliver
 1. `meitu --version` ≥ 2.0.6
 2. 已用 CONFIG AKSK 跑过 `meitu tools update`
 3. 当前 AKSK = EXEC，`MEITU_OPENAPI_TOOL_TASK_MODE=command`
-4. output_dir：openclaw.yaml → `./output/` ｜else → `$VISUAL/output/image-outfit-swap/`
+4. output_dir：openclaw.yaml → `./output/` ｜else → `$VISUAL/output/image-outfit-swap/`；`mkdir -p {output_dir}`
 
 ### Execute
 
@@ -88,12 +95,12 @@ API 映射说明：
 **工具调用**
 
 ```bash
-meitu image-outfit-swap --image_url <person> --prompt "<target outfit>" --json   --skill_name skill_image-outfit-swap
+meitu image-outfit-swap --image_url <person> --prompt "<target outfit>" --json --download-dir {output_dir} --skill_name skill_image-outfit-swap
 ```
 
 ```bash
 # 带服装参考图
-meitu image-outfit-swap --image_url <person> --clothes_image_url <clothes> --prompt "<target outfit>" --json   --skill_name skill_image-outfit-swap
+meitu image-outfit-swap --image_url <person> --clothes_image_url <clothes> --prompt "<target outfit>" --json --download-dir {output_dir} --skill_name skill_image-outfit-swap
 ```
 
 **错误降级**
@@ -113,7 +120,8 @@ meitu image-outfit-swap --image_url <person> --clothes_image_url <clothes> --pro
 ### Deliver
 
 - 使用 Preflight 解析的 output_dir
-- 命名：`{YYYY-MM-DD}_{descriptive}_image-outfit-swap.{ext}`
+- 从 `downloaded_files[0].saved_path` 读取已下载文件路径
+- `mv {downloaded_files[0].saved_path} {output_dir}/{YYYY-MM-DD}_{descriptive}_image-outfit-swap.{ext}`
 
 ## Output
 

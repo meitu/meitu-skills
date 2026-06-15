@@ -1,6 +1,6 @@
 {
   "package_name": "meitu-skills",
-  "version": "2.0.11",
+  "version": "2.0.12",
   "purpose": "Public release manifest for the meitu-skills package",
   "included_top_level": [
     "PACKAGE_MANIFEST.json",
@@ -25,7 +25,8 @@
   "distribution_notes": [
     "Describes the public release contents of the meitu-skills package",
     "Includes the root skill, README, LICENSE, meitu-tools, scene skills, and referenced runtime materials",
-    "Recommended runtime baseline is meitu-cli@2.1.9",
+    "Recommended runtime baseline is meitu-cli@2.1.10",
     "Can be used as the backend-generated release package baseline for GitHub and ClawHub distribution"
   ]
 }
+

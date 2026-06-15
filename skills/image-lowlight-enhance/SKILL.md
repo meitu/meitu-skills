@@ -1,6 +1,6 @@
 ---
 name: image-lowlight-enhance
-description: "暗光/夜景/曝光不足图片的智能提亮与暗部细节恢复，保持亮部不过曝的前提下提亮暗部。当用户说图片太暗、太黑、夜景提亮、夜拍修复、暗光修复、曝光不足、逆光、提亮 时触发。"
+description: "对偏暗、夜景或曝光不足的已有图片进行暗部提亮与细节恢复，保持亮部不过曝。仅在用户明确说明是暗光、夜景或曝光不足修复，并已提供图片时触发；泛化的“提亮”或普通调色需求不单独触发。"
 version: "1.0.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
 requirements:
@@ -32,6 +32,8 @@ requirements:
 ## Overview
 
 暗光/夜景/曝光不足图片的智能亮度提升与暗部细节恢复。覆盖夜景拍摄提亮、暗光环境照片修复、曝光不足挽救、逆光/高对比场景补光；保持亮部不过曝的前提下提亮暗部、暗部噪点自动抑制。仅需 `image_url`，不需要 prompt。
+
+执行前应让用户清楚知道：本 Skill 会读取 Meitu 凭证、调用本地 `meitu` CLI、将用户提供的图片 URL 发送到 Meitu OpenAPI 处理，并把结果写入 `./output/` 或 `$VISUAL/output/image-lowlight-enhance/`。
 
 ## API Mapping
 
@@ -84,7 +86,8 @@ Preflight → Execute → Deliver
 meitu image-lowlight-enhance \
   --skill_name skill_image-lowlight-enhance \
   --image_url <image_url> \
-  --json
+  --json \
+  --download-dir {output_dir}
 ```
 
 **错误降级**
@@ -102,7 +105,8 @@ meitu image-lowlight-enhance \
 ### Deliver
 
 - 直接使用 Preflight 解析的 output_dir
-- 命名规则：`{YYYY-MM-DD}_{descriptive}_image-lowlight-enhance.jpg`
+- 从 `downloaded_files[0].saved_path` 读取已下载文件路径
+- `mv {downloaded_files[0].saved_path} {output_dir}/{YYYY-MM-DD}_{descriptive}_image-lowlight-enhance.jpg`
 
 ## Output
 

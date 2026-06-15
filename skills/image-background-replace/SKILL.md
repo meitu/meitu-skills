@@ -91,7 +91,8 @@ meitu image-background-replace \
   --skill_name skill_image-background-replace \
   --image_url <image_url> \
   --prompt "<target_background_description>" \
-  --json
+  --json \
+  --download-dir {output_dir}
 ```
 
 **错误降级**
@@ -111,7 +112,8 @@ meitu image-background-replace \
 ### Deliver
 
 - 直接使用 Preflight 解析的 output_dir
-- 命名规则：`{YYYY-MM-DD}_{descriptive}_image-background-replace.png`
+- 从 `downloaded_files[0].saved_path` 读取已下载文件路径
+- `mv {downloaded_files[0].saved_path} {output_dir}/{YYYY-MM-DD}_{descriptive}_image-background-replace.png`
 
 ## Output
 

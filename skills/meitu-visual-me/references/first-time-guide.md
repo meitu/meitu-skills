@@ -24,7 +24,12 @@ Send a front-facing photo and tell me your gender and name 👇
 (No photo? No problem, just tell me and we'll work with text)"
 ```
 
-**Write immediately after info collection:**
+**Before writing, disclose data handling clearly:**
+- Photo will be stored locally as `./visual/assets/references/user.jpg`
+- Gender, name, and later confirmed appearance traits will be stored in `./visual/PROFILE.md`
+- These local profile details may later be summarized into prompts sent to Meitu OpenAPI for personalized generation
+
+**Then write after info collection:**
 - Photo → save as `./visual/assets/references/user.jpg`
 - Gender, name → write to `./visual/PROFILE.md`
 - User skips photo → don't block; fall back to text-to-image mode
@@ -47,7 +52,7 @@ Pick a letter, or say 'all of them' to get all four 👇"
 **After user chooses → enter ID card workflow (see workflows.md) to generate user card.**
 **User says "all of them" → generate one in each of the 4 styles.**
 
-Once satisfied → extract key features from the result and add to `./visual/PROFILE.md`.
+Once satisfied, tell the user that confirmed appearance traits may be summarized into `./visual/PROFILE.md` for later personalized generations, then extract key features from the result and add them there.
 
 **After user card is generated, proactively suggest an OpenClaw card:**
 > "Want to make one for me (OpenClaw) too? Then we can take a group photo later 🤝"

@@ -60,7 +60,7 @@ Preflight → Execute → Deliver
 1. `meitu --version` ≥ 2.0.6
 2. 已用 CONFIG AKSK 跑过 `meitu tools update`
 3. 当前 AKSK = EXEC，`MEITU_OPENAPI_TOOL_TASK_MODE=command`
-4. output_dir：openclaw.yaml → `./output/` ｜else → `$VISUAL/output/image-text-replace/`
+4. output_dir：openclaw.yaml → `./output/` ｜else → `$VISUAL/output/image-text-replace/`；`mkdir -p`
 
 ### Execute
 
@@ -100,7 +100,7 @@ API 映射说明：
 **工具调用**
 
 ```bash
-meitu image-text-replace --image_url <url> --source_words "<原文>" --target_words "<新文>" --json   --skill_name skill_image-text-replace
+meitu image-text-replace --image_url <url> --source_words "<原文>" --target_words "<新文>" --json --download-dir {output_dir} --skill_name skill_image-text-replace
 ```
 
 **错误降级**
@@ -123,7 +123,8 @@ meitu image-text-replace --image_url <url> --source_words "<原文>" --target_wo
 ### Deliver
 
 - 使用 Preflight 解析的 output_dir
-- 命名：`{YYYY-MM-DD}_{descriptive}_image-text-replace.{ext}`
+- 从 `downloaded_files[0].saved_path` 读取已下载文件路径
+- `mv {downloaded_files[0].saved_path} {output_dir}/{YYYY-MM-DD}_{descriptive}_image-text-replace.{ext}`
 
 ## Output
 

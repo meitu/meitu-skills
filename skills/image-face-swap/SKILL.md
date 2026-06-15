@@ -1,6 +1,6 @@
 ---
 name: image-face-swap
-description: "双图换脸/换头合成，将源图人脸替换到目标场景图上，保留目标图构图/身体/背景并自动肤色融合光影匹配。当用户说换脸、换头、P 脸、把 A 的脸换到 B 上、face swap、合成人像 时触发。执行时会使用本地 Meitu OpenAPI 凭证授权，并将源人脸图和目标场景图发送到 Meitu 外部服务处理。"
+description: "双图换脸/换头合成，将源图人脸替换到目标场景图上，保留目标图构图、身体和背景并自动做肤色融合与光影匹配。仅在用户明确提供两张图，并表达换脸、换头、把 A 的脸换到 B 上、face swap 或明确的 P 脸合成意图时触发。执行时会使用本地 Meitu OpenAPI 凭证授权，并将源人脸图和目标场景图发送到 Meitu 外部服务处理。"
 version: "1.0.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY","security":{"credentialUse":"Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI authentication; credentials must not be echoed, logged, or embedded in prompts.","remoteProcessing":"Source face images and target scene images are transmitted to Meitu OpenAPI for face-swap processing.","biometricNotice":"Face images are sensitive biometric-like personal data; users should understand that provided images are processed by an external Meitu service."}}}
 security:
@@ -100,7 +100,8 @@ meitu image-face-swap \
   --head_image_url <head_url> \
   --sence_image_url <sence_url> \
   --prompt "<effect_description>" \
-  --json
+  --json \
+  --download-dir {output_dir}
 ```
 
 **错误降级**
@@ -120,7 +121,8 @@ meitu image-face-swap \
 ### Deliver
 
 - 直接使用 Preflight 解析的 output_dir
-- 命名规则：`{YYYY-MM-DD}_{descriptive}_image-face-swap.jpg`
+- 从 `downloaded_files[0].saved_path` 读取已下载文件路径
+- `mv {downloaded_files[0].saved_path} {output_dir}/{YYYY-MM-DD}_{descriptive}_image-face-swap.jpg`
 
 ## Output
 

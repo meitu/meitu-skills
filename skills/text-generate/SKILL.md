@@ -141,10 +141,11 @@ meitu text-generate \
 ### Deliver
 
 解析 `--json`：
-- `ok: true` → 文本内容在返回结构中；若指定 `output_file` 则落盘到对应位置
-- 默认将文本以 `.md` 或 `.txt` 格式保存
+- `ok: true` → 从返回结构中提取文本内容
+- 若调用时显式指定 `output_file`，则按该路径写入
+- 否则将文本写入 `{output_dir}/{YYYY-MM-DD}_{descriptive-name}.md`
 
-落盘：`{output_dir}/{YYYY-MM-DD}_{descriptive-name}.md`
+默认落盘：`{output_dir}/{YYYY-MM-DD}_{descriptive-name}.md`
 
 ## Output
 

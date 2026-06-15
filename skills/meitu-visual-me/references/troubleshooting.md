@@ -20,11 +20,11 @@
 
 | Symptom | Cause | Solution |
 |------|------|------|
-| `ok: false`, generation failed | Prompt triggered safety filter or parameter error | Adjust prompt content, check parameter format |
+| `ok: false`, generation failed | Prompt triggered safety filter or parameter error | 先检查 CLI 原始字段 `code`、`hint`、`error_name`；再按 `meitu-tools` 映射为 `error_type` / `user_hint` / `next_action` 后处理 |
 | Generation timeout | Server queue busy or request too large | Reduce resolution (`3k`→`2k` for text-to-image; `2K`→`1K` for image-poster-generate) or simplify request |
 | Generation succeeded but quality is poor | Resolution too low or prompt not specific enough | Increase `size` parameter, enrich prompt description |
 | Generation succeeded but person doesn't look right | Reference image not passed correctly | Confirm `image_url` parameter is not empty |
-| `media_urls` is empty | Result retrieval failed | Query task status using `result_id` |
+| `media_urls` is empty | Result retrieval failed | 若使用了 `--download-dir` 优先检查 `downloaded_files`；否则再用 `result_id` / `media_urls` 排查 |
 
 ## Effect Mode
 
@@ -53,7 +53,7 @@ Follow the 5-level degradation defined in the main workflow (SKILL.md Execute se
 | L2 | Downgrade enum parameters | `--size 3k` → `--size 2k` (text-to-image); `--size 2K` → `--size 1K` (image-poster-generate); `--ratio 9:16` → `--ratio 1:1` |
 | L3 | Remove optional inputs | Drop reference image, switch to text-to-image |
 | L4 | Minimize to core elements | Keep only subject + style |
-| L5 | Stop and report error | Show specific error message, suggest checking credentials or contacting support |
+| L5 | Stop and report error | 展示 CLI 原始错误 `code` / `hint`，并补充按 `meitu-tools` 映射得到的 `user_hint` / `next_action` |
 
 Escalate one level after 2 consecutive failures at the same level.
 

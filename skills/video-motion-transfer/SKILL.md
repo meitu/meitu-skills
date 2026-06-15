@@ -1,8 +1,13 @@
 ---
 name: video-motion-transfer
-description: "使用 meitu-cli 做视频动作姿态迁移，把参考视频动作迁移到图片人物上并保留外貌。当用户说模仿动作、跟着视频跳舞、动作迁移、姿态驱动、让这个人做这个动作时触发。"
+description: "使用 meitu-cli 做视频动作姿态迁移，把参考视频动作迁移到图片人物上并保留外貌。仅在用户明确提供人物图片和动作参考视频，并表达动作迁移、姿态驱动、模仿动作或让图中人物跟着视频做动作时触发。"
 version: "1.0.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+security:
+  credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI calls; credentials must not be echoed, logged, or embedded in prompts."
+  remote_processing: "User-provided person images, reference motion videos, and generated prompts are sent to Meitu OpenAPI."
+  biometric_notice: "Portrait photos and motion-reference videos may reveal sensitive personal appearance or identity characteristics. Confirm the depicted person has agreed to this processing before running the workflow."
+  persistence: "Generated motion-transfer videos are written to the resolved local output directory."
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -32,6 +37,8 @@ requirements:
 ## Overview
 
 调用 `meitu video-motion-transfer` 将参考视频中的动作姿态迁移到图片人物上，保留图片人物外貌特征。用于舞蹈复刻、动作模仿、姿态驱动、虚拟人驱动。
+
+执行前应让用户清楚知道：本 Skill 会读取 Meitu 凭证、调用本地 `meitu` CLI、将用户提供的人物图片、动作参考视频和生成提示发送到 Meitu OpenAPI 处理，并把结果写入 `./output/` 或 `$VISUAL/output/video-motion-transfer/`。涉及人像和动作素材时，应确认对素材中人物具备处理授权。
 
 不处理：纯文字生成视频、参考视频运镜/风格、换脸/换人物、视频内容编辑。
 

@@ -45,12 +45,12 @@ Successful output with `"ok": true` → credentials are valid, ready to play.
 
 ## Phase 2: Send a Reference Photo to Unlock Personalization (optional)
 
-Send a profile photo/headshot to OpenClaw. It will automatically:
-- Save it as `./visual/assets/references/user.jpg`
-- Maintain your character traits in all subsequent person-related generations
+If you choose to send a profile photo/headshot for personalization, the workflow may:
+- Save it locally as `./visual/assets/references/user.jpg`
+- Reuse it for subsequent person-related generations
 - Significantly improve results for group photos, ID cards, and avatar series
 
-**No manual steps needed — just send the photo.**
+**Just send the photo if you are comfortable with this local save and later personalized reuse.**
 
 ### What This Phase Unlocks
 
@@ -76,7 +76,7 @@ As you use it, Meitu Visual Me automatically learns from your feedback:
 - "别用太饱和的颜色"
 - "以后默认出竖图"
 
-These are immediately written to the corresponding `./visual/` files (facts go to `rules/`, preferences go to `memory/`).
+These are written to the corresponding `./visual/` files (facts go to `rules/`, preferences go to `memory/`) when you continue using local personalization and feedback recording.
 
 ---
 

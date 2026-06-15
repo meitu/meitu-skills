@@ -62,7 +62,7 @@ Preflight → Execute → Deliver
 1. `meitu --version` ≥ 2.0.6
 2. 已用 CONFIG AKSK 跑过 `meitu tools update`
 3. 当前 AKSK = EXEC，`MEITU_OPENAPI_TOOL_TASK_MODE=command`
-4. output_dir：openclaw.yaml → `./output/` ｜else → `$VISUAL/output/image-to-video/`
+4. output_dir：openclaw.yaml → `./output/` ｜else → `$VISUAL/output/image-to-video/`；`mkdir -p`
 
 ### Execute
 
@@ -106,7 +106,7 @@ API 映射关键点：
 **工具调用**
 
 ```bash
-meitu image-to-video --image_list <img1>[,<img2>,...] --prompt "<desc>" [--mode auto] [--video_duration 5] [--sound off] [--aspect_ratio adaptive] --json   --skill_name skill_image-to-video
+meitu image-to-video --image_list <img1>[,<img2>,...] --prompt "<desc>" [--mode auto] [--video_duration 5] [--sound off] [--aspect_ratio adaptive] --json --download-dir {output_dir} --skill_name skill_image-to-video
 ```
 
 **错误降级**
@@ -134,7 +134,8 @@ meitu image-to-video --image_list <img1>[,<img2>,...] --prompt "<desc>" [--mode 
 ### Deliver
 
 - 使用 Preflight 解析的 output_dir
-- 命名：`{YYYY-MM-DD}_{descriptive}_image-to-video.mp4`
+- 从 `downloaded_files[0].saved_path` 读取已下载的视频文件路径
+- `mv {downloaded_files[0].saved_path} {output_dir}/{YYYY-MM-DD}_{descriptive}_image-to-video.mp4`
 
 ## Output
 

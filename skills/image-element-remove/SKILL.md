@@ -1,8 +1,13 @@
 ---
 name: image-element-remove
-description: "从已有图片里去掉水印/文字/局部物体，覆盖通用水印消除、文档半透明水印消除、局部物体消除、指定文字消除。当用户说去水印、去掉水印、去 Logo、去角标、去全部文字、去路人、消除杂物、去掉'xxx' 时触发。"
+description: "从已有图片里去掉水印、文字或局部物体，覆盖通用水印消除、文档半透明水印消除、局部物体消除和指定文字消除。仅在用户明确要求对当前图片做这些删除操作时触发；模糊的“去掉字”或未说明对象的泛化修图请求不单独触发。"
 version: "1.0.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+security:
+  credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI calls; credentials must not be echoed, logged, or embedded in prompts."
+  remote_processing: "User-provided image URLs and generated removal prompts are sent to Meitu OpenAPI."
+  persistence: "Edited images are written to the resolved local output directory."
+  usage_notice: "Removing watermarks, logos, text, or provenance indicators may involve legal, ethical, or authenticity risks. Confirm the user has the right to edit the image in this way."
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -32,6 +37,8 @@ requirements:
 ## Overview
 
 对已有图片做元素消除（去水印/去文字/去局部物体），覆盖 4 类场景：通用水印消除（一键去水印含半透明）、文档场景半透明水印、局部物体/元素/指定文字消除、降级兜底链。路由铁律：用户指定具体文字内容时必须走 `image_praline_edit_v2`（路径 C），禁止走通用 API（否则清除全部文字）。
+
+执行前应让用户清楚知道：本 Skill 会读取 Meitu 凭证、调用本地 `meitu` CLI、将用户提供的图片与生成的消除指令发送到 Meitu OpenAPI 处理，并把结果写入 `./output/` 或 `$VISUAL/output/image-element-remove/`。若请求涉及去水印、去 Logo、去认证/署名信息或类似来源标识，应提醒用户确认自己具备合法编辑权限。
 
 ## API Mapping
 
@@ -125,11 +132,11 @@ DO NOT change the overall color palette, lighting, composition, or style.
 
 ```bash
 # 通用水印
-meitu image-element-remove --image_url <url> --target watermark --json   --skill_name skill_image-element-remove
+meitu image-element-remove --image_url <url> --target watermark --json --download-dir {output_dir} --skill_name skill_image-element-remove
 ```
 ```bash
 # 指定文字/局部物体
-meitu image-element-remove --image_url <url> --prompt "<four_segment_prompt>" --model praline_pro --json   --skill_name skill_image-element-remove
+meitu image-element-remove --image_url <url> --prompt "<four_segment_prompt>" --model praline_pro --json --download-dir {output_dir} --skill_name skill_image-element-remove
 ```
 
 **错误降级**
@@ -150,7 +157,8 @@ meitu image-element-remove --image_url <url> --prompt "<four_segment_prompt>" --
 ### Deliver
 
 - 直接使用 Preflight 解析的 output_dir
-- 命名规则：`{YYYY-MM-DD}_{descriptive}_image-element-remove.jpg`
+- 从 `downloaded_files[0].saved_path` 读取已下载文件路径
+- `mv {downloaded_files[0].saved_path} {output_dir}/{YYYY-MM-DD}_{descriptive}_image-element-remove.jpg`
 
 ## Output
 

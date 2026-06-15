@@ -13,15 +13,22 @@ requirements:
     - type: file_read
       paths:
         - ~/.meitu/credentials.json
+        - ./
         - ~/.openclaw/workspace/visual/
         - ./openclaw.yaml
+        - /tmp/
     - type: file_write
       paths:
         - ~/.openclaw/workspace/visual/
         - ./output/
+        - $VISUAL/output/meitu-upscale/
+        - ~/.openclaw/workspace/visual/output/meitu-upscale/
+        - /tmp/
     - type: exec
       commands:
         - meitu
+        - curl
+        - rm
 ---
 
 # Meitu Upscale
@@ -137,7 +144,7 @@ meitu image-superres-enhance \
 |------|------|
 | 美颜磨皮 | `meitu-beauty` |
 | 去水印/去路人/内容修复 | `meitu-image-fix` |
-| 风格转换 | `meitu-stylize` |
+| 风格转换 | `image-style-transfer`（或经 `meitu-tools` 直调） |
 | 去背景 | `meitu-cutout` |
 | 综合修图（模糊+水印+美颜） | `meitu-image-fix`（会在管线中自动调用 upscale） |
 

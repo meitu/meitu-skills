@@ -448,15 +448,16 @@ meitu image-grid-split --image_url "网格图URL" --json
 ## Calling Conventions
 
 1. **所有命令加 `--json`** — 拿可解析输出
-2. **检查 `ok` 字段** — `true` 成功；`false` 看 `code` 与 `hint`
-3. **正确取结果** — 没有 `--download-dir`：用 `media_urls[0]`；有 `--download-dir`：用 `downloaded_files[0].saved_path`（本地路径，更可靠）。注意：`saved_path` 是绝对路径；展示给用户时格式化为 `~/.openclaw/...`
-4. **图片输入支持本地路径与 URL** — CLI 内部自动上传
-5. **face-swap 拼写** — 是 `sence_image_url` 不是 `scene`
-6. **image-edit 没 `--mode`** — 编辑操作通过 prompt 描述
-7. **image-superres-enhance 没 `--scale`** — 自动超分；旧名 `image-upscale` 已废弃
-8. **参数别名** — 多数命令兼容 `--image` / `--image_list` / `--image_url`，但文档与自动化里优先使用各工具的 canonical 参数名（如 `text-to-image` / `image-edit` / `image-to-video` 用 `--image_list`，`image-cutout` / `image-style-transfer` 用 `--image_url`）
-9. **凭证检查** — `meitu auth verify --json` 不耗 API quota
-10. **旧命令对照表（迁移指南）：**
+2. **检查 `ok` 字段** — `true` 成功；`false` 先看 CLI 原始字段 `code`、`hint`、`error_name`、`action_url`
+3. **对用户展示失败时** — 按 `meitu-tools` 的映射规则把 CLI 原始错误归类为 `error_type`、`user_hint`、`next_action`、`action_link`
+4. **正确取结果** — 没有 `--download-dir`：用 `media_urls[0]`；有 `--download-dir`：用 `downloaded_files[0].saved_path`（本地路径，更可靠）。注意：`saved_path` 是绝对路径；展示给用户时格式化为 `~/.openclaw/...`
+5. **图片输入支持本地路径与 URL** — CLI 内部自动上传
+6. **face-swap 拼写** — 是 `sence_image_url` 不是 `scene`
+7. **image-edit 没 `--mode`** — 编辑操作通过 prompt 描述
+8. **image-superres-enhance 没 `--scale`** — 自动超分；旧名 `image-upscale` 已废弃
+9. **参数别名** — 多数命令兼容 `--image` / `--image_list` / `--image_url`，但文档与自动化里优先使用各工具的 canonical 参数名（如 `text-to-image` / `image-edit` / `image-to-video` 用 `--image_list`，`image-cutout` / `image-style-transfer` 用 `--image_url`）
+10. **凭证检查** — `meitu auth verify --json` 不耗 API quota
+11. **旧命令对照表（迁移指南）：**
    - `image-generate` → `text-to-image`
    - `image-upscale` → `image-superres-enhance`
    - `image-beauty-enhance` → `image-edit --model gummy_pro` + 美颜 prompt

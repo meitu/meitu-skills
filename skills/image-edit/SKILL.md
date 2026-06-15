@@ -107,7 +107,8 @@ meitu image-edit \
   --skill_name skill_image-edit \
   --image_list <url1,url2> \
   --prompt "<edit_description>" \
-  --json
+  --json \
+  --download-dir {output_dir}
 ```
 
 可选：`--ratio 1:1 --size 2K --output_format png --model praline_pro`
@@ -128,7 +129,8 @@ meitu image-edit \
 ### Deliver
 
 - 直接使用 Preflight 解析的 output_dir
-- 命名规则：`{YYYY-MM-DD}_{descriptive}_image-edit.{jpeg|png|webp}`
+- 从 `downloaded_files[0].saved_path` 读取已下载文件路径
+- `mv {downloaded_files[0].saved_path} {output_dir}/{YYYY-MM-DD}_{descriptive}_image-edit.{jpeg|png|webp}`
 
 ## Output
 

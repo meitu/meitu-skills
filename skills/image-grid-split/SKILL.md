@@ -3,6 +3,10 @@ name: image-grid-split
 description: "自动识别宫格分割线，将单张多格图拆分为多张独立图片。当用户说四宫格拆分、九宫格拆开、切成四张、2x2/3x3 切图、宫格图分开、拼图拆分、格子图拆开 时触发。"
 version: "1.0.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+security:
+  credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI calls; credentials must not be echoed, logged, or embedded in prompts."
+  remote_processing: "User-provided image URLs are sent to Meitu OpenAPI for grid-splitting."
+  persistence: "Split images are written to the resolved local output directory."
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -32,6 +36,8 @@ requirements:
 ## Overview
 
 自动识别宫格分割线，将单张多格图拆分为多张独立图片。覆盖四宫格/九宫格/六宫格等标准网格自动拆分，自动识别分割线位置；用于电商多图拼合图分离、社交媒体宫格图还原。仅需 `image_url`，无需指定宫格数。
+
+执行前应让用户清楚知道：本 Skill 会读取 Meitu 凭证、调用本地 `meitu` CLI、将用户提供的图片 URL 发送到 Meitu OpenAPI 处理，并把拆分结果写入 `./output/` 或 `$VISUAL/output/image-grid-split/`。
 
 ## API Mapping
 
@@ -84,7 +90,8 @@ Preflight → Execute → Deliver
 meitu image-grid-split \
   --skill_name skill_image-grid-split \
   --image_url <image_url> \
-  --json
+  --json \
+  --download-dir {output_dir}
 ```
 
 **错误降级**
@@ -103,7 +110,8 @@ meitu image-grid-split \
 ### Deliver
 
 - 直接使用 Preflight 解析的 output_dir
-- 命名规则：`{YYYY-MM-DD}_{descriptive}_image-grid-split_{idx}.jpg`（多张输出以 idx 递增）
+- 从 `downloaded_files[*].saved_path` 读取全部已下载文件路径
+- 按序重命名为 `{YYYY-MM-DD}_{descriptive}_image-grid-split_{idx}.jpg`（多张输出以 idx 递增）
 
 ## Output
 

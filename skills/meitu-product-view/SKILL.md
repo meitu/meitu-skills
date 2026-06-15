@@ -5,7 +5,7 @@ version: "1.1.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/","./openclaw.yaml","./DESIGN.md","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"],"write":["~/.openclaw/workspace/visual/","./DESIGN.md","./output/","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY","security":{"dataFlow":"Inputs, selected local context, and generated prompts may be sent to Meitu OpenAPI when used by the workflow.","credentials":"Credentials are used only for CLI authentication and must not be disclosed.","persistence":"Record workflows may access declared project and visual memory/rules files."}}}
 security:
   credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI calls; credentials must not be echoed, logged, or embedded in prompts."
-  remote_processing: "Product images, selected project/platform context, and generated prompts may be sent to Meitu OpenAPI."
+  remote_processing: "Product images, selected project/platform context, selected visual-workspace brand or platform rules, and generated prompts may be sent to Meitu OpenAPI."
   persistence: "Project mode may write output files and may update project or visual-memory files according to the Record workflow."
 requirements:
   credentials:
@@ -21,13 +21,17 @@ requirements:
         - ./openclaw.yaml
         - ./DESIGN.md
         - ~/.openclaw/workspace/visual/rules/quality.yaml
+        - ~/.openclaw/workspace/visual/rules/platforms/
         - ~/.openclaw/workspace/visual/memory/global.md
         - ~/.openclaw/workspace/visual/memory/scenes/
         - ~/.openclaw/workspace/visual/memory/observations/observations.yaml
+        - ~/.openclaw/workspace/visual/assets/brands/
         - $VISUAL/rules/quality.yaml
+        - $VISUAL/rules/platforms/
         - $VISUAL/memory/global.md
         - $VISUAL/memory/scenes/
         - $VISUAL/memory/observations/observations.yaml
+        - $VISUAL/assets/brands/
     - type: file_write
       paths:
         - ~/.openclaw/workspace/visual/
@@ -64,7 +68,7 @@ requirements:
 - package references (bundled with this skill package):
   - [references/prompts.md](references/prompts.md) — 固定模板与角度 section
   - [references/ecommerce-specs.md](references/ecommerce-specs.md) — 平台规格与视角建议
-  - 这些都是包内静态材料，不是任意本地文件
+  - 这些 reference 文件是包内静态材料；在 project 模式下，如 `DESIGN.md` 或 `openclaw.yaml` 显式引用品牌资产或平台规则，还可能额外读取用户启用的 `$VISUAL/assets/brands/` 与 `$VISUAL/rules/platforms/`
 
 > **路径别名：** 下文中 `$VISUAL` = `{OPENCLAW_HOME}/workspace/visual/`
 

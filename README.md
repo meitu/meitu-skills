@@ -100,9 +100,9 @@ Triggers: sticker pack, sticker, emoji pack, make stickers, chibi stickers
 
 ### meitu-visual-me
 
-Memory-driven AI visual assistant. Reads user profiles and daily memories to generate personalized images and videos. Supports 17 scenario workflows (miniature scene, daily card, avatar series, ID card, background swap, virtual try-on, image-to-video, motion transfer, etc.) and 7 core capabilities (image generation, editing, face swap, virtual try-on, beauty enhance, image-to-video, motion transfer).
+Memory-driven AI visual assistant for explicit personalized visual workflows. Reads user profiles and daily memories only when the workflow needs them, supports 17 scenario workflows (miniature scene, daily card, avatar series, ID card, background swap, virtual try-on, image-to-video, motion transfer, etc.), and may send selected local context to Meitu OpenAPI.
 
-Triggers: draw something for me, swap background, avatar series, try on, bring to life, miniature scene, daily card, style remix, beauty enhance
+Triggers: avatar series, selfie background swap, try on this outfit, style remix, daily card, make this image move
 
 ---
 
@@ -140,9 +140,9 @@ Triggers: product three-view, multi-angle product shots, product display images,
 
 ### meitu-image-fix
 
-Automatically diagnoses image quality, portrait, and content issues, then plans and executes an optimal repair pipeline chaining image-upscale / beauty-enhance / image-edit / cutout in the correct order. Users only need to say "fix this image" — no need to know which tool to use.
+Automatically diagnoses multi-issue problems on a single existing image, then plans and executes a composite repair pipeline chaining `image-superres-enhance`, `image-edit`, and `image-cutout` in the correct order. Use it when the user wants end-to-end repair or has multiple issues in the same image, not for one clearly scoped single-effect request.
 
-Triggers: retouch, sharpen, remove watermark, remove bystanders, skin retouching, fix this image, blurry photo, old photo restoration
+Triggers: composite image repair, fix blur plus watermark, repair this old photo with multiple issues, one-click repair this picture
 
 ---
 
@@ -174,7 +174,7 @@ Triggers: carousel set, multi-image post, carousel, knowledge card set, product 
 
 One-click AI beauty enhancement: skin smoothing, brightening, and facial feature refinement. Supports natural and enhanced intensity levels. Single-person portrait photos only.
 
-Triggers: beauty enhance, skin smoothing, brighten, retouch, beautify, beauty enhance, make photo look better
+Triggers: portrait beauty enhancement, skin smoothing, natural beauty retouch, strong beauty on single portrait, facial feature refinement
 
 ---
 

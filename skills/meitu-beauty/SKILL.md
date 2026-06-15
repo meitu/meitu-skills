@@ -1,6 +1,6 @@
 ---
 name: meitu-beauty
-description: "对人像照片进行 AI 美颜处理（磨皮、美白、精修五官）。当用户提到美颜、磨皮、美白、精修、beautify、beauty enhance、让照片更好看时触发。仅支持单人照片。"
+description: "对单人人像照片进行 AI 美颜处理（磨皮、美白、精修五官）。仅在用户明确要求单人人像美颜、磨皮、美白或人像精修，并已提供人像照片时触发；泛化的“让照片更好看”“修一下”不单独触发。"
 version: "1.1.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
 requirements:
@@ -13,12 +13,15 @@ requirements:
     - type: file_read
       paths:
         - ~/.meitu/credentials.json
+        - ./
         - ~/.openclaw/workspace/visual/
         - ./openclaw.yaml
     - type: file_write
       paths:
         - ~/.openclaw/workspace/visual/
         - ./output/
+        - $VISUAL/output/meitu-beauty/
+        - ~/.openclaw/workspace/visual/output/meitu-beauty/
     - type: exec
       commands:
         - meitu
@@ -29,6 +32,8 @@ requirements:
 ## Overview
 
 一键 AI 人像精修：磨皮、美白、面部细节优化。基于 `meitu image-edit --model gummy_pro` 做写实人像修饰，仅支持单人人像照片。
+
+执行前应让用户清楚知道：本 Skill 会读取 Meitu 凭证、调用本地 `meitu` CLI、将用户提供的人像图片与生成提示发送到 Meitu OpenAPI 处理，并把结果写入 `./output/` 或 `$VISUAL/output/meitu-beauty/`。人像照片属于敏感的个人外观数据，需确认用户对所处理照片具备使用和处理授权。
 
 ## Dependencies
 
@@ -103,11 +108,11 @@ meitu image-edit \
 
 **错误降级**
 
-先检查 `error_name` 分流，再按级别降级：
+先检查 CLI 原始错误字段 `code`、`hint`、`error_name`、`action_url`，再按 `meitu-tools` 规则归类为 `error_type` 后分流：
 
-| error_name | 处理 | 可重试 |
+| error_type（由 CLI 原始字段归类） | 处理 | 可重试 |
 |------------|------|--------|
-| `CONTENT_REQUIREMENTS_UNMET` (code 98501) | 图片不含人脸或不符合单人要求。直接告知用户："该图片不符合美颜要求（需要单人人像照片），请更换图片。" 不重试。 | 否 |
+| `CONTENT_REQUIREMENTS_UNMET`（或 CLI 原始错误 `code=98501` / `error_name=CONTENT_REQUIREMENTS_UNMET`） | 图片不含人脸或不符合单人要求。直接告知用户："该图片不符合美颜要求（需要单人人像照片），请更换图片。" 不重试。 | 否 |
 | `ORDER_REQUIRED` | 余额不足，提示充值，展示 `action_url` | 否 |
 | `CREDENTIALS_MISSING` | 提示配置 AK/SK | 否 |
 | 其他错误 | 按以下级别降级 ↓ | 视情况 |
