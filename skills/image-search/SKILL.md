@@ -58,7 +58,7 @@ Preflight → Execute → Deliver
 1. `meitu --version` ≥ 2.0.6
 2. 已用 CONFIG AKSK 跑过 `meitu tools update`
 3. 当前 AKSK = EXEC，`MEITU_OPENAPI_TOOL_TASK_MODE=command`
-4. output_dir：openclaw.yaml → `./output/` ｜else → `$VISUAL/output/image-search/`
+4. output_dir：openclaw.yaml → `./output/` ｜else → `$VISUAL/output/image-search/`；`mkdir -p`
 
 ### Execute
 
@@ -89,12 +89,12 @@ Preflight → Execute → Deliver
 **工具调用**
 
 ```bash
-meitu image-search --prompt "<kw1>,<kw2>" [--query_mode search] [--size 4] [--source_type auto] --json   --skill_name skill_image-search
+meitu image-search --prompt "<kw1>,<kw2>" [--query_mode search] [--size 4] [--source_type auto] --json --download-dir {output_dir} --skill_name skill_image-search
 ```
 
 ```bash
 # 以图搜图
-meitu image-search --image_ids <id1>,<id2> --query_mode retrieve --json   --skill_name skill_image-search
+meitu image-search --image_ids <id1>,<id2> --query_mode retrieve --json --download-dir {output_dir} --skill_name skill_image-search
 ```
 
 **错误降级**
@@ -114,7 +114,8 @@ meitu image-search --image_ids <id1>,<id2> --query_mode retrieve --json   --skil
 ### Deliver
 
 - 使用 Preflight 解析的 output_dir
-- 命名：`{YYYY-MM-DD}_{descriptive}_image-search.{ext}`（检索结果元数据 JSON + 下载图片）
+- 将返回的检索结果元数据写入 `{output_dir}/{YYYY-MM-DD}_{descriptive}_image-search.json`
+- 若命令返回 `downloaded_files`，从 `downloaded_files[*].saved_path` 读取已下载图片路径并保留在 `output_dir`
 
 ## Output
 

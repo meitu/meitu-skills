@@ -1,8 +1,13 @@
 ---
 name: image-id-photo-generate
-description: "基于用户照片+证件规格一键生成标准证件照，自动换装+换背景+合规调整。当用户说证件照、一寸照、二寸照、护照照片、签证照、身份证照、驾照照片、入园/入学/毕业/考研/考编/教资照、职业证件照、商务照、形象照、结婚证照、工牌照 时触发。"
+description: "基于用户正面人像和明确证件规格生成标准证件照，自动换装、换背景和合规调整。仅在用户明确要求证件照、一寸/二寸、护照/签证/身份证/驾照等规格化证件照，并已提供人像照片时触发；泛化的商务照、形象照或写真需求不单独触发。"
 version: "1.0.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+security:
+  credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI calls; credentials must not be echoed, logged, or embedded in prompts."
+  remote_processing: "User-provided portrait photos, spec parameters, and generated prompts are sent to Meitu OpenAPI for processing."
+  biometric_notice: "Portrait photos and face-description anchors are sensitive biometric-like personal data. Confirm the depicted person has agreed to this processing before running the workflow."
+  persistence: "Generated ID photos are written to the resolved local output directory."
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -32,6 +37,8 @@ requirements:
 ## Overview
 
 基于用户照片 + 证件规格一键生成标准证件照。自动换装（默认黑西装+白衬衫）+ 换背景 + 合规调整（露耳/露额/底色/着装/尺寸）+ face_desc 面部特征锚定，避免通用编辑链路对五官做过度美化。覆盖一寸/二寸/护照/签证/身份证/驾照/入学/毕业/职业/商务/结婚证/工牌等多规格。
+
+执行前应让用户清楚知道：本 Skill 会读取 Meitu 凭证、调用本地 `meitu` CLI、将用户提供的人像图片与规格参数发送到 Meitu OpenAPI 处理，并把结果写入 `./output/` 或 `$VISUAL/output/image-id-photo-generate/`。证件照涉及敏感的人脸与身份相关图像数据，应确认对照片中人物具备合法授权。
 
 ## API Mapping
 
@@ -124,7 +131,8 @@ meitu image-id-photo-generate \
   --spec_type <一寸|二寸|护照|身份证|...> \
   --bg_color <白|蓝|红|灰白渐变|灰渐变> \
   --attire "<黑西装+白衬衫>" \
-  --json
+  --json \
+  --download-dir {output_dir}
 ```
 
 **错误降级**
@@ -148,7 +156,8 @@ meitu image-id-photo-generate \
 ### Deliver
 
 - 直接使用 Preflight 解析的 output_dir
-- 命名规则：`{YYYY-MM-DD}_{spec_type}_image-id-photo-generate.jpg`
+- 从 `downloaded_files[0].saved_path` 读取已下载文件路径
+- `mv {downloaded_files[0].saved_path} {output_dir}/{YYYY-MM-DD}_{spec_type}_image-id-photo-generate.jpg`
 
 ## Output
 

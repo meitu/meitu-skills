@@ -13,12 +13,15 @@ requirements:
     - type: file_read
       paths:
         - ~/.meitu/credentials.json
+        - ./
         - ~/.openclaw/workspace/visual/
         - ./openclaw.yaml
     - type: file_write
       paths:
         - ~/.openclaw/workspace/visual/
         - ./output/
+        - $VISUAL/output/meitu-image-adapt/
+        - ~/.openclaw/workspace/visual/output/meitu-image-adapt/
     - type: exec
       commands:
         - meitu
@@ -118,7 +121,7 @@ meitu image-transform \
 
 **返回处理：**
 - `ok: true` → `downloaded_files[0].saved_path` 获取本地路径
-- `ok: false` → 检查 `error_type`、`code`、`hint`
+- `ok: false` → 先检查 CLI 原始字段 `code`、`hint`、`error_name`、`action_url`，再按 `meitu-tools` 规则归类为 `error_type` / `user_hint` / `next_action`
 
 `extend_prompt` 仅在用户明确描述了扩展区域内容时提供，例如：
 - `"extend seaside sky and sand naturally"`

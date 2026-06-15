@@ -225,7 +225,7 @@ meitu text-to-image \
 meitu image-grid-split \
   --skill_name skill_meitu-game-2d-assets  \
   --image_url "{grid_image_url}" \
-  --json
+  --json --download-dir {output_dir}/split
 ```
 
 `SPRITESHEET_PROMPT` 必须包含：
@@ -254,7 +254,7 @@ meitu image-cutout \
   --skill_name skill_meitu-game-2d-assets  \
   --image_url "{asset_image_url}" \
   --prompt "{SUBJECT_DESC}" \
-  --json
+  --json --download-dir {output_dir}
 ```
 
 优先策略：
@@ -277,7 +277,7 @@ meitu image-superres-enhance \
   --skill_name skill_meitu-game-2d-assets  \
   --image_url "{asset_image_url}" \
   --prompt "{CONTENT_DESC}" \
-  --json
+  --json --download-dir {output_dir}
 ```
 
 说明：

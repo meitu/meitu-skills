@@ -1,6 +1,6 @@
 ---
 name: meitu-image-fix
-description: "自动诊断图片的画质、人像、内容问题，按最优顺序串联 image-superres-enhance/image-edit/image-cutout 修复。当用户说修图、变清晰、去水印、去路人、磨皮美颜、修一下这张图、图片模糊、老照片修复时触发。"
+description: "自动诊断单张已有图片的画质、人像和内容问题，并按最优顺序串联 image-superres-enhance/image-edit/image-cutout 做综合修复。仅当用户明确要对同一张图做一键综合修复、说不清该用哪个单项工具，或同时提出两个及以上修复诉求时触发；单一明确诉求如仅去水印、仅去背景、仅美颜、仅超清不单独触发。"
 version: "1.0.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/","./openclaw.yaml","./DESIGN.md","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"],"write":["~/.openclaw/workspace/visual/","./DESIGN.md","./output/","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY","security":{"dataFlow":"Inputs, selected local context, and generated prompts may be sent to Meitu OpenAPI when used by the workflow.","credentials":"Credentials are used only for CLI authentication and must not be disclosed.","persistence":"Record workflows may access declared project and visual memory/rules files."}}}
 security:
@@ -17,6 +17,7 @@ requirements:
     - type: file_read
       paths:
         - ~/.meitu/credentials.json
+        - ./
         - ~/.openclaw/workspace/visual/
         - ./openclaw.yaml
         - ./DESIGN.md
@@ -28,11 +29,14 @@ requirements:
         - $VISUAL/memory/global.md
         - $VISUAL/memory/scenes/
         - $VISUAL/memory/observations/observations.yaml
+        - /tmp/
     - type: file_write
       paths:
         - ~/.openclaw/workspace/visual/
         - ./DESIGN.md
         - ./output/
+        - $VISUAL/output/meitu-image-fix/
+        - ~/.openclaw/workspace/visual/output/meitu-image-fix/
         - ~/.openclaw/workspace/visual/rules/quality.yaml
         - ~/.openclaw/workspace/visual/memory/global.md
         - ~/.openclaw/workspace/visual/memory/scenes/
@@ -41,9 +45,12 @@ requirements:
         - $VISUAL/memory/global.md
         - $VISUAL/memory/scenes/
         - $VISUAL/memory/observations/observations.yaml
+        - /tmp/
     - type: exec
       commands:
         - meitu
+        - curl
+        - rm
 ---
 
 # Meitu Image Fix
@@ -282,10 +289,10 @@ No feedback → skip entirely（不读 observations.yaml，zero overhead）。
 
 | 不做 | 转交 |
 |------|------|
-| 风格转绘（变漫画/油画/3D） | `meitu-stylize` |
-| 换背景/换场景（创意替换） | `meitu-product-swap` |
+| 风格转绘（变漫画/油画/3D） | `image-style-transfer`（或经 `meitu-tools` 直调） |
+| 换背景/换场景（创意替换） | `image-background-replace` 或 `meitu-visual-me` 的背景替换工作流 |
 | 海报排版/加文字布局 | `meitu-poster` |
-| AI 写真/人像生成 | `meitu-portrait` |
+| AI 写真/人像生成 | `image-portrait-generate` 或 `meitu-visual-me` |
 
 **边界判断**：用户意图是"修好这张图的问题" → 本 skill。用户意图是"把这张图变成另一种东西" → 告知用户并建议对应 skill。
 

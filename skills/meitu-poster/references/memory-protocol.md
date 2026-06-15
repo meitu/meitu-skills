@@ -153,11 +153,12 @@ Fields:
 
 When user gives style approval feedback:
 
-1. Read `observations.yaml` (create file + directory if not exists)
-2. Scan existing entries for content-similar key
-3. Found → append project name to `projects`, update `last-seen`
-4. Not found → append new entry
-5. Write back file
+1. If `{OPENCLAW_HOME}/workspace/visual/` does not exist, skip observation writes entirely
+2. Read `observations.yaml` (create the file only when the visual workspace already exists and the observations path is declared)
+3. Scan existing entries for content-similar key
+4. Found → append project name to `projects`, update `last-seen`
+5. Not found → append new entry
+6. Write back file
 
 **Deduplication principle: prefer creating duplicates over wrong merges.** "偏好极简布局" and "喜欢简洁设计" might be the same preference or not — when uncertain, create a new entry. Deduplication is deferred to the promotion step where a human is involved.
 

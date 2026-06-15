@@ -6,7 +6,7 @@ metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS
 security:
   credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI calls; credentials must not be echoed, logged, or embedded in prompts."
   remote_processing: "Images, videos, generated prompts, and local profile/memory/project details or summaries incorporated into prompts may be sent to Meitu OpenAPI."
-  persistence: "The workflow may read/write ./visual/, ./DESIGN.md, ./output/, drafts, references, observations, visual memory, and quality rules for personalization and feedback recording."
+  persistence: "The workflow may read/write ./visual/, ./DESIGN.md, ./output/, drafts, references, observations, visual memory, and quality rules for personalization and feedback recording when the user continues with profile-based personalization or project memory recording."
   privacy_note: "Local files remain stored locally, but excerpts, summaries, or derived details included in API prompts are transmitted to Meitu OpenAPI."
   consent: "First-use authorization must disclose that profile, memory, and project context may be incorporated into prompts sent to Meitu OpenAPI; users may opt out by not using memory/profile context or not providing photos."
 requirements:
@@ -98,7 +98,7 @@ Memory-driven AI visual assistant. Reads user profiles and daily memories to gen
 
 - tools: meitu-cli (`npm install -g meitu-cli@latest`)
 - credentials: prefer environment variables or a pre-provisioned `~/.meitu/credentials.json`; if the operator explicitly wants persistent local setup, run `meitu config set-ak --value <AK>` + `meitu config set-sk --value <SK>`
-- user knowledge (optional): `./visual/` (created on demand; if absent, all knowledge reads are skipped)
+- user knowledge (optional): `./visual/` (if absent, knowledge reads are skipped until the user chooses to start a local visual workspace; reference photos and profile/memory files are then stored under `./visual/`)
 - project files: `./` (cwd, containing `openclaw.yaml`, `DESIGN.md`, etc.)
 - platform context (optional): `USER.md`, `MEMORY.md`, `memory/今日.md`, `SOUL.md`, `IDENTITY.md` (platform-injected; skip if absent)
 - user config (optional): `$VISUAL/config/defaults.yaml`
@@ -109,7 +109,7 @@ Memory-driven AI visual assistant. Reads user profiles and daily memories to gen
 
 **OpenClaw:** User data is located at `~/.openclaw/workspace/visual/`. The platform injects it automatically; `./visual/` resolves to that path at runtime.
 
-**Claude Code / Other Agents:** User data is located at `./visual/` under the current working directory, created automatically on first use.
+**Claude Code / Other Agents:** User data is located at `./visual/` under the current working directory. Only create or update this local workspace when the user continues with profile-based personalization or long-lived local memory; otherwise skip knowledge writes.
 
 > All `./visual/` paths in the workflows below are resolved to the corresponding actual path by each platform at runtime.
 
@@ -280,7 +280,7 @@ Formula: `[composition/camera angle] + [subject] + [action/expression] + [scene/
 **Result field references:**
 - With `--download-dir` → use `downloaded_files[0].saved_path` for local path (`media_urls` also available but local path is more reliable)
 - Without `--download-dir` → use `media_urls[0]` for result URL
-- Error response → check `code` and `hint` fields (NOT `error_code` / `user_hint`)
+- Error response → first read CLI raw fields `code`, `hint`, `error_name`, and `action_url`; when presenting the failure to the user, map them to the Agent-enhanced fields `error_type`, `user_hint`, `next_action`, and `action_link` using the `meitu-tools` contract
 
 **Image input:** Pass user-provided images via URL or local path. When a reference image is needed, check `./visual/assets/references/user.jpg`.
 

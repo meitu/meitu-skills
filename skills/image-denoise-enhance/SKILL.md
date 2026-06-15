@@ -3,6 +3,10 @@ name: image-denoise-enhance
 description: "去除图片颗粒感/噪点/杂色，保留细节同时降噪。当用户说去噪、降噪、去颗粒、去噪点、杂色、颗粒感、画面脏、ISO 高、噪声时触发。"
 version: "1.0.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY"}}
+security:
+  credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI calls; credentials must not be echoed, logged, or embedded in prompts."
+  remote_processing: "User-provided image URLs are sent to Meitu OpenAPI for denoise processing."
+  persistence: "Generated denoised images are written to the resolved local output directory."
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -32,6 +36,8 @@ requirements:
 ## Overview
 
 去除图片颗粒感/噪点/杂色，保留图像细节同时降噪。覆盖高感光拍摄降噪、暗光拍摄噪点消除、老照片杂色修复、手机夜拍噪点处理、压缩产生的色块/伪影修复。仅需 `image_url`，不需要 prompt。
+
+执行前应让用户清楚知道：本 Skill 会读取 Meitu 凭证、调用本地 `meitu` CLI、将用户提供的图片 URL 发送到 Meitu OpenAPI 处理，并把结果写入 `./output/` 或 `$VISUAL/output/image-denoise-enhance/`。
 
 ## API Mapping
 
@@ -84,7 +90,8 @@ Preflight → Execute → Deliver
 meitu image-denoise-enhance \
   --skill_name skill_image-denoise-enhance \
   --image_url <image_url> \
-  --json
+  --json \
+  --download-dir {output_dir}
 ```
 
 **错误降级**
@@ -101,7 +108,8 @@ meitu image-denoise-enhance \
 ### Deliver
 
 - 直接使用 Preflight 解析的 output_dir
-- 命名规则：`{YYYY-MM-DD}_{descriptive}_image-denoise-enhance.jpg`
+- 从 `downloaded_files[0].saved_path` 读取已下载文件路径
+- `mv {downloaded_files[0].saved_path} {output_dir}/{YYYY-MM-DD}_{descriptive}_image-denoise-enhance.jpg`
 
 ## Output
 

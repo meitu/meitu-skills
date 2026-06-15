@@ -1,12 +1,13 @@
 ---
 name: meitu-video-dance
-description: "将参考视频中的动作（舞蹈、手势、运动）迁移到目标人物或角色图片上，生成动作视频。当用户提到动作迁移、舞蹈视频、让照片跳舞、让人物动起来、dance transfer、motion transfer、视频动作复刻时触发。"
+description: "将参考视频中的动作（舞蹈、手势、运动）迁移到目标人物或角色图片上，生成动作视频。仅在用户明确提供目标人物图片和参考动作视频，并表达动作迁移、舞蹈复刻、让照片跳舞、让人物动起来等意图时触发。"
 version: "1.1.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY"],"paths":{"read":["~/.meitu/credentials.json","~/.openclaw/workspace/visual/","./openclaw.yaml","./DESIGN.md","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"],"write":["~/.openclaw/workspace/visual/","./DESIGN.md","./output/","~/.openclaw/workspace/visual/rules/quality.yaml","~/.openclaw/workspace/visual/memory/global.md","~/.openclaw/workspace/visual/memory/scenes/","~/.openclaw/workspace/visual/memory/observations/observations.yaml","$VISUAL/rules/quality.yaml","$VISUAL/memory/global.md","$VISUAL/memory/scenes/","$VISUAL/memory/observations/observations.yaml"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY","security":{"dataFlow":"Inputs, selected local context, and generated prompts may be sent to Meitu OpenAPI when used by the workflow.","credentials":"Credentials are used only for CLI authentication and must not be disclosed.","persistence":"Record workflows may access declared project and visual memory/rules files."}}}
 security:
   credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI calls; credentials must not be echoed, logged, or embedded in prompts."
   remote_processing: "Target images, reference videos, project context, and generated prompts may be sent to Meitu OpenAPI."
   persistence: "Project mode may write output files and may update project or visual-memory files according to the Record workflow."
+  biometric_notice: "Target portrait images and reference motion videos may contain sensitive biometric-like personal data. Confirm the depicted person has agreed to this processing before running the workflow."
 requirements:
   credentials:
     - name: MEITU_OPENAPI_ACCESS_KEY
@@ -17,6 +18,7 @@ requirements:
     - type: file_read
       paths:
         - ~/.meitu/credentials.json
+        - ./
         - ~/.openclaw/workspace/visual/
         - ./openclaw.yaml
         - ./DESIGN.md
@@ -33,6 +35,8 @@ requirements:
         - ~/.openclaw/workspace/visual/
         - ./DESIGN.md
         - ./output/
+        - $VISUAL/output/meitu-video-dance/
+        - ~/.openclaw/workspace/visual/output/meitu-video-dance/
         - ~/.openclaw/workspace/visual/rules/quality.yaml
         - ~/.openclaw/workspace/visual/memory/global.md
         - ~/.openclaw/workspace/visual/memory/scenes/
@@ -49,6 +53,8 @@ requirements:
 ## Overview
 
 从一段参考视频中提取动作轨迹，迁移到用户提供的目标人物/角色图片上，生成该角色执行相同动作的视频。核心工具为 `meitu video-motion-transfer`（异步任务）。
+
+执行前应让用户清楚知道：本 Skill 会读取 Meitu 凭证、调用本地 `meitu` CLI、将用户提供的人物图片、参考动作视频及相关提示发送到 Meitu OpenAPI 处理，并把结果写入 `./output/` 或 `$VISUAL/output/meitu-video-dance/`。涉及人像与动作素材时，应确认对素材中人物具备处理授权。
 
 ## Dependencies
 
@@ -175,7 +181,7 @@ meitu video-motion-transfer \
 **异步任务说明：**
 - 该命令为异步任务，CLI 会自动轮询直到完成（内部调用 `meitu task wait`）
 - 生成时间通常 30s-120s，取决于视频时长和服务器负载
-- 返回 JSON：`ok: true` → 结果在 `downloaded_files[0].saved_path`（因使用了 `--download-dir`）；`ok: false` → 检查 `error_type`
+- 返回 JSON：`ok: true` → 结果在 `downloaded_files[0].saved_path`（因使用了 `--download-dir`）；`ok: false` → 先检查 CLI 原始字段 `code`、`hint`、`error_name`、`action_url`，再按 `meitu-tools` 归类为 `error_type`
 
 **4. 质量判断与错误降级**
 
@@ -196,8 +202,8 @@ meitu video-motion-transfer \
 | L5 | 停止并报错 | 连续 2 次失败 → 报告 code 和 hint，不再重试 |
 
 **常见错误码处理：**
-- `ORDER_REQUIRED` → 余额不足，告知用户充值，提供 action_url
-- `CREDENTIALS_MISSING` → AK/SK 未配置，优先提示使用环境变量或预置 `~/.meitu/credentials.json`；仅在用户明确要求写入本地凭证时，再提示 `meitu config set-ak/set-sk`
+- 原始错误经 `meitu-tools` 归类为 `ORDER_REQUIRED` → 余额不足，告知用户充值，提供 action_url
+- 原始错误经 `meitu-tools` 归类为 `CREDENTIALS_MISSING` → AK/SK 未配置，优先提示使用环境变量或预置 `~/.meitu/credentials.json`；仅在用户明确要求写入本地凭证时，再提示 `meitu config set-ak/set-sk`
 - 超时 → 视频过长或服务器繁忙，建议缩短视频或稍后重试
 
 ### Refine

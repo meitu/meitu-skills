@@ -59,7 +59,7 @@ Preflight → Execute → Deliver
 1. `meitu --version` ≥ 2.0.6
 2. 已用 CONFIG AKSK 跑过 `meitu tools update`
 3. 当前 AKSK = EXEC，`MEITU_OPENAPI_TOOL_TASK_MODE=command`
-4. output_dir：openclaw.yaml → `./output/` ｜else → `$VISUAL/output/image-transform/`
+4. output_dir：openclaw.yaml → `./output/` ｜else → `$VISUAL/output/image-transform/`；`mkdir -p`
 
 ### Execute
 
@@ -123,19 +123,19 @@ Preflight → Execute → Deliver
 
 ```bash
 # 旋转
-meitu image-transform --image_url <url> --rotate 90 --json   --skill_name skill_image-transform
+meitu image-transform --image_url <url> --rotate 90 --json --download-dir {output_dir} --skill_name skill_image-transform
 ```
 ```bash
 # 等比放大
-meitu image-transform --image_url <url> --sr_num 4 --json   --skill_name skill_image-transform
+meitu image-transform --image_url <url> --sr_num 4 --json --download-dir {output_dir} --skill_name skill_image-transform
 ```
 ```bash
 # 缩小
-meitu image-transform --image_url <url> --target_width 800 --json   --skill_name skill_image-transform 
+meitu image-transform --image_url <url> --target_width 800 --json --download-dir {output_dir} --skill_name skill_image-transform 
 ```
 ```bash
 # 扩图
-meitu image-transform --image_url <url> --width 1920 --height 1080 --json   --skill_name skill_image-transform
+meitu image-transform --image_url <url> --width 1920 --height 1080 --json --download-dir {output_dir} --skill_name skill_image-transform
 ```
 
 **错误降级**
@@ -158,7 +158,8 @@ meitu image-transform --image_url <url> --width 1920 --height 1080 --json   --sk
 ### Deliver
 
 - 使用 Preflight 解析的 output_dir
-- 命名：`{YYYY-MM-DD}_{descriptive}_image-transform.{ext}`
+- 从 `downloaded_files[0].saved_path` 读取已下载文件路径
+- `mv {downloaded_files[0].saved_path} {output_dir}/{YYYY-MM-DD}_{descriptive}_image-transform.{ext}`
 
 ## Output
 

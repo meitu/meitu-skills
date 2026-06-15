@@ -6,7 +6,7 @@ metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS
 security:
   project_scaffolding: "When explicitly requested by the user, project creation may write only to declared visual project paths, including project directory, openclaw.yaml, DESIGN.md, and output/."
   credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI calls; credentials must not be echoed, logged, or embedded in prompts."
-  remote_processing: "Product images, target reference images, project context, and generated prompts may be sent to Meitu OpenAPI."
+  remote_processing: "Product images, target reference images, project context, selected visual-workspace brand or platform rules, and generated prompts may be sent to Meitu OpenAPI."
   persistence: "Project mode may create/update project files, output files, drafts, observations, visual memory, and quality rules as described in the SKILL workflow."
 requirements:
   credentials:
@@ -24,13 +24,17 @@ requirements:
         - ./context/
         - ./inputs/
         - ~/.openclaw/workspace/visual/rules/quality.yaml
+        - ~/.openclaw/workspace/visual/rules/platforms/
         - ~/.openclaw/workspace/visual/memory/global.md
         - ~/.openclaw/workspace/visual/memory/scenes/
         - ~/.openclaw/workspace/visual/memory/observations/observations.yaml
+        - ~/.openclaw/workspace/visual/assets/brands/
         - $VISUAL/rules/quality.yaml
+        - $VISUAL/rules/platforms/
         - $VISUAL/memory/global.md
         - $VISUAL/memory/scenes/
         - $VISUAL/memory/observations/observations.yaml
+        - $VISUAL/assets/brands/
         - $VISUAL/projects/{name}/openclaw.yaml
         - $VISUAL/projects/{name}/DESIGN.md
         - {OPENCLAW_HOME}/workspace/visual/projects/{name}/openclaw.yaml
@@ -92,7 +96,7 @@ requirements:
   - 验证：`meitu auth verify --json`
 - package references (bundled with this skill package):
   - [references/prompts.md](references/prompts.md)（Agent 基于模板自行组装 prompt）
-  - 这些 reference 文件是随包发布的静态材料，不是任意本地文件
+  - 这些 reference 文件是随包发布的静态材料；在 project 模式下，如 `DESIGN.md` 或 `openclaw.yaml` 显式引用品牌资产或平台规则，还可能额外读取用户启用的 `$VISUAL/assets/brands/` 与 `$VISUAL/rules/platforms/`
 - workspace (optional): `{OPENCLAW_HOME}/workspace/visual/`
   - Not found → skip all knowledge reads, skill works without it
 

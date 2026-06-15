@@ -6,7 +6,7 @@ metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS
 security:
   project_scaffolding: "When explicitly requested by the user, project creation may write only to declared visual project paths, including project directory, openclaw.yaml, DESIGN.md, and output/."
   credential_use: "Uses Meitu OpenAPI credentials from env or ~/.meitu/credentials.json for CLI calls; credentials must not be echoed, logged, or embedded in prompts."
-  remote_processing: "Inputs, selected local context, and generated prompts may be sent to Meitu OpenAPI when used by the workflow."
+  remote_processing: "Inputs, selected local context, selected visual-workspace brand or platform rules, and generated prompts may be sent to Meitu OpenAPI when used by the workflow."
   persistence: "Record workflows may read/write declared project files, ./drafts/design-history.md, visual memory/rules files, observations, scene/global memory, and quality rules."
   output_constraints: "Final generated media output_dir must resolve only to ./output/ in project mode or $VISUAL/output/meitu-carousel/ in one-off mode; media files must remain inside these declared output directories. Project maintenance archives such as ./drafts/design-history.md are separate declared persistence targets."
 requirements:
@@ -23,13 +23,17 @@ requirements:
         - ./openclaw.yaml
         - ./DESIGN.md
         - ~/.openclaw/workspace/visual/rules/quality.yaml
+        - ~/.openclaw/workspace/visual/rules/platforms/
         - ~/.openclaw/workspace/visual/memory/global.md
         - ~/.openclaw/workspace/visual/memory/scenes/
         - ~/.openclaw/workspace/visual/memory/observations/observations.yaml
+        - ~/.openclaw/workspace/visual/assets/brands/
         - $VISUAL/rules/quality.yaml
+        - $VISUAL/rules/platforms/
         - $VISUAL/memory/global.md
         - $VISUAL/memory/scenes/
         - $VISUAL/memory/observations/observations.yaml
+        - $VISUAL/assets/brands/
         - $VISUAL/projects/{name}/openclaw.yaml
         - $VISUAL/projects/{name}/DESIGN.md
         - {OPENCLAW_HOME}/workspace/visual/projects/{name}/openclaw.yaml
@@ -96,6 +100,7 @@ requirements:
 - workspace (optional): `{OPENCLAW_HOME}/workspace/visual/`
   - Path resolution: `$OPENCLAW_HOME` env var → `~/.openclaw` (macOS/Linux) / `%LOCALAPPDATA%\openclaw` (Windows)
   - If directory not found → skip all knowledge reads, skill works without it
+  - If `DESIGN.md` or `openclaw.yaml` explicitly references brand assets or platform rules, the workflow may additionally read `$VISUAL/assets/brands/` and `$VISUAL/rules/platforms/`
 - memory read/write paths (project mode):
   - `$VISUAL/rules/quality.yaml` — forbidden elements
   - `$VISUAL/memory/global.md` — global preferences
@@ -318,7 +323,7 @@ If DESIGN.md Iteration Log > 5 entries → compact: keep recent 5, archive older
 | L2 | 降级枚举参数：`--size 2K` → `--size 1K`；`--output_format` 保持 jpeg |
 | L3 | 移除可选输入：去掉 `--image_list` 参考图，改为纯文生图模式 |
 | L4 | 最小化到核心要素：仅保留标题文案 + 基础风格关键词 + `--ratio 3:4` |
-| L5 | 停止并报错，向用户展示 JSON 输出中的 `code` 和 `hint`，建议调整需求或检查网络/凭证。若 `error_type` 为 ORDER_REQUIRED → 提示充值；CREDENTIALS_MISSING → 优先提示使用环境变量或预置 `~/.meitu/credentials.json`，仅在用户明确要求写入本地凭证时再提示 `meitu config set-ak` + `meitu config set-sk` |
+| L5 | 停止并报错，先向用户展示 CLI 原始错误 `code` 和 `hint`，再按 `meitu-tools` 映射补充 `user_hint` / `next_action`。若原始错误被归类为 `ORDER_REQUIRED` → 提示充值；被归类为 `CREDENTIALS_MISSING` → 优先提示使用环境变量或预置 `~/.meitu/credentials.json`，仅在用户明确要求写入本地凭证时再提示 `meitu config set-ak` + `meitu config set-sk` |
 
 每级最多重试 1 次，失败则进入下一级。L3 仅适用于有 `--image_list` 的内页生成步骤（阶段 5a/5b）。
 

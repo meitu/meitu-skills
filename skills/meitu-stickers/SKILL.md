@@ -117,11 +117,11 @@ meitu text-to-image \
   --skill_name skill_meitu-stickers \
   --image_list "<image_url_1>" "<image_url_2>" \
   --prompt "将多张图片主体物合成一张合照（如第一张照片的人物与第二张照片人物合照），{user_pose_requirement}，保持主体物样貌相似度不变，保持图片风格不变" \
-  --json
+  --json --download-dir {output_dir}/composite
 ```
 
 - `{user_pose_requirement}`: 用户指定了姿势/互动则加入，否则省略此 clause。
-- 合成结果作为 Generate Sticker Grid 的源图。
+- 从 `downloaded_files[0].saved_path` 读取合成结果，作为 Generate Sticker Grid 的源图。
 
 **Select Style**
 
@@ -216,7 +216,7 @@ meitu text-to-image \
 用户确认四宫格后，执行切图：
 
 ```bash
-meitu image-grid-split --image_url "<grid_image_url>" --download-dir {output_dir}/split   --skill_name skill_meitu-stickers
+meitu image-grid-split --image_url "<grid_image_url>" --json --download-dir {output_dir}/split --skill_name skill_meitu-stickers
 ```
 
 If `image-grid-split` returns fewer than 4 images（grid spacing insufficient for detection）:

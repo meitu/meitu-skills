@@ -38,6 +38,11 @@ Use `meitu-tools` when:
 - the task is a direct effect invocation rather than a higher-level workflow
 - the user asks to execute a specific built-in or effect command
 
+When a scene skill boundary points to a direct creative effect rather than another
+scene workflow, prefer the real package-supported atomic entry through
+`meitu-tools`, such as `image-style-transfer`, `image-portrait-generate`, or
+`image-background-replace`, instead of using outdated scene aliases.
+
 ## Built-In Command Scope
 
 `meitu-tools` is the direct execution hub for the currently verified public
@@ -85,6 +90,8 @@ When intent is ambiguous:
 
 When execution fails:
 
+- first read the CLI raw fields: `code`, `hint`, `error_name`, and `action_url`
+- then classify them with the `meitu-tools` error mapping into `error_type`, `user_hint`, `next_action`, and `action_link`
 - prioritize `user_hint` and `next_action`
 - preserve `action_link` and full `action_url` when provided
 - do not shorten, rewrite, or paraphrase actionable URLs
@@ -96,5 +103,5 @@ When execution fails:
 ## Public Runtime Baseline
 
 - Package baseline: `meitu-skills 1.0.16`
-- Recommended runtime: `meitu-cli@2.1.9`
+- Recommended runtime: `meitu-cli@2.1.10`
 - Supported CLI range: `>=2.0.6 <3.0.0`

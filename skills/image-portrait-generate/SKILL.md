@@ -59,7 +59,7 @@ Preflight → Execute → Deliver
 1. `meitu --version` ≥ 2.0.6
 2. 已用 CONFIG AKSK 跑过 `meitu tools update`
 3. 当前 AKSK = EXEC，`MEITU_OPENAPI_TOOL_TASK_MODE=command`
-4. output_dir：openclaw.yaml → `./output/` ｜else → `$VISUAL/output/image-portrait-generate/`
+4. output_dir：openclaw.yaml → `./output/` ｜else → `$VISUAL/output/image-portrait-generate/`；`mkdir -p`
 
 ### Execute
 
@@ -95,7 +95,7 @@ API 映射说明：
 **工具调用**
 
 ```bash
-meitu image-portrait-generate --image_list <img1>[,<img2>,...] --prompt "<desc>" [--size 2K|4K] --json   --skill_name skill_image-portrait-generate
+meitu image-portrait-generate --image_list <img1>[,<img2>,...] --prompt "<desc>" [--size 2K|4K] --json --download-dir {output_dir} --skill_name skill_image-portrait-generate
 ```
 
 **错误降级**
@@ -118,7 +118,8 @@ meitu image-portrait-generate --image_list <img1>[,<img2>,...] --prompt "<desc>"
 ### Deliver
 
 - 使用 Preflight 解析的 output_dir
-- 命名：`{YYYY-MM-DD}_{descriptive}_image-portrait-generate.{ext}`
+- 从 `downloaded_files[0].saved_path` 读取已下载文件路径
+- `mv {downloaded_files[0].saved_path} {output_dir}/{YYYY-MM-DD}_{descriptive}_image-portrait-generate.{ext}`
 
 ## Output
 

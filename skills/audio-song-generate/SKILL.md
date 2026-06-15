@@ -60,7 +60,7 @@ Preflight → Execute → Deliver
 1. `meitu --version` ≥ 2.0.6
 2. 已用 CONFIG AKSK 跑过 `meitu tools update`
 3. 当前 AKSK = EXEC，`MEITU_OPENAPI_TOOL_TASK_MODE=command`
-4. output_dir：openclaw.yaml → `./output/` ｜else → `$VISUAL/output/audio-song-generate/`
+4. output_dir：openclaw.yaml → `./output/` ｜else → `$VISUAL/output/audio-song-generate/`；`mkdir -p`
 
 ### Execute
 
@@ -88,7 +88,7 @@ Preflight → Execute → Deliver
 **工具调用**
 
 ```bash
-meitu audio-song-generate --prompt "<style>" --prompt_lyrics "<lyrics>" [--model auto] --json   --skill_name skill_audio-song-generate
+meitu audio-song-generate --prompt "<style>" --prompt_lyrics "<lyrics>" [--model auto] --json --download-dir {output_dir} --skill_name skill_audio-song-generate
 ```
 
 **错误降级**
@@ -106,7 +106,8 @@ meitu audio-song-generate --prompt "<style>" --prompt_lyrics "<lyrics>" [--model
 ### Deliver
 
 - 使用 Preflight 解析的 output_dir
-- 命名：`{YYYY-MM-DD}_{descriptive}_audio-song-generate.mp3`
+- 从 `downloaded_files[0].saved_path` 读取已下载音频文件路径
+- `mv {downloaded_files[0].saved_path} {output_dir}/{YYYY-MM-DD}_{descriptive}_audio-song-generate.mp3`
 
 ## Output
 

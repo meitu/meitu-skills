@@ -1,6 +1,6 @@
 ---
 name: image-cutout
-description: "图片前景主体与背景精准分离，输出透明底 PNG（标准四类：人物/宠物/商品/图形印章）或白底图（非标准主体/用户要白底）。当用户说抠图、去背景、透明背景、透明底、白底、提取主体、remove background 时触发。执行时会使用本地 meitu CLI、Meitu OpenAPI 凭证并写入本地输出目录。"
+description: "图片前景主体与背景精准分离，输出透明底 PNG（标准四类：人物、宠物、商品、图形印章）或白底图（非标准主体或用户明确要白底）。仅在用户明确要求抠图、去背景、透明背景/透明底、提取主体，或明确要求把已有图片抠成白底时触发。执行时会使用本地 meitu CLI、Meitu OpenAPI 凭证并写入本地输出目录。"
 version: "1.0.0"
 metadata: {"openclaw":{"requires":{"bins":["meitu"],"env":["MEITU_OPENAPI_ACCESS_KEY","MEITU_OPENAPI_SECRET_KEY","MEITU_OPENAPI_TOOL_TASK_MODE"],"paths":{"read":["~/.meitu/credentials.json","~/.meitu/tool-registry.json","~/.openclaw/workspace/visual/","./openclaw.yaml"],"write":["~/.openclaw/workspace/visual/","./output/"]}},"primaryEnv":"MEITU_OPENAPI_ACCESS_KEY","security":{"dataFlow":"Inputs, selected local context, and generated prompts may be sent to Meitu OpenAPI when used by the workflow.","credentials":"Credentials are used only for CLI authentication and must not be disclosed."}}}
 security:
@@ -20,12 +20,15 @@ requirements:
       paths:
         - ~/.meitu/credentials.json
         - ~/.meitu/tool-registry.json
+        - ./
         - ~/.openclaw/workspace/visual/
         - ./openclaw.yaml
     - type: file_write
       paths:
         - ~/.openclaw/workspace/visual/
         - ./output/
+        - $VISUAL/output/image-cutout/
+        - ~/.openclaw/workspace/visual/output/image-cutout/
     - type: exec
       commands:
         - meitu
@@ -102,7 +105,8 @@ meitu image-cutout \
   --skill_name skill_image-cutout \
   --image_url <image_url> \
   --prompt "<subject_description>" \
-  --json
+  --json \
+  --download-dir {output_dir}
 ```
 
 **错误降级**
@@ -124,7 +128,8 @@ meitu image-cutout \
 ### Deliver
 
 - 直接使用 Preflight 解析的 output_dir
-- 命名规则：`{YYYY-MM-DD}_{descriptive}_image-cutout.png`
+- 从 `downloaded_files[0].saved_path` 读取已下载文件路径
+- `mv {downloaded_files[0].saved_path} {output_dir}/{YYYY-MM-DD}_{descriptive}_image-cutout.png`
 
 ## Output
 
