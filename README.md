@@ -148,9 +148,9 @@ Triggers: composite image repair, fix blur plus watermark, repair this old photo
 
 ### meitu-id-photo
 
-Takes a portrait photo and runs a two-step pipeline — natural beauty enhancement → AI redraw (formal attire + solid background + spec-compliant crop) — to produce a standard ID photo. Supports 1-inch, 2-inch, passport, visa, and other specs, with white, blue, or red backgrounds.
+Creates spec-compliant ID photos, replaces ID photo backgrounds, and generates single-person portrait sets from a user portrait. Supports 1-inch, 2-inch, passport, visa, white/blue/red ID backgrounds, themed portraits, and three-panel portrait sets.
 
-Triggers: ID photo, 1-inch photo, 2-inch photo, white background photo, blue background photo, passport photo, visa photo
+Triggers: ID photo, 1-inch photo, 2-inch photo, passport photo, visa photo, ID photo background replacement, white background ID photo, blue background ID photo, portrait set, three-panel portrait
 
 ---
 
