@@ -1,7 +1,7 @@
 # Meitu Skills Package
 
 - Package: `meitu-skills`
-- Version: `2.0.12`
+- Version: `2.0.13`
 - Generated At: `2026-06-15 21:20:00`
 
 ## Release Notes
@@ -26,7 +26,7 @@ For built-in CLI commands outside `tools.yaml`, the currently verified public co
 Do not assume other built-in console commands are supported by this package just because they exist in `meitu-cli`.
 
 Recommended runtime baseline:
-- `meitu-skills 2.0.12`
+- `meitu-skills 2.0.13`
 - `meitu-cli@2.1.10`
 
 ## Included Skills

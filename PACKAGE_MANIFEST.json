@@ -1,6 +1,6 @@
 {
   "package_name": "meitu-skills",
-  "version": "2.0.12",
+  "version": "2.0.13",
   "purpose": "Public release manifest for the meitu-skills package",
   "included_top_level": [
     "PACKAGE_MANIFEST.json",
