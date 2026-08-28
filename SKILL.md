@@ -1,12 +1,12 @@
 # Meitu Skills Package
 
 - Package: `meitu-skills`
-- Version: `2.0.13`
+- Version: `2.0.18`
 - Generated At: `2026-06-15 21:20:00`
 
 ## Release Notes
 
-align public release baseline with meitu-cli 2.1.10
+align public release baseline with meitu-cli 2.1.19
 
 ## Routing Addendum
 
@@ -26,8 +26,8 @@ For built-in CLI commands outside `tools.yaml`, the currently verified public co
 Do not assume other built-in console commands are supported by this package just because they exist in `meitu-cli`.
 
 Recommended runtime baseline:
-- `meitu-skills 2.0.13`
-- `meitu-cli@2.1.10`
+- `meitu-skills 2.0.18`
+- `meitu-cli@2.1.19`
 
 ## Included Skills
 
@@ -54,10 +54,13 @@ Recommended runtime baseline:
 - `image-outfit-swap` (./skills/image-outfit-swap/SKILL.md)
 - `image-portrait-generate` (./skills/image-portrait-generate/SKILL.md)
 - `image-poster-generate` (./skills/image-poster-generate/SKILL.md)
+- `image-preset-transfer` (./skills/image-preset-transfer/SKILL.md)
 - `image-search` (./skills/image-search/SKILL.md)
 - `image-style-transfer` (./skills/image-style-transfer/SKILL.md)
 - `image-superres-enhance` (./skills/image-superres-enhance/SKILL.md)
+- `image-split` (./skills/image-split/SKILL.md)
 - `image-text-replace` (./skills/image-text-replace/SKILL.md)
+- `image-to-image` (./skills/image-to-image/SKILL.md)
 - `image-to-video` (./skills/image-to-video/SKILL.md)
 - `image-transform` (./skills/image-transform/SKILL.md)
 - `meitu-beauty` (./skills/meitu-beauty/SKILL.md)
@@ -104,11 +107,14 @@ Recommended runtime baseline:
 - `text-code` (./skills/text-code/SKILL.md)
 - `text-generate` (./skills/text-generate/SKILL.md)
 - `text-to-image` (./skills/text-to-image/SKILL.md)
+- `text-to-song` (./skills/text-to-song/SKILL.md)
 - `text-to-video` (./skills/text-to-video/SKILL.md)
 - `video-audio-add` (./skills/video-audio-add/SKILL.md)
+- `video-narration-add` (./skills/video-narration-add/SKILL.md)
 - `video-canvas-expand` (./skills/video-canvas-expand/SKILL.md)
 - `video-content-replace` (./skills/video-content-replace/SKILL.md)
 - `video-denoise-enhance` (./skills/video-denoise-enhance/SKILL.md)
+- `video-edit` (./skills/video-edit/SKILL.md)
 - `video-effect-apply` (./skills/video-effect-apply/SKILL.md)
 - `video-element-remove` (./skills/video-element-remove/SKILL.md)
 - `video-framerate-enhance` (./skills/video-framerate-enhance/SKILL.md)
@@ -116,7 +122,12 @@ Recommended runtime baseline:
 - `video-lowlight-enhance` (./skills/video-lowlight-enhance/SKILL.md)
 - `video-motion-transfer` (./skills/video-motion-transfer/SKILL.md)
 - `video-multimodal-generate` (./skills/video-multimodal-generate/SKILL.md)
+- `video-person-motion-transfer` (./skills/video-person-motion-transfer/SKILL.md)
 - `video-quality-enhance` (./skills/video-quality-enhance/SKILL.md)
 - `video-resolution-upscale` (./skills/video-resolution-upscale/SKILL.md)
 - `video-stitch` (./skills/video-stitch/SKILL.md)
+- `video-preset-transfer` (./skills/video-preset-transfer/SKILL.md)
 - `video-to-gif` (./skills/video-to-gif/SKILL.md)
+- `video-convert` (./skills/video-convert/SKILL.md)
+- `video-restore` (./skills/video-restore/SKILL.md)
+- `multimodal-to-video` (./skills/multimodal-to-video/SKILL.md)

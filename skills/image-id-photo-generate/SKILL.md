@@ -42,7 +42,7 @@ requirements:
 
 ## API Mapping
 
-- 证件照生成：`image_id_photo_generate`（实际执行 image-edit 的证件照专用路径，通过 prompt 模板 + 规格映射驱动）
+- 证件照生成：固定使用 `praline_pro`，通过证件照 prompt 模板与规格映射驱动。
 
 ## Dependencies
 
@@ -75,7 +75,7 @@ Preflight → Execute → Deliver
 1. `image_url` 缺失 → 追问；`spec_type` 缺失 → 展示规格选择模板
 2. 着装冲突检查：身份证规格 + 白衣无外套 → 强制改为黑西装
 3. 观察原图填写 face_desc 13 项（禁止凭印象或默认值）
-4. 构造 prompt（face_desc + attire_desc + bg_desc + 合规指令 + 负面约束）→ 调用 `image_id_photo_generate`
+4. 构造 prompt（face_desc + attire_desc + bg_desc + 合规指令 + 负面约束）→ 固定使用 `praline_pro`
 
 **优先级规则**：明确证件照用途 > 通用写真；需完整证件照（换装+换背景+合规） > 单纯换背景。失败精简 prompt 重试，最多 3 轮。
 
@@ -87,6 +87,7 @@ Preflight → Execute → Deliver
 | `spec_type` | STRING | 是 | 一寸/二寸/护照/身份证/签证/驾照/入园/结婚证/职业/商务 | -- | 证件规格。缺失 → 展示询问模板 |
 | `bg_color` | STRING | 否 | 白/蓝/红/灰白渐变/灰渐变 | 按规格自动适配 | 背景色 |
 | `attire` | STRING | 否 | 见服装预设表 | 黑西装+白衬衫 | 着装，≤15 字描述 |
+| `model` | STRING | 固定 | `praline_pro` | `praline_pro` | 证件照固定模型，不由用户配置 |
 
 **spec_type → 内部参数映射**：
 
@@ -118,7 +119,7 @@ Preflight → Execute → Deliver
 
 戴眼镜：第 1 行"保持原有发型、眼镜和表情不变"；第 3 行"不要改变眼镜"。另有职业证件照版、婴幼儿保守版。
 
-**bg_desc 速查**：白→`纯白色背景（#FFFFFF）均匀铺满` / 蓝→`纯蓝色背景（#438EDB）均匀铺满` / 红→`纯红色背景（#FF0000）均匀铺满` / 灰白渐变→`淡灰到白色从上到下柔和渐变摄影背景` / 灰渐变→`灰色从上到下渐变背景顶部深灰底部浅灰`。
+**bg_desc 速查**：白→`纯白色背景均匀铺满` / 蓝→`纯蓝色背景均匀铺满` / 红→`纯红色背景均匀铺满` / 灰白渐变→`淡灰到白色从上到下柔和渐变摄影背景` / 灰渐变→`灰色从上到下渐变背景顶部深灰底部浅灰`。
 
 **compliance_desc**：严格→`双耳露出额头露出双眉可见，` / 中等→`双耳露出额头露出，` / 宽松或无→删掉不留空。
 
@@ -131,6 +132,7 @@ meitu image-id-photo-generate \
   --spec_type <一寸|二寸|护照|身份证|...> \
   --bg_color <白|蓝|红|灰白渐变|灰渐变> \
   --attire "<黑西装+白衬衫>" \
+  --model praline_pro \
   --json \
   --download-dir {output_dir}
 ```
@@ -144,7 +146,7 @@ meitu image-id-photo-generate \
 | `attire` 缺失 | 默认"黑西装+白衬衫"直接开跑，不额外询问 |
 | 着装冲突（身份证 + 白衣无外套） | 强制改为黑西装（白衣与白底冲突） |
 | face_desc 写不准 → 美化面部 | 必须仔细观察原图填写锚定五官 |
-| `image_id_photo_generate` 调用失败 | 精简 prompt 重试 → 最多 3 轮 → 仍失败建议换照片 |
+| `praline_pro` 调用失败 | 精简 prompt 重试 → 最多 3 轮 → 仍失败建议换照片 |
 | 内容合规拦截 | 返回合规提示 |
 | 用户反馈不像本人 | 按"反馈修正规则"最小改动重做 |
 | 用户要超分 / 精确像素 | 后续走超分/画布适配能力（非默认） |
@@ -168,4 +170,3 @@ meitu image-id-photo-generate \
 ## 基线 Task ID
 
 见 `references/task-id-baseline.md` 中对应行。
-

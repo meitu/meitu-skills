@@ -53,7 +53,7 @@ Credentials (pick one):
 | `image-face-swap` | Face replacement | `head_image_url`, `sence_image_url`, `prompt` | — |
 | `image-outfit-swap` | 换装（旧名 image-try-on） | `image_url`, `prompt` | `clothes_image_url` |
 | `image-style-transfer` | 风格化（动漫/油画/水彩/3D/像素 等） | `image_url`, `prompt` | — |
-| `image-cutout` | Background removal | `image_url`, `prompt` | — |
+| `image-cutout` | Background removal | `image_url` | `model_type` (`0`/`1`/`2`, omitted = auto) |
 | `image-grid-split` | Split grid image (2x2) | `image_url` | — |
 | `image-superres-enhance` | Super-resolution（旧名 image-upscale） | `image_url`, `prompt` | — |
 
@@ -189,4 +189,3 @@ When a user's intent could map to multiple commands, use these disambiguation ru
 7. `image-outfit-swap` uses `--image_url <person>` + optional `--clothes_image_url <clothes>` + `--prompt`
 8. `image-superres-enhance` requires `--prompt`; it no longer accepts `--model_type`
 9. `video-to-gif` uses `--video_url` + required `--prompt`; `--wechat_gif` has been removed
-

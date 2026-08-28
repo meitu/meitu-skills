@@ -30,7 +30,7 @@
 
 当用户图片不理想时，按以下顺序建议预处理：
 
-1. **背景杂乱** → `meitu image-cutout --image_url {url} --prompt "person" --json` 抠图，然后 `meitu image-edit --image_list {cutout_url} --prompt "place person on a clean white studio background" --json` 换背景
+1. **背景杂乱** → `meitu image-cutout --image_url {url} --model_type 0 --json` 抠图，然后 `meitu image-edit --image_list {cutout_url} --prompt "place person on a clean white studio background" --json` 换背景
 2. **分辨率低** → `meitu image-superres-enhance --image_url {url} --prompt "portrait photo" --json` 超分
 3. **半身图** → 坦诚告知用户：半身图做全身舞蹈效果差，建议提供全身图；如果只做上半身动作（手势、表情）可以尝试
 4. **多人合照** → 建议用户裁剪出单人区域
@@ -115,4 +115,3 @@
 | 衣物穿帮 | 衣物变形或消失 | 宽松衣物遮挡关节 | 选择紧身衣物的图片 |
 | 比例失调 | 头大身小或反之 | 图片与视频人物比例差异大 | 匹配体型比例 |
 | 动作丢失 | 部分时段角色静止 | 人物在视频中出画 | 确保全程在画面内 |
-

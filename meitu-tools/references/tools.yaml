@@ -402,23 +402,25 @@ tools:
         default: auto
         selection_rule: |
           model 为 sub_api 的外部别名；auto 或不传时按 sub_api selection_rule 路由：
-          gummy_pro    → image_edit_portrait (image_gummy_edit_v45)
+          gummy_pro    → image_edit_portrait (image_gummy_edit_v50_pro)
           praline_pro  → image_edit_praline / image_edit (image_praline_edit_v2)
           praline_lite → image_edit_lite (image_praline_edit_2)
           mint_edit    → image_edit_fallback (image_mint_edit)
-          nougat       → image_edit_nougat (image_nougat_edit)（仅外部显式指定触发；image_list 最多 10 张；不支持 output_format；size 内部常量 2K；quality 由 API 内部默认 Medium 不对外暴露）
+          nougat       → image_edit_nougat (combo_image_nougat_edit)（image_list 最多 10 张；不支持 output_format；size 内部常量 2K；quality 由 API 内部默认 Medium 不对外暴露）
           指定 model 调用失败时，仍按 sub_api 降级链继续重试。
       - name: sub_api
         type: enum
-        values: [image_edit, image_edit_portrait, image_edit_praline, image_edit_lite, image_edit_fallback]
+        values: [image_edit, image_edit_nougat, image_edit_portrait, image_edit_praline, image_edit_lite, image_edit_fallback]
         default: image_edit
         selection_rule: |
-          前置判断 0：有产品图 + 电商出图意图（白底图/主图/场景图/产品展示图）→ image_edit_praline (image_praline_edit_v2)（电商产品出图）；含海报/Banner 版式设计意图时让给海报专科工具
+          显式 model 优先按 model 的映射执行；以下规则仅适用于 auto 或未传 model。
+          前置判断 0：有底图的海报/Banner/广告/促销或文字设计，或人像美颜/磨皮/精修意图 → image_edit_nougat (combo_image_nougat_edit)
+          前置判断 1：有产品图 + 电商出图意图（白底图/主图/场景图/产品展示图）→ image_edit_praline (image_praline_edit_v2)（电商产品出图）；含海报/Banner 版式设计意图时优先走前置判断 0
           前置判断 A：有参考图 + 生成全新图片意图（非就地编辑）→ image_edit_praline (image_praline_edit_v2)（参考图创作）；含海报/宣传图/Banner 关键词时让给海报专科工具
-          优先级：电商前置 > 参考图创作前置 > 多图 > 人像 > 高一致性 > 通用
-          人像编辑（人脸/表情/妆容/美颜/发型/姿态/肤色）→ image_edit_portrait (image_gummy_edit_v45)
+          优先级：Nougat 前置 > 电商前置 > 参考图创作前置 > 多图 > 高一致性 > 通用
           高一致性/多图融合/文字渲染（商品图/IP角色/保持一致/多图融合/加文字）→ image_edit_praline (image_praline_edit_v2)
           通用编辑 → image_edit (image_praline_edit_v2)
+          image_edit_nougat 失败 → 降级至 image_edit (image_praline_edit_v2)
           image_edit_portrait 失败 → 降级至 image_edit (image_praline_edit_v2)
           image_edit 失败 → 降级至 image_edit_lite (image_praline_edit_2)
           image_edit_lite 失败 → 降级至 image_edit_fallback (image_mint_edit)
@@ -427,13 +429,13 @@ tools:
     not_for:
       - 无底图纯文字生图 → text-to-image
       - 无任何参考图/底图、从零纯文字生成完整海报版面 → 推荐 image-poster-generate
-      - 纯抠图/透明底/前景分离（不涉及生成）→ image-cutout
+      - 人物/宠物/商品/图标/印章的纯抠图、透明底或前景分离（不涉及生成）→ image-cutout
       - 仅超清 → image-superres-enhance
     cli:
       requiredKeys: [image_list, prompt]
       optionalKeys: [ratio, size, output_format, model]
       arrayKeys: [image_list]
-      commandAliases: [image-edit, image-i2i, 图片编辑, 图片内容编辑, 图生图]
+      commandAliases: [image-edit, 图片编辑, 图片内容编辑]
       inputAliases:
         image: image_list
         image_url: image_list
@@ -611,6 +613,41 @@ tools:
         参考图: style_image_url
 
 
+  - id: image-preset-transfer
+    name: 图片特定玩法
+    summary: 为单张图片套用具名预设效果。
+    description: "Applies a named preset effect to one supplied image. `image_list` and a prompt naming the preset are required; the effect identifier is matched internally. General style transfer, two-image reference style transfer, and ordinary image editing are excluded."
+    input:
+      - type: image
+        count: "1"
+        note: 待处理单图
+      - type: text
+        count: "1"
+        note: 必须点名目标预设的 prompt
+    output:
+      type: image
+    params:
+      - name: sub_api
+        type: enum
+        values: [image_weave_anything2img]
+        selection_rule: |
+          chibi、史努比、Molly、emoji/memoji、财神版拼豆等具名预设 → image_weave_anything2img；effect_id 由工具内部匹配。
+    not_for:
+      - 泛化风格转换或双图参考风格迁移 → image-style-transfer
+      - 普通图片内容编辑 → image-edit
+    cli:
+      requiredKeys: [image_list, prompt]
+      optionalKeys: []
+      arrayKeys: [image_list]
+      commandAliases: [image-preset-transfer, 图片特定玩法, 图片预设玩法, 预设图片特效]
+      inputAliases:
+        图片: image_list
+        图片url: image_list
+        图片链接: image_list
+        提示词: prompt
+        描述: prompt
+
+
   - id: image-background-replace
     name: 图片换背景
     summary: 替换图片背景/换场景，保留前景主体不变，支持文字描述目标背景。
@@ -621,7 +658,7 @@ tools:
       - 证件照换底色（白/蓝/红）/背景替换
     prefer_over:
       - tool: image-cutout
-        when: 需要替换为新背景而非仅去除背景输出透明底
+        when: 需要替换为新背景，而非为人物/宠物/商品/图标/印章去除背景并输出透明底
       - tool: image-edit
         when: 核心需求是整体背景替换
     input:
@@ -636,8 +673,9 @@ tools:
     constraints:
       - 本工具不能输出透明背景；prompt 含"透明/透明底/透明背景"时前置拦截，不调用本工具
     not_for:
-      - 去背景输出透明底 → image-cutout
-      - 换成透明背景/替换为透明底 → image-cutout
+      - 人物/宠物/商品/图标/印章去背景输出透明底 → image-cutout
+      - 上述五类主体换成透明背景/替换为透明底 → image-cutout
+      - 非五类主体要求透明背景 → 当前 image-cutout 不支持
       - 去除背景中某个物体 → image-element-remove
       - 画布扩展/outpainting → image-transform
       - 图片内容编辑 → image-edit
@@ -765,11 +803,11 @@ tools:
 
   - id: image-cutout
     name: 抠图
-    summary: 分离前景与背景，提取主体或人物，输出透明背景图。
-    description: "Precise foreground-background separation, covering standard 4-type subject cutout (person/pet/product/graphic stamp, outputs transparent PNG) and non-standard subject white-background cutout (buildings/plants/vehicles etc., outputs white-background image RGB 255,255,255). `image_url` and `prompt` (subject description) required. Requests involving \"remove background/transparent background/transparent base/keep subject only\" all belong to this tool. Prohibited: replacing background with new scene, removing specific objects, image cropping, video matting, cutout + background-replace combo."
+    summary: 分离人物、宠物、商品、图标或印章与背景，输出透明背景图。
+    description: "Precise foreground-background separation for five supported subject types (person/pet/product/icon/stamp), returning a transparent PNG. `image_url` is required; optional `model_type` selects portrait (0), product (1), or graphic (2), and omission enables automatic selection. Requests involving \"remove background/transparent background/transparent base/keep subject only\" belong to this tool only when the subject is supported. Prohibited: white-background isolation, unsupported subject types, replacing the background with a new scene, removing specific objects, image cropping, video matting, or cutout + background-replace combos."
     triggers:
       - 抠图/去背景/提取主体
-      - 获得透明背景的人物/物体图
+      - 获得透明背景的人物/宠物/商品/图标/印章图
     input:
       - type: image
         count: "1"
@@ -777,23 +815,27 @@ tools:
       type: image
       note: 透明背景的主体图
     params:
-      - name: sub_api
+      - name: model_type
         type: enum
-        values: [image_cutout, image_cutout_whitebg, image_cutout_whitebg_lite, image_cutout_whitebg_fallback]
-        default: image_cutout
+        values: [0, 1, 2]
         selection_rule: |
-          标准4类主体（人物/宠物/商品/图形印章）→ image_cutout (api_v1_sod_async)（透明PNG）
-          非标准主体或明确要求白色背景 → image_cutout_whitebg (image_praline_edit_v2)（白底 RGB 255,255,255）
-          image_cutout_whitebg 失败 → 降级至 image_cutout_whitebg_lite (image_praline_edit_2)
-          image_cutout_whitebg_lite 失败 → 降级至 image_cutout_whitebg_fallback (image_mint_edit)
+          未指定 → 省略 model_type，由服务端自动选型
+          人像 → 0
+          商品 → 1
+          图标、印章等图形 → 2
+          宠物或类型不确定 → 省略 model_type，由服务端自动选型
     constraints:
-      - 任何涉及"透明背景/透明底"的需求，无论用户说"去除""替换""换成"，都属于本工具，不走 image-background-replace
+      - 对支持的五类主体，任何涉及"透明背景/透明底"的需求，无论用户说"去除""替换""换成"，都属于本工具，不走 image-background-replace
+      - 仅支持人物、宠物、商品、图标、印章，输出透明 PNG
+      - 内部固定 `use_fe_rgba=true`，不作为 CLI 或 Skill 对外参数暴露
+      - 非五类主体或白底隔离返回 `UNSUPPORTED_SUBJECT_CATEGORY`，不得调用其他抠图 API 降级
     not_for:
       - 抠图后换背景 → 先 image-cutout 再 image-edit
+      - 白底隔离或非五类主体 → 不调用 image-cutout；需要生成白底时走 image-edit
       - 宫格拆分 → image-grid-split
     cli:
-      requiredKeys: [image_url, prompt]
-      optionalKeys: []
+      requiredKeys: [image_url]
+      optionalKeys: [model_type]
       arrayKeys: []
       commandAliases: [cutout, 抠图, 去背景]
       inputAliases:
@@ -801,8 +843,9 @@ tools:
         图片: image_url
         图片url: image_url
         图片链接: image_url
-        提示词: prompt
-        描述: prompt
+        模型: model_type
+        模型类型: model_type
+        抠图模型: model_type
 
 
   - id: image-grid-split
@@ -839,7 +882,7 @@ tools:
       - 非宫格图片拆分结果可能不符合预期
     not_for:
       - 任意比例裁切 → image-edit
-      - 提取前景主体 → image-cutout
+      - 提取人物/宠物/商品/图标/印章前景主体 → image-cutout
     cli:
       requiredKeys: [image_url]
       optionalKeys: []
@@ -1450,6 +1493,13 @@ tools:
         note: 可选音频驱动，总时长<=15s
     output:
       type: video
+    params:
+      - name: sub_api
+        type: enum
+        values: [video_multimodal_generate]
+        default: video_multimodal_generate
+        selection_rule: |
+          单一多模态视频生成分支，固定调用 video_toffee_mm2v_v20（Toffee / Seedance 2.0）；不对外暴露 model 选择。
     constraints:
       - 素材总数（图片+视频+音频）合计<=12
       - 至少提供一类多媒体素材（否则转 text-to-video）
@@ -1482,6 +1532,52 @@ tools:
         sound: generate_audio
         reference_video_list: reference_video_urls
         reference_audio_list: reference_audio_urls
+
+
+  - id: video-preset-transfer
+    name: 视频特定玩法
+    summary: 套用具名预设的视频特效或玩法；按预设要求接受视频或图片素材。
+    description: "Applies a named preset effect or play to supplied video or image material. `prompt` must name a supported preset; the matched preset determines whether `video_list` or `image_list` is required. The effect identifier is resolved internally and is not an external parameter. General style transfer, content replacement, restoration, motion transfer, and text-only video generation are excluded."
+    triggers:
+      - 裸眼3D/冰封世界/Memoji/emoji-kiss/红毯VOGUE等具名玩法
+    input:
+      - type: video
+        count: "0+"
+        note: 裸眼3D、冰封世界等视频预设所需的视频素材
+      - type: image
+        count: "0+"
+        note: Memoji、emoji-kiss、红毯 VOGUE 等图片预设所需的素材
+      - type: text
+        count: "1"
+        note: 必须点名目标具名预设的 prompt
+    output:
+      type: video
+    params:
+      - name: sub_api
+        type: enum
+        values: [video_weave_anything2video]
+        selection_rule: |
+          命中裸眼3D、冰封世界、Memoji、emoji-kiss、红毯 VOGUE 等预设玩法 → video_weave_anything2video；由工具内部匹配 effect_id，视频素材填 video_list、图片素材填 image_list。
+    not_for:
+      - 未点名具名预设的泛化风格转绘 → video-effect-apply
+      - 视频内容替换或元素消除 → video-content-replace / video-element-remove
+      - 视频修复或补帧 → video-quality-enhance / video-framerate-enhance
+      - 人物动作迁移 → video-motion-transfer
+      - 纯文字从零生成视频 → text-to-video
+    cli:
+      requiredKeys: [prompt]
+      optionalKeys: [image_list, video_list]
+      arrayKeys: [image_list, video_list]
+      commandAliases: [video-preset-transfer, 视频特定玩法, 视频预设玩法, 预设特效玩法]
+      inputAliases:
+        图片: image_list
+        图片url: image_list
+        图片链接: image_list
+        视频: video_list
+        视频url: video_list
+        视频链接: video_list
+        提示词: prompt
+        描述: prompt
 
 
   - id: video-effect-apply
@@ -2130,6 +2226,52 @@ tools:
         音量: video_volume
 
 
+  - id: video-narration-add
+    name: 视频加旁白
+    summary: 为已有视频生成并写入旁白、配音、解说或画外音。
+    description: "Generates and mixes narration into an existing video. `video_url` and narration `prompt` are required; a voice preference may be included in the prompt and is matched internally. BGM, BGM-plus-narration chaining, stitching, and video editing are excluded."
+    input:
+      - type: video
+        count: "1"
+        note: 待加旁白的视频
+      - type: text
+        count: "1"
+        note: 旁白文案，可附音色偏好
+    output:
+      type: video
+    params:
+      - name: sub_api
+        type: enum
+        values: [video_narration_add]
+        default: video_narration_add
+        selection_rule: |
+          单一旁白分支。音色素材由工具内部按 prompt 检索；无匹配时使用默认音色。
+      - name: video_volume
+        type: number
+        range: "0..2"
+        default: 0
+        selection_rule: 默认 0，压低原声以突出旁白。
+    not_for:
+      - 添加背景音乐或旁白加 BGM → video-audio-add
+      - 纯音乐或歌曲生成 → audio-music-generate / audio-song-generate
+      - 视频拼接或内容编辑 → video-stitch / video-content-replace
+    cli:
+      requiredKeys: [video_url, prompt]
+      optionalKeys: [video_volume]
+      arrayKeys: []
+      commandAliases: [video-narration-add, 视频加旁白, 视频加配音, 视频解说, 画外音]
+      inputAliases:
+        视频: video_url
+        视频url: video_url
+        视频链接: video_url
+        旁白: prompt
+        配音文案: prompt
+        旁白文案: prompt
+        提示词: prompt
+        原声音量: video_volume
+        音量: video_volume
+
+
   # ══════════════════════════════════════════
   # ── 证件照类 ──────────────────────────────
   # ══════════════════════════════════════════
@@ -2137,7 +2279,7 @@ tools:
   - id: image-id-photo-generate
     name: 证件照生成
     summary: 基于用户照片+证件规格一键生成标准证件照，自动换装换背景，支持合规调整。
-    description: "Generates standard ID photos from user portrait + specification, with auto outfit change + background replacement + compliance adjustment. `image_url` (front-facing portrait) and `spec_type` (1-inch/2-inch/passport/ID card/visa/driver's license etc.) required; `bg_color` (white/blue/red etc.) and `attire` (≤15 chars, default black suit + white shirt) auto-adapted per spec. `face_desc` filled based on 13-item observation of original photo, vague words like \"moderate\" or \"medium\" prohibited; retries with simplified prompt on failure, up to 3 rounds. Prohibited: artistic portraits, general image editing, background-only change without outfit, outfit-only change without background, face swap, poster design, auto-adding superres/exact pixels (degrades quality, only when user explicitly requests post-processing)."
+    description: "Generates standard ID photos from user portrait + specification, with auto outfit change + background replacement + compliance adjustment. `image_url` (front-facing portrait) and `spec_type` (1-inch/2-inch/passport/ID card/visa/driver's license etc.) required; `bg_color` (white/blue/red etc.) and `attire` (≤15 chars, default black suit + white shirt) auto-adapted per spec. Uses the fixed public model `praline_pro`. `face_desc` filled based on 13-item observation of original photo, vague words like \"moderate\" or \"medium\" prohibited; retries with simplified prompt on failure, up to 3 rounds. Prohibited: artistic portraits, general image editing, background-only change without outfit, outfit-only change without background, face swap, poster design, auto-adding superres/exact pixels (degrades quality, only when user explicitly requests post-processing)."
     triggers:
       - 证件照/一寸照/二寸照/做个证件照
       - 护照照片/签证照/身份证照/驾照照片
@@ -2162,13 +2304,12 @@ tools:
       type: image
       note: 标准证件照（含换装+换背景+合规调整）
     params:
-      - name: sub_api
+      - name: model
         type: enum
-        values: [image_id_photo_generate]
-        default: image_id_photo_generate
+        values: [praline_pro]
+        default: praline_pro
         selection_rule: |
-          默认 → image_id_photo_generate（image_praline_edit_2）
-          单一API，内部通过 prompt 模板 + 规格映射驱动不同证件照类型
+          证件照固定使用 praline_pro；通过 prompt 模板与规格映射驱动不同证件照类型。
     constraints:
       - spec_type 缺失时展示询问模板让用户选择
       - 身份证规格不能穿白衣无外套（与白底冲突），自动改为黑西装
@@ -2183,7 +2324,7 @@ tools:
       - 海报设计 → image-poster-generate
     cli:
       requiredKeys: [image_url, spec_type]
-      optionalKeys: [bg_color, attire]
+      optionalKeys: [bg_color, attire, model]
       arrayKeys: []
       commandAliases: [id-photo, 证件照, 证件照生成, 一寸照, 二寸照]
       inputAliases:
@@ -2204,3 +2345,108 @@ tools:
         衣服: attire
         着装: attire
 
+# DAG 规范路由层：`tools[]` 是参数和执行契约的单一事实来源。规范路由可展开为
+# 已验证的兼容执行器，或调用 V3 已定义的 Meitu 原生工具；不表示当前本机 CLI 已有同名子命令。
+dag_routing_contract:
+  naming_policy: 新规范名不替换既有 CLI 工具；旧工具保留兼容，回归通过后再评估下架。
+  execution_policy:
+    legacy_executor_only: 仅可调用 legacy_executor 的已验证 CLI；不得构造规范名同名命令。
+    dag_native: 调用 tools[] 中已登记的 V3 原生 Meitu 工具；底层 API 参数不作为公开 Skill 参数。
+
+dag_canonical_routes:
+  - id: image-to-image
+    name: 图生图
+    execution: legacy_executor_only
+    legacy_executor: [image-edit]
+    boundary: 有底图的编辑、重绘、融合和衍生；无底图从零生成走 text-to-image。
+    model_routing: 可用枚举：auto、gummy_pro、praline_pro、praline_lite、mint_edit、nougat。auto 对海报/文字设计、人像美颜和精修优先选 nougat；gummy_pro 仅在用户显式指定时用于单张人像；praline_pro 用于通用、电商、参考图或多图编辑；praline_lite 用于轻量通用编辑；mint_edit 用于兜底。实际执行由 image-to-image 路由解析；不得暴露后端实现名或把它们作为 CLI 参数。
+  - id: image-preset-transfer
+    name: 图片特定玩法
+    execution: dag_native
+    executor: [image-preset-transfer]
+    status: 实验性：待回归验证
+    boundary: 套用具名预设的单图效果；不处理泛化风格转换、双图参考风格迁移或普通编辑。
+    preset_routing: prompt 必须点名 chibi、史努比、Molly、emoji/memoji、财神版拼豆等预设。effect_id 由路由内部匹配，不是公开参数。
+  - id: multimodal-to-video
+    name: 多模态视频生成
+    execution: legacy_executor_only
+    legacy_executor: [video-multimodal-generate]
+    boundary: 组合图片、参考视频、参考音频和文字生成视频；素材总数不超过 12。
+  - id: video-person-motion-transfer
+    name: 视频人物动作迁移
+    execution: legacy_executor_only
+    legacy_executor: [video-motion-transfer]
+    boundary: 目标人物图加动作参考视频；不用于通用图生视频。
+  - id: video-preset-transfer
+    name: 视频特定玩法
+    execution: dag_native
+    executor: [video-preset-transfer]
+    status: 实验性：待回归验证
+    boundary: 套用具名预设的视频特效或玩法；按命中预设要求视频或图片素材，不用于泛化风格转换、内容替换、修复、动作迁移或从零生成。
+    preset_routing: prompt 必须点名具名预设。裸眼3D、冰封世界等要求 video_list；Memoji、emoji-kiss、红毯 VOGUE 等要求 image_list。effect_id 由路由内部匹配，不是公开参数。
+  - id: video-narration-add
+    name: 视频加旁白
+    execution: dag_native
+    executor: [video-narration-add]
+    boundary: 仅为已有视频生成并写入旁白；背景音乐或 BGM 加旁白走 video-audio-add。
+    narration_routing: prompt 为旁白文案，可附音色偏好；音色素材内部匹配，video_volume 默认 0。
+  - id: video-restore
+    name: 视频修复
+    execution: legacy_executor_only
+    legacy_executor: [video-quality-enhance, video-resolution-upscale, video-denoise-enhance, video-lowlight-enhance, video-framerate-enhance]
+    boundary: 按画质、超分、去噪、暗部和补帧需求选择增强步骤；不得改变内容。
+  - id: video-edit
+    name: 视频编辑
+    execution: legacy_executor_only
+    legacy_executor: [video-canvas-expand, video-content-replace, video-element-remove, video-logo-add]
+    boundary: 扩画布、内容替换、元素消除和加 Logo 的聚合入口；消除类必须二次确认。
+  - id: video-convert
+    name: 视频转换
+    execution: legacy_executor_only
+    legacy_executor: [video-to-gif]
+    boundary: 当前只支持已有视频转普通或透明 GIF。
+  - id: image-split
+    name: 图片拆分
+    execution: legacy_executor_only
+    legacy_executor: [image-grid-split]
+    status: 实验性：待回归验证
+    boundary: 宫格、拼图或分镜多区域拆分；单一区域裁剪走 image-transform。
+  - id: text-to-song
+    name: 歌曲生成
+    execution: legacy_executor_only
+    legacy_executor: [audio-song-generate, audio-music-generate]
+    boundary: 按是否需要人声、歌词或完整编曲，在歌曲和纯音乐之间分流。
+
+# 同名能力直接更新原有 Meitu Skill 的路由边界；不从 DAG 文件复制未经 CLI
+# 验证的参数。执行时仍以对应 tools[].cli 为准。
+dag_existing_tool_routes:
+  - id: image-search
+    boundary: 搜索关键词或相似素材，仅用于素材发现；不生成、不编辑、不做图片理解。
+  - id: text-to-image
+    boundary: 无底图的文字主导新图；底图是内容主体时改走 image-to-image。
+  - id: image-style-transfer
+    boundary: 明确预设风格或玩法迁移；自由编辑、参考图融合走 image-to-image。
+  - id: image-element-remove
+    boundary: 去除局部对象、水印或全部文字；非消除需求不进入。
+  - id: image-text-replace
+    boundary: 只修改图片文字并保持非文字主体和版式；去全部文字走 image-element-remove。
+  - id: image-superres-enhance
+    boundary: 只提升图片清晰度或分辨率，不改变内容。
+  - id: image-transform
+    boundary: 旋转、缩放、扩画布和智能裁剪；单图裁剪不使用 image-split。
+  - id: image-cutout
+    boundary: 仅为人物、宠物、商品、图标、印章输出透明背景或隔离主体；白底、其他主体、换背景和生成式编辑不进入。
+  - id: text-to-video
+    boundary: 纯文字生成视频；有图片、视频或音频参考时分别转对应视频路由。
+  - id: image-to-video
+    boundary: 图片驱动视频生成；人物动作复刻走 video-person-motion-transfer。
+  - id: video-stitch
+    boundary: 多段视频拼接，可选配乐；不做内容编辑、分割或单段配音。
+  - id: video-audio-add
+    boundary: 为已有视频添加背景音乐或旁白；从零生成音乐走 text-to-song。
+  - id: text-code
+    boundary: 从需求生成代码；已有代码修改走 text-code-edit。
+  - id: text-code-edit
+    boundary: 基于已有代码修复、重构或改写；从零创建走 text-code。
+  - id: text-generate
+    boundary: 通用文本生成或改写；代码、音乐、图片和视频请求走专用工具。

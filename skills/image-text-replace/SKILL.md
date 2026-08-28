@@ -35,11 +35,8 @@ requirements:
 
 ## API Mapping
 
-- 简单精准改字：`workflow_image_update_words`
-- 复杂改字（主）：`image_praline_edit_v2`
-- 复杂改字（降级）：`image_praline_edit_2`
-- 工具内兜底：`image_mint_edit`
-- model 映射：`auto`（默认）/`praline_pro`→v2 / `praline_lite`→edit_2 / `mint_edit`→mint
+- 简单精准改字：简单改字路径。
+- 复杂改字：优先 `praline_pro`，失败依次降级为 `praline_lite`、`mint_edit`。
 
 ## Dependencies
 
@@ -75,10 +72,10 @@ Preflight → Execute → Deliver
 
 | 场景 | 判定 | 路由 |
 |------|----------|------|
-| 四条件全满足 | 标准印刷体 + 单处 + ≤6 字符 + 字符数不变 | `workflow_image_update_words` → 失败升级 `image_praline_edit_v2` → `image_praline_edit_2` → `image_mint_edit` |
-| 花字 / 手写 / 风格化 | 花体字、手写、风格化 | `image_praline_edit_v2` → `image_praline_edit_2` → `image_mint_edit` |
-| 多处修改 | 改多个地方 | `image_praline_edit_v2` → `image_praline_edit_2` → `image_mint_edit` |
-| 字符数 >6 或 字符数变化 | 长文本 / 3 字→5 字 | `image_praline_edit_v2` → `image_praline_edit_2` → `image_mint_edit` |
+| 四条件全满足 | 标准印刷体 + 单处 + ≤6 字符 + 字符数不变 | 简单改字路径 → `praline_pro` → `praline_lite` → `mint_edit` |
+| 花字 / 手写 / 风格化 | 花体字、手写、风格化 | `praline_pro` → `praline_lite` → `mint_edit` |
+| 多处修改 | 改多个地方 | `praline_pro` → `praline_lite` → `mint_edit` |
+| 字符数 >6 或 字符数变化 | 长文本 / 3 字→5 字 | `praline_pro` → `praline_lite` → `mint_edit` |
 
 **参数定义**
 
@@ -89,11 +86,7 @@ Preflight → Execute → Deliver
 | `target_words` | STRING | 条件必填 | 目标文字内容。简单改字必填 |
 | `prompt` | STRING | 否 | 改字描述；复杂改字时根据 `source_words` / `target_words` 自动生成英文改字指令 |
 
-API 映射说明：
-
-- `workflow_image_update_words`（简单改字）：`image_url` / `source_words` / `target_words` 直传
-- `image_praline_edit_v2` / `image_praline_edit_2`（复杂改字主/降级）：`image_url` 直传，`prompt` 根据 `source_words`/`target_words` 自动生成英文指令（如 `"Replace the text 'xxx' with 'yyy' in the image"`）
-- `image_mint_edit`（降级兜底）：`image_url` / `prompt` 直传
+简单改字路径直接传 `image_url`、`source_words` 和 `target_words`；复杂改字使用 `praline_pro`、`praline_lite` 或 `mint_edit`，并根据 `source_words`/`target_words` 构造英文改字指令。
 
 目标文字含中文时，`prompt` 中目标文字**保持原样、不做翻译**。
 
@@ -111,11 +104,11 @@ meitu image-text-replace --image_url <url> --source_words "<原文>" --target_wo
 | `image_url` 不可访问 | 直接返回图片链接无效错误，不重试 |
 | `source_words` / `target_words` 缺失 | 提示"请告诉我要把哪个文字改成什么" |
 | `source_words` 在图片中找不到 | 返回原图，告知未找到匹配文字 |
-| 字符数改变 / 花字 / 多处 | 不走简单改字，直接走 `image_praline_edit_v2` |
-| `workflow_image_update_words` 调用失败 | 自动升级至 `image_praline_edit_v2` |
-| `image_praline_edit_v2` 调用失败 | 自动降级至 `image_praline_edit_2` |
-| `image_praline_edit_2` 调用失败 | 自动降级至 `image_mint_edit` |
-| `image_mint_edit` 调用失败 | 返回错误 |
+| 字符数改变 / 花字 / 多处 | 不走简单改字，直接使用 `praline_pro` |
+| 简单改字路径调用失败 | 自动升级至 `praline_pro` |
+| `praline_pro` 调用失败 | 自动降级至 `praline_lite` |
+| `praline_lite` 调用失败 | 自动降级至 `mint_edit` |
+| `mint_edit` 调用失败 | 返回错误 |
 | 用户一次要改多张图 | 提示每次处理一张 |
 | 用户未提供字体信息 | 按标准印刷体判断，先试简单 API；失败自动升级 |
 | 内容合规拦截 | 直接返回合规提示，不重试、不降级 |
@@ -134,4 +127,3 @@ meitu image-text-replace --image_url <url> --source_words "<原文>" --target_wo
 ## 基线 Task ID
 
 见 `references/task-id-baseline.md` 中对应行。
-
