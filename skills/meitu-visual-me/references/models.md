@@ -8,7 +8,7 @@
 | Image editing | `meitu image-edit` | Prompt 驱动的通用编辑：消除 / 重绘 / 扩展 / 换背景 / 多图融合 / 加文字 / 美颜 等 |
 | Style transfer | `meitu image-style-transfer` | 风格化（卡通 / 3D / 动漫 / 水墨 / 油画 等） |
 | Super-resolution | `meitu image-superres-enhance` | 自动超清/超分 |
-| Smart cutout | `meitu image-cutout` | 透明底 / 白底抠图，由 prompt 描述主体 |
+| Smart cutout | `meitu image-cutout` | 五类主体透明底抠图，可选模型或自动检测 |
 | Face swap | `meitu image-face-swap` | 双图换脸 |
 | Outfit swap | `meitu image-outfit-swap` | 虚拟换装（旧名 `image-try-on`，已重命名） |
 | Image-to-video | `meitu image-to-video` | 图生视频，2-12s 短视频，异步 |
@@ -162,17 +162,17 @@ meitu image-superres-enhance --image_url "图片URL" --prompt "scanned text docu
 
 ## Smart Cutout · `meitu image-cutout`
 
-支持人像 / 商品 / 图形 / 通用主体抠图。透明底 PNG 默认；prompt 中加 `white background` 可输出白底图。
+仅支持人物、宠物、商品、图标、印章五类主体抠图，输出透明底 PNG。`model_type` 可选：`0` 人像、`1` 商品、`2` 图形；省略时自动检测。
 
 ```bash
+# 自动检测
+meitu image-cutout --image_url "图片URL"
+
 # 人像
-meitu image-cutout --image_url "图片URL" --prompt "person"
+meitu image-cutout --image_url "图片URL" --model_type 0
 
-# 商品（具体品类比泛词更精准）
-meitu image-cutout --image_url "图片URL" --prompt "running shoe"
-
-# 白底
-meitu image-cutout --image_url "图片URL" --prompt "product on white background"
+# 商品
+meitu image-cutout --image_url "图片URL" --model_type 1
 ```
 
 **Parameter table:**
@@ -180,11 +180,11 @@ meitu image-cutout --image_url "图片URL" --prompt "product on white background
 | Parameter | Required | Description |
 |------|---------|------|
 | `--image_url IMAGE_URL` | Required | 图片 URL（别名 `--image`） |
-| `--prompt PROMPT` | Required | 主体描述（路由用，越具体越好） |
+| `--model_type 0\|1\|2` | Optional | `0` 人像、`1` 商品、`2` 图形；省略时自动检测 |
 | `--download-dir` | Optional | 下载目录 |
 | `--json` | Optional | JSON 输出 |
 
-> 没有 `--model_type` 参数（已废弃）。主体类型由 prompt 描述，由后端自动路由 `api_v1_sod_async`（透明底）或 `image_praline_edit_v2`（白底）。
+> `prompt` 不是该命令参数。建筑、植物、车辆、食物、家具等非五类主体以及白底隔离均不支持；需要生成白底时使用 `image-edit`。
 
 **Usage note:** 抠图输出透明底 PNG。**换背景不需要先抠图** —— 直接 `image-edit` 一步出更好（见 workflow 11）。
 
@@ -463,4 +463,3 @@ meitu image-grid-split --image_url "网格图URL" --json
    - `image-beauty-enhance` → `image-edit --model gummy_pro` + 美颜 prompt
    - `image-try-on` → `image-outfit-swap`（参数也简化了）
    - `meitu login` → `meitu config set-ak / set-sk` 或 env vars
-

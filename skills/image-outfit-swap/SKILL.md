@@ -42,10 +42,7 @@ requirements:
 
 ## API Mapping
 
-- 换装主路径：`image_praline_edit_v2`
-- 换装降级：`image_praline_edit_2`
-- 工具内兜底：`image_mint_edit`
-- model 映射：`auto`（默认）/`praline_pro`→v2 / `praline_lite`→edit_2 / `mint_edit`→mint
+- 换装主路径、轻量降级和兜底路径由 `image-outfit-swap` 路由内部处理。
 
 ## Dependencies
 
@@ -74,9 +71,9 @@ Preflight → Execute → Deliver
 
 | 场景 | 判定条件 | 路由 |
 |------|----------|------|
-| 换装 / 换衣服 | 换装、换衣服、试穿、穿上、改成 xxx 服装 | `image_praline_edit_v2` → `image_praline_edit_2` → `image_mint_edit` |
-| 虚拟试穿（有服装图） | 用户上传了 clothes_image_url | `image_praline_edit_v2`（image_list=[人物图, 服装图]） |
-| 简单颜色修改（衣服） | 把裙子改成红色 | `image_praline_edit_v2` |
+| 换装 / 换衣服 | 换装、换衣服、试穿、穿上、改成 xxx 服装 | 换装主路径 → 轻量路径 → 兜底路径 |
+| 虚拟试穿（有服装图） | 用户上传了 clothes_image_url | 换装主路径（人物图与服装图共同输入） |
+| 简单颜色修改（衣服） | 把裙子改成红色 | 换装主路径 |
 
 **参数定义**
 
@@ -84,13 +81,12 @@ Preflight → Execute → Deliver
 |------|------|------|------|
 | `image_url` | STRING | 是 | 人物图片地址。缺失 → 提示"请提供需要换装的人物图片" |
 | `prompt` | STRING | 是 | 目标服装描述。缺失 → 提示"请描述目标服装款式" |
-| `clothes_image_url` | STRING | 否 | 服装参考图地址。提供时与 image_url 一起通过 image_list 传入 `image_praline_edit_v2` |
+| `clothes_image_url` | STRING | 否 | 服装参考图地址。提供时与 image_url 一起传入换装主路径 |
 
 API 映射说明：
 
-- `image_praline_edit_v2`（主路径）：`prompt` 自动扩写为英文换装指令（如 `"Change the person's outfit to a white linen shirt, keep face and body unchanged"`）
-- `image_praline_edit_2`（降级）：`prompt` 直传
-- `image_mint_edit`（兜底）：`prompt` 直传
+- 换装主路径：`prompt` 自动扩写为英文换装指令（如 `"Change the person's outfit to a white linen shirt, keep face and body unchanged"`）。
+- 降级与兜底路径：`prompt` 直传。
 
 **工具调用**
 
@@ -112,9 +108,9 @@ meitu image-outfit-swap --image_url <person> --clothes_image_url <clothes> --pro
 | `prompt` 缺失 | 提示"请描述目标服装款式" |
 | `prompt` 过于模糊 | 提示细化描述（款式 / 颜色 / 材质 / 风格） |
 | 图片无明显人物 | 返回错误，提示需包含清晰人物 |
-| `image_praline_edit_v2` 调用失败 | 自动降级至 `image_praline_edit_2` |
-| `image_praline_edit_2` 调用失败 | 自动降级至 `image_mint_edit` |
-| `image_mint_edit` 调用失败 | 返回错误 |
+| 换装主路径调用失败 | 自动降级至轻量路径 |
+| 换装轻量路径调用失败 | 自动降级至兜底路径 |
+| 换装兜底路径调用失败 | 返回错误 |
 | 内容合规拦截 | 直接返回合规提示，不重试、不降级 |
 
 ### Deliver
@@ -131,4 +127,3 @@ meitu image-outfit-swap --image_url <person> --clothes_image_url <clothes> --pro
 ## 基线 Task ID
 
 见 `references/task-id-baseline.md` 中对应行。
-

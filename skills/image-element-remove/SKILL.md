@@ -36,19 +36,15 @@ requirements:
 
 ## Overview
 
-对已有图片做元素消除（去水印/去文字/去局部物体），覆盖 4 类场景：通用水印消除（一键去水印含半透明）、文档场景半透明水印、局部物体/元素/指定文字消除、降级兜底链。路由铁律：用户指定具体文字内容时必须走 `image_praline_edit_v2`（路径 C），禁止走通用 API（否则清除全部文字）。
+对已有图片做元素消除（去水印/去文字/去局部物体），覆盖 4 类场景：通用水印消除（一键去水印含半透明）、文档场景半透明水印、局部物体/元素/指定文字消除、降级兜底链。路由铁律：用户指定具体文字内容时必须使用 `praline_pro`（路径 C），禁止走通用水印/全部文字路径（否则会清除全部文字）。
 
 执行前应让用户清楚知道：本 Skill 会读取 Meitu 凭证、调用本地 `meitu` CLI、将用户提供的图片与生成的消除指令发送到 Meitu OpenAPI 处理，并把结果写入 `./output/` 或 `$VISUAL/output/image-element-remove/`。若请求涉及去水印、去 Logo、去认证/署名信息或类似来源标识，应提醒用户确认自己具备合法编辑权限。
 
 ## API Mapping
 
-- 通用水印/全部文字消除：`image_watermark_text_remove`
-- 文档场景半透明水印：`image_saomiaowatermark_remove`
-- 局部物体消除（主）：`image_praline_edit_v2`
-- 局部物体消除（降级）：`image_praline_edit_2`
-- 局部物体消除（兜底）：`image_mint_edit`
-
-model 映射：`auto`（默认按路由）/`praline_pro`→v2/`praline_lite`→2/`mint_edit`→mint
+- 通用水印/全部文字消除：通用消除路径。
+- 文档场景半透明水印：文档水印路径。
+- 局部物体或指定文字消除：优先 `praline_pro`，失败依次降级为 `praline_lite`、`mint_edit`。
 
 ## Dependencies
 
@@ -79,23 +75,23 @@ Preflight → Execute → Deliver
 
 决策顺序：
 1. **前置判断（路由铁律）**：用户引用/描述了特定文字内容？
-   - ✅ 是 → **强制走** `image_praline_edit_v2`（禁止走 `image_watermark_text_remove`）
+   - ✅ 是 → **强制使用** `praline_pro`（禁止走通用消除路径）
    - ❌ 否 → 继续分类
 2. 按消除内容分支：
-   - 路径 A：去水印 / 去全部文字（全量词） → `image_watermark_text_remove`
-   - 路径 B：明确文档场景半透明水印 → `image_saomiaowatermark_remove`
-   - 路径 C：局部物体/指定文字 → `image_praline_edit_v2` → 降级链
+   - 路径 A：去水印 / 去全部文字（全量词） → 通用消除路径
+   - 路径 B：明确文档场景半透明水印 → 文档水印路径
+   - 路径 C：局部物体/指定文字 → `praline_pro` → 降级链
 
 | 场景 | 判定关键词 | 路由 |
 |------|----------|------|
-| 指定具体文字内容（铁律） | 去掉'xxx'、去除文字'xxx' | **`image_praline_edit_v2`** |
-| 通用水印 | 去水印、去掉水印、去半透明水印 | `image_watermark_text_remove`，target=watermark |
-| 全部文字（含全量词） | 去全部文字、所有文字、一键去文字 | `image_watermark_text_remove`，target=text |
-| 文档场景半透明水印（用户原话明确） | 文档水印、扫描件水印、小说水印 | `image_saomiaowatermark_remove` |
-| 局部物体/元素 | 去路人、去 Logo、消除杂物、去角标 | `image_praline_edit_v2` → 降级链 |
+| 指定具体文字内容（铁律） | 去掉'xxx'、去除文字'xxx' | **`praline_pro`** |
+| 通用水印 | 去水印、去掉水印、去半透明水印 | 通用消除路径，target=watermark |
+| 全部文字（含全量词） | 去全部文字、所有文字、一键去文字 | 通用消除路径，target=text |
+| 文档场景半透明水印（用户原话明确） | 文档水印、扫描件水印、小说水印 | 文档水印路径 |
+| 局部物体/元素 | 去路人、去 Logo、消除杂物、去角标 | `praline_pro` → 降级链 |
 | 意图模糊（"去掉字"） | 未说全部也未指定具体内容 | 轻确认 |
 
-**显式约束消除原则**：`image_praline_edit_v2/2/mint` 的消除 prompt 必须使用**四段式模板**（SCOPE + PRESERVE + REFLOW + NEGATIVE），显式锁定剩余元素 12 项视觉属性，防止模型顺手改动非目标元素。
+**显式约束消除原则**：`praline_pro`、`praline_lite` 和 `mint_edit` 的消除 prompt 必须使用**四段式模板**（SCOPE + PRESERVE + REFLOW + NEGATIVE），显式锁定剩余元素 12 项视觉属性，防止模型顺手改动非目标元素。
 
 **参数定义**
 
@@ -105,13 +101,13 @@ Preflight → Execute → Deliver
 |------|------|------|------|
 | `image_url` | STRING | 是 | 图片地址。缺失 → 提示"请提供需要处理的图片" |
 
-`image_watermark_text_remove` 额外参数：
+通用消除路径的额外参数：
 
 | 参数 | 类型 | 必填 | 范围 | 默认值 | 说明 |
 |------|------|------|------|--------|------|
 | `target` | STRING | 否 | watermark / text | watermark | 消除目标类型 |
 
-`image_praline_edit_v2/2/mint` 额外参数：
+局部消除模型的额外参数：
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
@@ -145,12 +141,12 @@ meitu image-element-remove --image_url <url> --prompt "<four_segment_prompt>" --
 |------|------|
 | `image_url` 缺失 | 提示"请提供需要处理的图片" |
 | `image_url` 不可访问 | 直接返回无效错误，不重试 |
-| `image_watermark_text_remove` 失败 + 用户提到"半透明" | 降级 `image_saomiaowatermark_remove` → v2 → 2 → mint |
-| `image_watermark_text_remove` 失败（非半透明） | 返回错误，不盲目降级 |
-| `image_saomiaowatermark_remove` 失败 | 降级 v2 → 2 → mint |
-| `image_praline_edit_v2` 失败 | 自动降级 `image_praline_edit_2` |
-| `image_praline_edit_2` 失败 | 自动降级 `image_mint_edit` |
-| `image_mint_edit` 失败 | 返回错误 |
+| 通用消除路径失败 + 用户提到"半透明" | 降级文档水印路径 → `praline_pro` → `praline_lite` → `mint_edit` |
+| 通用消除路径失败（非半透明） | 返回错误，不盲目降级 |
+| 文档水印路径失败 | 降级 `praline_pro` → `praline_lite` → `mint_edit` |
+| `praline_pro` 失败 | 自动降级 `praline_lite` |
+| `praline_lite` 失败 | 自动降级 `mint_edit` |
+| `mint_edit` 失败 | 返回错误 |
 | 未检测到水印/文字 | 返回原图，告知未检测到 |
 | 内容合规拦截 | 返回合规提示，不重试、不降级 |
 
@@ -169,4 +165,3 @@ meitu image-element-remove --image_url <url> --prompt "<four_segment_prompt>" --
 ## 基线 Task ID
 
 见 `references/task-id-baseline.md` 中对应行。
-

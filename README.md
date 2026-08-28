@@ -19,6 +19,7 @@ See [SECURITY.md](SECURITY.md) for:
 - Scene skills and atomic command skills: `skills/`
   - Scene skills (e.g. `meitu-poster`, `meitu-stickers`, `meitu-visual-me`, `meitu-product-swap`, `meitu-video-dance`, `meitu-game-2d-assets`)
   - Atomic command skills mapped 1:1 to CLI commands (e.g. `image-cutout`, `image-edit`, `image-poster-generate`, `image-to-video`, `video-motion-transfer`, `text-to-image`, `text-to-video`, etc.)
+  - DAG route skills provide public workflow entries alongside the underlying Meitu execution layer (e.g. `image-to-image`, `image-preset-transfer`, `multimodal-to-video`, `video-narration-add`).
 
 ## Quick Start
 
@@ -53,7 +54,7 @@ npm install -g meitu-cli@latest
 
 ```bash
 meitu --version
-meitu image-cutout --image_url https://example.com/sample.jpg --prompt "person" --json
+meitu image-cutout --image_url https://example.com/sample.jpg --model_type 0 --json
 ```
 
 5. Runtime repair / manual upgrade
@@ -156,7 +157,7 @@ Triggers: ID photo, 1-inch photo, 2-inch photo, passport photo, visa photo, ID p
 
 ### meitu-cutout
 
-Calls `meitu image-cutout` to separate the foreground subject from an image and output a transparent-background PNG. Supports portrait, product, and graphic modes with auto-detection. Also supports batch processing of multiple images.
+Calls `meitu image-cutout` to separate a person, pet, product, icon, or stamp from an image and output a transparent-background PNG. Supports optional portrait, product, and graphic model selection with automatic detection when omitted, plus batch processing of multiple images. White-background isolation and other subject types are not supported.
 
 Triggers: cutout, remove background, transparent background, background removal, remove background, extract subject
 

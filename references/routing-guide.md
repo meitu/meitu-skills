@@ -31,6 +31,27 @@ workflow-level outcome:
 - `meitu-beauty`: single-portrait beauty enhancement
 - `meitu-image-adapt`: aspect-ratio adaptation, extension, and outpaint-style
   layout adaptation
+- `image-to-image`: canonical route for existing-image editing, redraw, and
+  reference fusion
+- `image-preset-transfer`: single-image named preset effects; generic style
+  transfer uses `image-style-transfer`
+- `image-split`: grid, storyboard, and collage splitting through
+  `image-grid-split`; single-area transforms use `image-transform`; experimental
+  pending route regression validation
+- `multimodal-to-video`: combines text with image, video, and audio references
+  through `video-multimodal-generate`
+- `video-person-motion-transfer`: person-image plus reference-video action
+  replication through `video-motion-transfer`
+- `video-preset-transfer`: named preset effects selected by preset name and
+  required source material
+- `video-narration-add`: voiceover-only route for an existing video; BGM or
+  BGM-plus-voiceover uses `video-audio-add`
+- `video-restore`: choose existing quality, resolution, denoise, low-light, or
+  frame-rate enhancement based on the diagnosed issue
+- `video-edit`: canvas expansion, content replacement, removal, or Logo overlay;
+  removal requires explicit confirmation
+- `video-convert`: existing-video GIF conversion through `video-to-gif`
+- `text-to-song`: select a song or pure-music executor from user intent
 
 Use `meitu-tools` when:
 
@@ -103,5 +124,5 @@ When execution fails:
 ## Public Runtime Baseline
 
 - Package baseline: `meitu-skills 1.0.16`
-- Recommended runtime: `meitu-cli@2.1.10`
+- Recommended runtime: `meitu-cli@2.1.19`
 - Supported CLI range: `>=2.0.6 <3.0.0`

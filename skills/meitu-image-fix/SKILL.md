@@ -209,8 +209,10 @@ meitu image-edit --image_list {prev_url} --prompt "{instruction}" --model pralin
 如果问题是去背景（cutout）：
 
 ```bash
-meitu image-cutout --image_url {prev_url} --prompt "foreground subject" --json --skill_name skill_meitu-image-fix
+meitu image-cutout --image_url {prev_url} --json --skill_name skill_meitu-image-fix
 ```
+
+仅人物、宠物、商品、图标、印章可执行该步骤；明确知道主体模型时可追加 `--model_type 0`、`--model_type 1` 或 `--model_type 2`，否则省略并自动选型。
 
 ---
 
@@ -295,4 +297,3 @@ No feedback → skip entirely（不读 observations.yaml，zero overhead）。
 | AI 写真/人像生成 | `image-portrait-generate` 或 `meitu-visual-me` |
 
 **边界判断**：用户意图是"修好这张图的问题" → 本 skill。用户意图是"把这张图变成另一种东西" → 告知用户并建议对应 skill。
-

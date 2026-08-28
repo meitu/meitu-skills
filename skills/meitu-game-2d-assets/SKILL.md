@@ -253,9 +253,10 @@ meitu image-grid-split \
 meitu image-cutout \
   --skill_name skill_meitu-game-2d-assets  \
   --image_url "{asset_image_url}" \
-  --prompt "{SUBJECT_DESC}" \
   --json --download-dir {output_dir}
 ```
+
+图标、印章等明确图形类素材可追加 `--model_type 2`；角色、宠物或类型不确定时省略该参数，由服务端自动选型。
 
 优先策略：
 - 规则明确的单主体素材优先走透明底导出
@@ -340,4 +341,3 @@ can_record = cwd 有 `openclaw.yaml` AND `$VISUAL` 存在（两者缺一即 fals
 - sprite sheet 只适合概念级或简易动作帧，不保证严格逐帧动画工业标准
 - 若用户要求“完全一致的角色多动作连续动画”，应明确这是高约束场景，建议先做角色定稿再分批生成
 - 若用户未给尺寸单位，默认按视觉比例与可读性生成，不承诺像素级引擎规格
-

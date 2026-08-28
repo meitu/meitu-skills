@@ -187,7 +187,7 @@ If user mentions specific e-commerce platform → read [references/ecommerce-spe
 meitu image-cutout \
   --skill_name skill_meitu-product-view \
   --image_url {image_url} \
-  --prompt "e-commerce product foreground subject" \
+  --model_type 1 \
   --json
 ```
 
@@ -332,7 +332,7 @@ meitu image-superres-enhance \
 meitu image-cutout \
   --skill_name skill_meitu-product-view \
   --image_url {generated_url} \
-  --prompt "e-commerce product foreground subject" \
+  --model_type 1 \
   --json \
   --download-dir {output_dir}
 ```
@@ -419,4 +419,3 @@ output_dir 已在 Preflight 解析完毕，Execute 的 `--download-dir` 已将�
 - 若用户语言为英文，所有交互选项翻译为英文
 - 每个角度独立生成调用，保证与原始商品的一致性
 - `--download-dir` 始终指向 Preflight 解析的 output_dir，不指向含源文件的目录
-
